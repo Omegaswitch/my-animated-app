@@ -7,17 +7,6 @@ import type {
 } from "@/types/project";
 import { GB_STAGE_ORDER } from "@/data/project";
 import StationHeader from "./StationHeader";
-import {
-  ROUTE_POSITION_CLASS,
-  ROUTE_PRIMARY_X,
-  ROUTE_SECONDARY_X,
-  ROUTE_STROKE_WIDTH,
-  ROUTE_TRACK_CLASS,
-  ROUTE_TRACK_WIDTH,
-  STATION_FILL,
-  STATION_RADIUS,
-  STATION_STROKE_WIDTH,
-} from "@/lib/route-geometry";
 
 /**
  * Station 6 — the terminus.
@@ -62,44 +51,6 @@ export default function TerminusSection({
 
   return (
     <section className="relative py-24">
-      {/* End of line: a disc on each track, closed with a cross-tie. */}
-      <div
-        className={`pointer-events-none absolute top-10 ${ROUTE_TRACK_CLASS} ${ROUTE_POSITION_CLASS}`}
-      >
-        <svg
-          width={ROUTE_TRACK_WIDTH}
-          height={ROUTE_STROKE_WIDTH * 3}
-          style={{ overflow: "visible" }}
-          aria-hidden
-        >
-          {/* The tie across both tracks — the bar that closes a terminus. */}
-          <line
-            x1={ROUTE_PRIMARY_X}
-            y1={4}
-            x2={ROUTE_SECONDARY_X}
-            y2={4}
-            stroke="var(--color-ink)"
-            strokeWidth={3}
-          />
-          <circle
-            cx={ROUTE_PRIMARY_X}
-            cy={STATION_RADIUS + 6}
-            r={STATION_RADIUS}
-            fill={STATION_FILL}
-            stroke="var(--color-line-primary)"
-            strokeWidth={STATION_STROKE_WIDTH}
-          />
-          <circle
-            cx={ROUTE_SECONDARY_X}
-            cy={STATION_RADIUS + 6}
-            r={STATION_RADIUS}
-            fill={STATION_FILL}
-            stroke="var(--color-line-secondary)"
-            strokeWidth={STATION_STROKE_WIDTH}
-          />
-        </svg>
-      </div>
-
       <div className="pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
         <StationHeader
           station={station}

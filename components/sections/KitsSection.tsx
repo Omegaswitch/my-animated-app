@@ -40,7 +40,7 @@ export default function KitsSection({
         meta={countLabel(kits.length, copy.counts.kit)}
       />
 
-      <ul className="grid gap-x-8 gap-y-8 sm:grid-cols-2">
+      <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-x-8">
         {kits.map((kit) => {
           const kitSwatches = (kit.swatchIds ?? [])
             .map((id) => swatches.find((swatch) => swatch.id === id))

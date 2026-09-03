@@ -1,11 +1,4 @@
-import type { Intro, Meta, ProjectCopy } from "@/types/project";
-import {
-  ROUTE_GAP,
-  ROUTE_POSITION_CLASS,
-  ROUTE_STROKE_WIDTH,
-  ROUTE_TRACK_CLASS,
-  ROUTE_TRACK_WIDTH,
-} from "@/lib/route-geometry";
+import type { Intro } from "@/types/project";
 
 /**
  * Station 1 — where the line starts.
@@ -19,11 +12,9 @@ import {
 
 export interface IntroSectionProps {
   intro: Intro;
-  meta: Meta;
-  copy: ProjectCopy;
 }
 
-export default function IntroSection({ intro, meta, copy }: IntroSectionProps) {
+export default function IntroSection({ intro }: IntroSectionProps) {
   return (
     <section className="relative py-24">
       <div className="pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
@@ -61,36 +52,6 @@ export default function IntroSection({ intro, meta, copy }: IntroSectionProps) {
             ))}
           </dl>
         ) : null}
-      </div>
-
-      {/* Origin — both tracks begin here, squared off across each stroke. */}
-      <div
-        className={`pointer-events-none absolute bottom-4 ${ROUTE_TRACK_CLASS} ${ROUTE_POSITION_CLASS}`}
-      >
-        <svg
-          width={ROUTE_TRACK_WIDTH}
-          height={ROUTE_STROKE_WIDTH}
-          style={{ overflow: "visible" }}
-          aria-hidden
-        >
-          <rect
-            x={0}
-            y={0}
-            width={ROUTE_STROKE_WIDTH}
-            height={ROUTE_STROKE_WIDTH}
-            fill="var(--color-line-primary)"
-          />
-          <rect
-            x={ROUTE_STROKE_WIDTH + ROUTE_GAP}
-            y={0}
-            width={ROUTE_STROKE_WIDTH}
-            height={ROUTE_STROKE_WIDTH}
-            fill="var(--color-line-secondary)"
-          />
-        </svg>
-        <span className="absolute left-11 top-0 whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.16em] text-ink/55">
-          {copy.labels.origin} — {meta.code} / {meta.year}
-        </span>
       </div>
     </section>
   );
