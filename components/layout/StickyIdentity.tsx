@@ -1,7 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 
 /**
  * The identity — manufacturer and project marks, held together by the line.
@@ -51,14 +57,25 @@ function ManufacturerPlaceholder() {
       className="h-12 w-auto"
       preserveAspectRatio="xMidYMid meet"
     >
-      <rect x="0.5" y="0.5" width="119" height="47" stroke="currentColor" strokeOpacity="0.35" />
+      <rect
+        x="0.5"
+        y="0.5"
+        width="119"
+        height="47"
+        stroke="currentColor"
+        strokeOpacity="0.35"
+      />
       <path
         d="M18 34V14l12 13 12-13v20"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="square"
       />
-      <path d="M54 14v20M54 24h14M68 14v20" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M54 14v20M54 24h14M68 14v20"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
       <circle cx="92" cy="24" r="5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
@@ -74,11 +91,25 @@ function ProjectPlaceholder() {
       className="h-12 w-auto"
       preserveAspectRatio="xMidYMid meet"
     >
-      <rect x="0.5" y="0.5" width="119" height="47" stroke="currentColor" strokeOpacity="0.35" />
+      <rect
+        x="0.5"
+        y="0.5"
+        width="119"
+        height="47"
+        stroke="currentColor"
+        strokeOpacity="0.35"
+      />
       {/* A route with two stops — the project mark echoes the page itself. */}
       <path d="M14 24h92" stroke="currentColor" strokeWidth="1.5" />
       <rect x="26" y="19" width="10" height="10" fill="currentColor" />
-      <rect x="84" y="19" width="10" height="10" stroke="currentColor" strokeWidth="1.5" />
+      <rect
+        x="84"
+        y="19"
+        width="10"
+        height="10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </svg>
   );
 }
@@ -97,12 +128,19 @@ export default function StickyIdentity({
   const scale = useTransform(settle, [0, SETTLE_DISTANCE], [1, COMPACT_SCALE], {
     clamp: true,
   });
-  const y = useTransform(settle, [0, SETTLE_DISTANCE], [HERO_DROP, 0], { clamp: true });
-  // The caption under the marks is hero-only; it fades before the marks finish
-  // shrinking so the compact anchor is just the two marks and the rule.
-  const captionOpacity = useTransform(settle, [0, SETTLE_DISTANCE * 0.45], [1, 0], {
+  const y = useTransform(settle, [0, SETTLE_DISTANCE], [HERO_DROP, 0], {
     clamp: true,
   });
+  // The caption under the marks is hero-only; it fades before the marks finish
+  // shrinking so the compact anchor is just the two marks and the rule.
+  const captionOpacity = useTransform(
+    settle,
+    [0, SETTLE_DISTANCE * 0.45],
+    [1, 0],
+    {
+      clamp: true,
+    },
+  );
 
   const motionStyle = prefersReducedMotion
     ? { scale: COMPACT_SCALE, y: 0 }
@@ -115,7 +153,9 @@ export default function StickyIdentity({
         style={motionStyle}
       >
         <div className="flex items-center gap-6">
-          <span className="block">{manufacturerMark ?? <ManufacturerPlaceholder />}</span>
+          <span className="block">
+            {manufacturerMark ?? <ManufacturerPlaceholder />}
+          </span>
 
           {/* The rule between the marks is the line, in miniature. */}
           <span className="block h-10 w-px bg-line-primary" aria-hidden />
@@ -125,7 +165,9 @@ export default function StickyIdentity({
 
         <motion.p
           className="text-[10px] uppercase tracking-[0.34em]"
-          style={prefersReducedMotion ? { opacity: 0 } : { opacity: captionOpacity }}
+          style={
+            prefersReducedMotion ? { opacity: 0 } : { opacity: captionOpacity }
+          }
         >
           {manufacturerLabel} — {projectLabel}
         </motion.p>

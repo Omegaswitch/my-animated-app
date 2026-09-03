@@ -1,5 +1,6 @@
 import LineRoute, { type RouteStation } from "@/components/line/LineRoute";
 import StickyIdentity from "@/components/layout/StickyIdentity";
+import SectionStop from "@/components/layout/SectionStop";
 import HeroSection from "@/components/sections/HeroSection";
 import KitsSection from "@/components/sections/KitsSection";
 import ColorsSection from "@/components/sections/ColorsSection";
@@ -28,12 +29,14 @@ import { project } from "@/data/project";
  * document. They are markers of scroll position, not of programme progress —
  * the programme's real state is derived separately in `ProjectStatus`.
  */
-const stations: RouteStation[] = project.lifecycle.stages.map((stage, index, all) => ({
-  id: stage.id,
-  label: stage.label,
-  progress: all.length > 1 ? index / (all.length - 1) : 0,
-  line: index % 2 === 0 ? "primary" : "secondary",
-}));
+const stations: RouteStation[] = project.lifecycle.stages.map(
+  (stage, index, all) => ({
+    id: stage.id,
+    label: stage.label,
+    progress: all.length > 1 ? index / (all.length - 1) : 0,
+    line: index % 2 === 0 ? "primary" : "secondary",
+  }),
+);
 
 export default function Page() {
   return (
@@ -45,20 +48,70 @@ export default function Page() {
       <LineRoute stations={stations} showLabels />
 
       <main className="relative">
-        <HeroSection hero={project.hero} meta={project.meta} />
-        <KitsSection kits={project.kits} swatches={project.swatches} />
-        <ColorsSection
-          swatches={project.swatches}
-          kits={project.kits}
-          renders={project.renders}
-          vendors={project.vendors}
+        {/* Origin and terminus are not stops, and are deliberately unwrapped:
+            both carry a marker positioned against the fixed rails, and `scale`
+            transforms the whole subtree — pinning them would drag those
+            markers off the line. */}
+        <HeroSection
+          hero={project.hero}
+          meta={project.meta}
+          copy={project.copy}
         />
-        <RendersSection renders={project.renders} />
-        <ProductInfoSection info={project.info} />
-        <PackagingSection packaging={project.packaging} vendors={project.vendors} />
-        <ProjectStatus lifecycle={project.lifecycle} />
-        <VendorsSection vendors={project.vendors} />
-        <ThankYouSection meta={project.meta} logos={project.logos} />
+
+        {/* `pass`: content is taller than the viewport. See SectionStop — a
+            pinned pane would clip the overflow with no way to reach it. */}
+        <SectionStop mode="pass">
+          <KitsSection
+            kits={project.kits}
+            swatches={project.swatches}
+            copy={project.copy}
+          />
+        </SectionStop>
+
+        <SectionStop mode="pass">
+          <ColorsSection
+            swatches={project.swatches}
+            kits={project.kits}
+            renders={project.renders}
+            vendors={project.vendors}
+            copy={project.copy}
+          />
+        </SectionStop>
+
+        <SectionStop mode="pass">
+          <RendersSection renders={project.renders} copy={project.copy} />
+        </SectionStop>
+
+        {/* `stop`: these three fit the viewport, so they pin and hold. */}
+        <SectionStop mode="stop">
+          <ProductInfoSection info={project.info} copy={project.copy} />
+        </SectionStop>
+
+        {/* `pass`: adding the component images took this from 662px to
+            1338px, past the viewport, so it can no longer pin without
+            clipping. Drop the images and it can go back to `stop`. */}
+        <SectionStop mode="pass">
+          <PackagingSection
+            packaging={project.packaging}
+            vendors={project.vendors}
+            copy={project.copy}
+          />
+        </SectionStop>
+
+        <SectionStop mode="stop">
+          <ProjectStatus lifecycle={project.lifecycle} copy={project.copy} />
+        </SectionStop>
+
+        <SectionStop mode="pass">
+          <VendorsSection vendors={project.vendors} copy={project.copy} />
+        </SectionStop>
+
+        <ThankYouSection
+          meta={project.meta}
+          logos={project.logos}
+          thanks={project.thanks}
+          copy={project.copy}
+        />
       </main>
     </>
   );

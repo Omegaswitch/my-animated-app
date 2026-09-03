@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Kit, KitAvailability, ProductSwatch } from "@/types/project";
+import type { Kit, ProductSwatch, ProjectCopy } from "@/types/project";
 import AssetFrame from "@/components/ui/AssetFrame";
 import Lightbox from "@/components/ui/Lightbox";
 import { countLabel, formatPrice } from "@/lib/format";
@@ -24,27 +24,22 @@ import { countLabel, formatPrice } from "@/lib/format";
 export interface KitsSectionProps {
   kits: Kit[];
   swatches: ProductSwatch[];
-  heading?: string;
+  copy: ProjectCopy;
 }
 
 type Emphasis = "feature" | "standard";
-
-const AVAILABILITY_LABEL: Record<KitAvailability, string> = {
-  "in-development": "In development",
-  sampling: "Sampling",
-  released: "Released",
-  archived: "Archived",
-};
 
 function KitBlock({
   kit,
   swatches,
   emphasis,
+  copy,
   onOpenImage,
 }: {
   kit: Kit;
   swatches: ProductSwatch[];
   emphasis: Emphasis;
+  copy: ProjectCopy;
   onOpenImage: (kit: Kit) => void;
 }) {
   const isFeature = emphasis === "feature";
@@ -65,7 +60,11 @@ function KitBlock({
             asset={kit.image}
             tag={kit.code}
             className="transition-opacity group-hover:opacity-85"
-            sizes={isFeature ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, 100vw"}
+            sizes={
+              isFeature
+                ? "(min-width: 1024px) 50vw, 100vw"
+                : "(min-width: 1024px) 25vw, 100vw"
+            }
           />
         </button>
       ) : null}
@@ -96,21 +95,21 @@ function KitBlock({
 
         <dl className="mt-6 flex flex-wrap items-baseline gap-x-8 gap-y-3 text-[10px] uppercase tracking-[0.2em] text-ink/60">
           <div>
-            <dt className="sr-only">Availability</dt>
-            <dd>{AVAILABILITY_LABEL[kit.availability]}</dd>
+            <dt className="sr-only">{copy.kitLabels.availability}</dt>
+            <dd>{copy.kitAvailability[kit.availability]}</dd>
           </div>
           {/* Price is omitted entirely while a kit is unpriced. */}
           {kit.priceMinor !== undefined && kit.currency ? (
             <div>
-              <dt className="sr-only">Price</dt>
+              <dt className="sr-only">{copy.kitLabels.price}</dt>
               <dd className="tabular-nums text-ink">
                 {formatPrice(kit.priceMinor, kit.currency)}
               </dd>
             </div>
           ) : null}
           <div>
-            <dt className="sr-only">Line</dt>
-            <dd>{kit.line === "primary" ? "Line A" : "Line B"}</dd>
+            <dt className="sr-only">{copy.kitLabels.line}</dt>
+            <dd>{copy.lineNames[kit.line]}</dd>
           </div>
         </dl>
 
@@ -143,7 +142,9 @@ function KitBlock({
                   <span className="text-ink/50"> — {component.material}</span>
                 ) : null}
               </span>
-              <span className="shrink-0 tabular-nums text-ink/60">×{component.quantity}</span>
+              <span className="shrink-0 tabular-nums text-ink/60">
+                ×{component.quantity}
+              </span>
             </li>
           ))}
         </ul>
@@ -152,7 +153,11 @@ function KitBlock({
   );
 }
 
-export default function KitsSection({ kits, swatches, heading = "Kits" }: KitsSectionProps) {
+export default function KitsSection({
+  kits,
+  swatches,
+  copy,
+}: KitsSectionProps) {
   const [activeKit, setActiveKit] = useState<Kit | null>(null);
 
   if (kits.length === 0) return null;
@@ -162,33 +167,54 @@ export default function KitsSection({ kits, swatches, heading = "Kits" }: KitsSe
   return (
     <section className="relative z-10 py-32 pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
       <header className="mb-16 flex items-baseline justify-between gap-6 border-b border-ink/20 pb-3">
-        <h2 className="text-[10px] uppercase tracking-[0.34em]">{heading}</h2>
+        <h2 className="text-[10px] uppercase tracking-[0.34em]">
+          {copy.headings.kits}
+        </h2>
         <span className="text-[10px] uppercase tracking-[0.2em] tabular-nums text-ink/60">
-          {countLabel(kits.length, "configuration")}
+          {countLabel(kits.length, copy.counts.configuration)}
         </span>
       </header>
 
       {kits.length === 1 ? (
-        <KitBlock kit={first} swatches={swatches} emphasis="feature" onOpenImage={setActiveKit} />
+        <KitBlock
+          kit={first}
+          swatches={swatches}
+          emphasis="feature"
+          copy={copy}
+          onOpenImage={setActiveKit}
+        />
       ) : kits.length === 2 ? (
         // Deliberately unequal: a 7/5 split reads as an editorial pair rather
         // than two of the same thing.
         <div className="grid gap-16 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <KitBlock kit={first} swatches={swatches} emphasis="feature" onOpenImage={setActiveKit} />
+            <KitBlock
+              kit={first}
+              swatches={swatches}
+              emphasis="feature"
+              copy={copy}
+              onOpenImage={setActiveKit}
+            />
           </div>
           <div className="lg:col-span-5 lg:pt-16">
             <KitBlock
               kit={rest[0]}
               swatches={swatches}
               emphasis="standard"
+              copy={copy}
               onOpenImage={setActiveKit}
             />
           </div>
         </div>
       ) : (
         <div className="flex flex-col gap-20">
-          <KitBlock kit={first} swatches={swatches} emphasis="feature" onOpenImage={setActiveKit} />
+          <KitBlock
+            kit={first}
+            swatches={swatches}
+            emphasis="feature"
+            copy={copy}
+            onOpenImage={setActiveKit}
+          />
           <div className="grid gap-x-12 gap-y-20 sm:grid-cols-2">
             {rest.map((kit) => (
               <KitBlock
@@ -196,6 +222,7 @@ export default function KitsSection({ kits, swatches, heading = "Kits" }: KitsSe
                 kit={kit}
                 swatches={swatches}
                 emphasis="standard"
+                copy={copy}
                 onOpenImage={setActiveKit}
               />
             ))}
@@ -211,7 +238,11 @@ export default function KitsSection({ kits, swatches, heading = "Kits" }: KitsSe
         caption={activeKit?.image?.caption ?? activeKit?.summary}
       >
         {activeKit?.image ? (
-          <AssetFrame asset={activeKit.image} tag={activeKit.code} sizes="90vw" />
+          <AssetFrame
+            asset={activeKit.image}
+            tag={activeKit.code}
+            sizes="90vw"
+          />
         ) : null}
       </Lightbox>
     </section>

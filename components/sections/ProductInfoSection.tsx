@@ -1,4 +1,4 @@
-import type { ProductInfo } from "@/types/project";
+import type { ProductInfo, ProjectCopy } from "@/types/project";
 import { countLabel } from "@/lib/format";
 
 /**
@@ -12,6 +12,7 @@ import { countLabel } from "@/lib/format";
 
 export interface ProductInfoSectionProps {
   info: ProductInfo;
+  copy: ProjectCopy;
 }
 
 const LINE_RULE = {
@@ -19,20 +20,27 @@ const LINE_RULE = {
   secondary: "border-line-secondary",
 } as const;
 
-export default function ProductInfoSection({ info }: ProductInfoSectionProps) {
+export default function ProductInfoSection({
+  info,
+  copy,
+}: ProductInfoSectionProps) {
   if (info.groups.length === 0) return null;
 
   return (
     <section className="relative z-10 py-32 pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
       <header className="mb-6 flex items-baseline justify-between gap-6 border-b border-ink/20 pb-3">
-        <h2 className="text-[10px] uppercase tracking-[0.34em]">{info.heading}</h2>
+        <h2 className="text-[10px] uppercase tracking-[0.34em]">
+          {info.heading}
+        </h2>
         <span className="text-[10px] uppercase tracking-[0.2em] tabular-nums text-ink/60">
-          {countLabel(info.groups.length, "table")}
+          {countLabel(info.groups.length, copy.counts.table)}
         </span>
       </header>
 
       {info.intro ? (
-        <p className="mb-14 max-w-[52ch] text-sm leading-relaxed text-ink/80">{info.intro}</p>
+        <p className="mb-14 max-w-[52ch] text-sm leading-relaxed text-ink/80">
+          {info.intro}
+        </p>
       ) : null}
 
       <div className="grid gap-x-12 gap-y-14 sm:grid-cols-2">
@@ -54,7 +62,9 @@ export default function ProductInfoSection({ info }: ProductInfoSectionProps) {
                   <dt className="text-[10px] uppercase tracking-[0.18em] text-ink/50">
                     {row.label}
                   </dt>
-                  <dd className="text-right text-sm tabular-nums text-ink/85">{row.value}</dd>
+                  <dd className="text-right text-sm tabular-nums text-ink/85">
+                    {row.value}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -64,7 +74,9 @@ export default function ProductInfoSection({ info }: ProductInfoSectionProps) {
 
       {info.materials && info.materials.length > 0 ? (
         <div className="mt-16 border-t border-ink/20 pt-6">
-          <h3 className="text-[10px] uppercase tracking-[0.28em] text-ink/50">Materials</h3>
+          <h3 className="text-[10px] uppercase tracking-[0.28em] text-ink/50">
+            {copy.infoLabels.materials}
+          </h3>
           <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
             {info.materials.map((material) => (
               <li key={material} className="text-xs text-ink/75">
@@ -77,8 +89,11 @@ export default function ProductInfoSection({ info }: ProductInfoSectionProps) {
 
       {info.dimensions ? (
         <p className="mt-8 text-[10px] uppercase tracking-[0.2em] tabular-nums text-ink/60">
-          {info.dimensions.widthMm} × {info.dimensions.heightMm} × {info.dimensions.depthMm} mm
-          {info.dimensions.weightG !== undefined ? ` · ${info.dimensions.weightG} g` : ""}
+          {info.dimensions.widthMm} × {info.dimensions.heightMm} ×{" "}
+          {info.dimensions.depthMm} mm
+          {info.dimensions.weightG !== undefined
+            ? ` · ${info.dimensions.weightG} g`
+            : ""}
         </p>
       ) : null}
     </section>

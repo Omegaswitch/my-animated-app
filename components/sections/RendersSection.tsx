@@ -1,7 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ImageAsset, RenderItem, RenderGallery, RenderView } from "@/types/project";
+import type {
+  ImageAsset,
+  ProjectCopy,
+  RenderItem,
+  RenderGallery,
+} from "@/types/project";
 import AssetFrame from "@/components/ui/AssetFrame";
 import Lightbox from "@/components/ui/Lightbox";
 import { countLabel } from "@/lib/format";
@@ -21,6 +26,7 @@ import { countLabel } from "@/lib/format";
 
 export interface RendersSectionProps {
   renders: RenderGallery;
+  copy: ProjectCopy;
 }
 
 type Shape = "landscape" | "portrait" | "square";
@@ -33,15 +39,6 @@ const SPAN_CLASS: Record<Shape | "detail", string> = {
   detail: "lg:col-span-4",
 };
 
-const VIEW_LABEL: Record<RenderView, string> = {
-  front: "Front",
-  "three-quarter": "Three-quarter",
-  top: "Top",
-  detail: "Detail",
-  exploded: "Exploded",
-  "in-situ": "In situ",
-};
-
 function shapeOf(asset: ImageAsset): Shape {
   const ratio = asset.width / asset.height;
   if (ratio > 1.15) return "landscape";
@@ -49,7 +46,7 @@ function shapeOf(asset: ImageAsset): Shape {
   return "square";
 }
 
-export default function RendersSection({ renders }: RendersSectionProps) {
+export default function RendersSection({ renders, copy }: RendersSectionProps) {
   const [activeItem, setActiveItem] = useState<RenderItem | null>(null);
 
   // `order` is the authored sequence; it is the only thing that decides
@@ -64,20 +61,25 @@ export default function RendersSection({ renders }: RendersSectionProps) {
   return (
     <section className="relative z-10 py-32 pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
       <header className="mb-6 flex items-baseline justify-between gap-6 border-b border-ink/20 pb-3">
-        <h2 className="text-[10px] uppercase tracking-[0.34em]">{renders.heading}</h2>
+        <h2 className="text-[10px] uppercase tracking-[0.34em]">
+          {renders.heading}
+        </h2>
         <span className="text-[10px] uppercase tracking-[0.2em] tabular-nums text-ink/60">
-          {countLabel(items.length, "plate")}
+          {countLabel(items.length, copy.counts.plate)}
         </span>
       </header>
 
       {renders.intro ? (
-        <p className="mb-16 max-w-[52ch] text-sm leading-relaxed text-ink/80">{renders.intro}</p>
+        <p className="mb-16 max-w-[52ch] text-sm leading-relaxed text-ink/80">
+          {renders.intro}
+        </p>
       ) : null}
 
       <ul className="grid gap-x-8 gap-y-16 lg:grid-cols-12">
         {items.map((item, index) => {
           const shape = shapeOf(item.asset);
-          const span = item.view === "detail" ? SPAN_CLASS.detail : SPAN_CLASS[shape];
+          const span =
+            item.view === "detail" ? SPAN_CLASS.detail : SPAN_CLASS[shape];
           // Every third plate drops down the page, breaking the row rhythm.
           const offset = index % 3 === 2 ? "lg:mt-24" : "";
 
@@ -92,7 +94,7 @@ export default function RendersSection({ renders }: RendersSectionProps) {
                 >
                   <AssetFrame
                     asset={item.asset}
-                    tag={VIEW_LABEL[item.view]}
+                    tag={copy.renderView[item.view]}
                     className="transition-opacity group-hover:opacity-85"
                     sizes="(min-width: 1024px) 45vw, 100vw"
                   />
@@ -101,9 +103,15 @@ export default function RendersSection({ renders }: RendersSectionProps) {
                 <figcaption className="mt-3 flex items-baseline justify-between gap-4 border-t border-ink/15 pt-2">
                   <span className="text-sm tracking-tight">{item.title}</span>
                   <span className="shrink-0 text-[10px] uppercase tracking-[0.18em] text-ink/55">
-                    {VIEW_LABEL[item.view]}
+                    {copy.renderView[item.view]}
                   </span>
                 </figcaption>
+
+                {item.credit ? (
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-ink/45">
+                    {copy.renderLabels.credit}: {item.credit}
+                  </p>
+                ) : null}
 
                 {item.asset.caption ? (
                   <p className="mt-2 max-w-[42ch] text-xs leading-relaxed text-ink/60">
@@ -120,13 +128,13 @@ export default function RendersSection({ renders }: RendersSectionProps) {
         open={activeItem !== null}
         onClose={() => setActiveItem(null)}
         title={activeItem?.title ?? ""}
-        meta={activeItem ? VIEW_LABEL[activeItem.view] : undefined}
+        meta={activeItem ? copy.renderView[activeItem.view] : undefined}
         caption={activeItem?.asset.caption}
       >
         {activeItem ? (
           <AssetFrame
             asset={activeItem.asset}
-            tag={VIEW_LABEL[activeItem.view]}
+            tag={copy.renderView[activeItem.view]}
             sizes="90vw"
             className="mx-auto max-h-[70vh] w-auto"
           />

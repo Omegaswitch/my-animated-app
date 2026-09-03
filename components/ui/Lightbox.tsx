@@ -78,10 +78,17 @@ export default function Lightbox({
           className="flex max-h-full w-full max-w-5xl flex-col gap-4"
           initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.985 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+          transition={
+            prefersReducedMotion
+              ? { duration: 0 }
+              : { duration: 0.22, ease: "easeOut" }
+          }
         >
           <div className="flex items-baseline justify-between gap-6 border-b border-ground/30 pb-3">
-            <h2 id={titleId} className="text-sm uppercase tracking-[0.22em] text-ground">
+            <h2
+              id={titleId}
+              className="text-sm uppercase tracking-[0.22em] text-ground"
+            >
               {title}
             </h2>
             <div className="flex items-baseline gap-6">
@@ -103,7 +110,9 @@ export default function Lightbox({
           <div className="min-h-0 flex-1 overflow-auto">{children}</div>
 
           {caption ? (
-            <p className="max-w-prose text-xs leading-relaxed text-ground/80">{caption}</p>
+            <p className="max-w-prose text-xs leading-relaxed text-ground/80">
+              {caption}
+            </p>
           ) : null}
         </motion.div>
       </div>

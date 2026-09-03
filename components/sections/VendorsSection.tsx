@@ -1,4 +1,4 @@
-import type { Vendor, VendorRegion } from "@/types/project";
+import type { ProjectCopy, Vendor, VendorRegion } from "@/types/project";
 import { countLabel } from "@/lib/format";
 
 /**
@@ -18,7 +18,7 @@ import { countLabel } from "@/lib/format";
 
 export interface VendorsSectionProps {
   vendors: Vendor[];
-  heading?: string;
+  copy: ProjectCopy;
 }
 
 /** Scan order — largest markets first, `global` last as a catch-all. */
@@ -32,17 +32,8 @@ const REGION_ORDER: readonly VendorRegion[] = [
   "global",
 ];
 
-const REGION_LABEL: Record<VendorRegion, string> = {
-  europe: "Europe",
-  "north-america": "North America",
-  "south-america": "South America",
-  asia: "Asia",
-  oceania: "Oceania",
-  africa: "Africa",
-  global: "Worldwide",
-};
-
-function VendorRow({ vendor }: { vendor: Vendor }) {
+function VendorRow({ vendor, copy }: { vendor: Vendor; copy: ProjectCopy }) {
+  const labels = copy.vendorLabels;
   const isPending = vendor.status === "pending";
 
   return (
@@ -57,10 +48,12 @@ function VendorRow({ vendor }: { vendor: Vendor }) {
           >
             {vendor.name}
             {/* The destination is spoken, not just implied by the icon-less link. */}
-            <span className="sr-only"> (opens in a new tab)</span>
+            <span className="sr-only"> ({labels.opensInNewTab})</span>
           </a>
         ) : (
-          <span className="text-base tracking-tight text-ink/70">{vendor.name}</span>
+          <span className="text-base tracking-tight text-ink/70">
+            {vendor.name}
+          </span>
         )}
 
         <span
@@ -68,7 +61,11 @@ function VendorRow({ vendor }: { vendor: Vendor }) {
             vendor.url ? "text-ink/55" : "text-ink/40"
           }`}
         >
-          {vendor.url ? "Listing open" : isPending ? "Allocation pending" : "Listing pending"}
+          {vendor.url
+            ? labels.listingOpen
+            : isPending
+              ? labels.allocationPending
+              : labels.listingPending}
         </span>
       </div>
 
@@ -82,12 +79,14 @@ function VendorRow({ vendor }: { vendor: Vendor }) {
         <p className="mt-1 text-xs text-ink/50">{vendor.location}</p>
       ) : null}
 
-      {vendor.notes ? <p className="mt-2 max-w-[46ch] text-xs text-ink/55">{vendor.notes}</p> : null}
+      {vendor.notes ? (
+        <p className="mt-2 max-w-[46ch] text-xs text-ink/55">{vendor.notes}</p>
+      ) : null}
     </li>
   );
 }
 
-export default function VendorsSection({ vendors, heading = "Vendors" }: VendorsSectionProps) {
+export default function VendorsSection({ vendors, copy }: VendorsSectionProps) {
   const salesChannels = vendors.filter((vendor) => vendor.role === "vendor");
 
   const byRegion = REGION_ORDER.map((region) => ({
@@ -103,9 +102,11 @@ export default function VendorsSection({ vendors, heading = "Vendors" }: Vendors
   return (
     <section className="relative z-10 py-32 pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
       <header className="mb-16 flex items-baseline justify-between gap-6 border-b border-ink/20 pb-3">
-        <h2 className="text-[10px] uppercase tracking-[0.34em]">{heading}</h2>
+        <h2 className="text-[10px] uppercase tracking-[0.34em]">
+          {copy.headings.vendors}
+        </h2>
         <span className="text-[10px] uppercase tracking-[0.2em] tabular-nums text-ink/60">
-          {countLabel(salesChannels.length, "channel")}
+          {countLabel(salesChannels.length, copy.counts.channel)}
         </span>
       </header>
 
@@ -113,11 +114,11 @@ export default function VendorsSection({ vendors, heading = "Vendors" }: Vendors
         {byRegion.map((group) => (
           <div key={group.region}>
             <h3 className="text-[10px] uppercase tracking-[0.28em] text-ink/50">
-              {REGION_LABEL[group.region]}
+              {copy.vendorRegion[group.region]}
             </h3>
             <ul className="mt-3 border-t border-ink/20">
               {group.entries.map((vendor) => (
-                <VendorRow key={vendor.id} vendor={vendor} />
+                <VendorRow key={vendor.id} vendor={vendor} copy={copy} />
               ))}
             </ul>
           </div>
@@ -126,7 +127,7 @@ export default function VendorsSection({ vendors, heading = "Vendors" }: Vendors
 
       {manufacturer ? (
         <p className="mt-16 border-t border-ink/20 pt-4 text-[10px] uppercase tracking-[0.2em] text-ink/50">
-          Manufactured by{" "}
+          {copy.vendorLabels.manufacturedBy}{" "}
           {manufacturer.url ? (
             <a
               href={manufacturer.url}
@@ -135,7 +136,10 @@ export default function VendorsSection({ vendors, heading = "Vendors" }: Vendors
               className="underline decoration-ink/30 underline-offset-4 hover:decoration-line-primary"
             >
               {manufacturer.name}
-              <span className="sr-only"> (opens in a new tab)</span>
+              <span className="sr-only">
+                {" "}
+                ({copy.vendorLabels.opensInNewTab})
+              </span>
             </a>
           ) : (
             manufacturer.name

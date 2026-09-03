@@ -118,7 +118,8 @@ export interface FactPair {
  * Kits
  * ------------------------------------------------------------------------- */
 
-export type KitAvailability = "in-development" | "sampling" | "released" | "archived";
+export type KitAvailability =
+  "in-development" | "sampling" | "released" | "archived";
 
 export interface KitComponent {
   name: string;
@@ -167,6 +168,8 @@ export interface ProductSwatch {
   code: string;
   hex: Hex;
   finish: SwatchFinish;
+  /** One line on where the colour sits in the set. */
+  description?: string;
   references?: ColorReferences;
   available: boolean;
   /** Vendor id responsible for this finish. */
@@ -177,13 +180,16 @@ export interface ProductSwatch {
  * Renders gallery
  * ------------------------------------------------------------------------- */
 
-export type RenderView = "front" | "three-quarter" | "top" | "detail" | "exploded" | "in-situ";
+export type RenderView =
+  "front" | "three-quarter" | "top" | "detail" | "exploded" | "in-situ";
 
 export interface RenderItem {
   id: string;
   title: string;
   view: RenderView;
   asset: ImageAsset;
+  /** Who made the render. Omitted where the studio did it in-house. */
+  credit?: string;
   /** Swatch id shown in the render, when it depicts a specific finish. */
   swatchId?: string;
   /** Ordering weight within the gallery; lower sorts first. */
@@ -214,6 +220,8 @@ export interface PackagingComponent {
   dimensions: Dimensions;
   /** Print process, e.g. "1/0 screen, matte varnish". */
   print?: string;
+  /** Photograph or render of the component; omit and no frame is drawn. */
+  image?: ImageAsset;
   vendorId?: string;
 }
 
@@ -337,10 +345,109 @@ export interface Lifecycle {
 }
 
 /* ---------------------------------------------------------------------------
+ * Copy
+ *
+ * Every user-facing string the layouts would otherwise hard-code: section
+ * headings, the label for each enum value, field labels in the spec tables,
+ * and the counters. Components render what they are given and invent no text
+ * of their own, so the wording — and, if it is ever wanted, the language —
+ * changes here rather than across nine files.
+ * ------------------------------------------------------------------------- */
+
+/** A noun that has to agree with a count. `plural` defaults to `singular` + s. */
+export interface CountNoun {
+  singular: string;
+  plural?: string;
+}
+
+export interface ProjectCopy {
+  headings: {
+    kits: string;
+    colors: string;
+    vendors: string;
+  };
+  counts: {
+    configuration: CountNoun;
+    finish: CountNoun;
+    plate: CountNoun;
+    component: CountNoun;
+    table: CountNoun;
+    channel: CountNoun;
+  };
+  /** Enum labels. Keyed by the union members so a new value cannot be missed. */
+  kitAvailability: Record<KitAvailability, string>;
+  swatchFinish: Record<SwatchFinish, string>;
+  renderView: Record<RenderView, string>;
+  vendorRegion: Record<VendorRegion, string>;
+  lineNames: Record<LineRef, string>;
+  kitLabels: {
+    availability: string;
+    price: string;
+    line: string;
+  };
+  swatchLabels: {
+    hex: string;
+    ral: string;
+    pantone: string;
+    finish: string;
+    finisher: string;
+    usedOn: string;
+    notReleased: string;
+    unassigned: string;
+    renderCount: CountNoun;
+  };
+  renderLabels: {
+    credit: string;
+  };
+  packagingLabels: {
+    material: string;
+    weight: string;
+    print: string;
+    supplier: string;
+    packedWeight: string;
+  };
+  infoLabels: {
+    materials: string;
+  };
+  statusLabels: {
+    now: string;
+    updated: string;
+    status: string;
+  };
+  vendorLabels: {
+    listingOpen: string;
+    listingPending: string;
+    allocationPending: string;
+    manufacturedBy: string;
+    opensInNewTab: string;
+  };
+  /** Printed on an asset frame while the artwork is missing. */
+  assetPlaceholder: string;
+  /** Caption beside the hero's origin marker. */
+  originLabel: string;
+}
+
+/* ---------------------------------------------------------------------------
+ * Thank you
+ * ------------------------------------------------------------------------- */
+
+export interface ThankYou {
+  /** Small label above the headline, e.g. "Terminus". */
+  eyebrow: string;
+  headline: string;
+  message: string;
+  creditsHeading: string;
+  /** Logo ids to print as credits, in order. Omit to print them all. */
+  creditLogoIds?: string[];
+}
+
+/* ---------------------------------------------------------------------------
  * Root
  * ------------------------------------------------------------------------- */
 
 export interface Project {
+  copy: ProjectCopy;
+  thanks: ThankYou;
   meta: Meta;
   colors: Palette;
   logos: Logo[];

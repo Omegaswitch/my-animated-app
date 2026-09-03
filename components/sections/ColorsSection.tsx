@@ -1,5 +1,11 @@
-import type { Kit, ProductSwatch, RenderGallery, SwatchFinish, Vendor } from "@/types/project";
-import { countLabel } from "@/lib/format";
+import type {
+  Kit,
+  ProductSwatch,
+  ProjectCopy,
+  RenderGallery,
+  Vendor,
+} from "@/types/project";
+import { countLabel, plainCount } from "@/lib/format";
 
 /**
  * Colours — the finishes the line is made in.
@@ -17,32 +23,35 @@ export interface ColorsSectionProps {
   kits: Kit[];
   renders: RenderGallery;
   vendors?: Vendor[];
-  heading?: string;
+  copy: ProjectCopy;
 }
-
-const FINISH_LABEL: Record<SwatchFinish, string> = {
-  matte: "Matte",
-  satin: "Satin",
-  gloss: "Gloss",
-  anodised: "Anodised",
-  raw: "Raw",
-};
 
 interface SwatchUsage {
   kitNames: string[];
   renderCount: number;
 }
 
-function resolveUsage(swatch: ProductSwatch, kits: Kit[], renders: RenderGallery): SwatchUsage {
+function resolveUsage(
+  swatch: ProductSwatch,
+  kits: Kit[],
+  renders: RenderGallery,
+): SwatchUsage {
   return {
     kitNames: kits
       .filter((kit) => (kit.swatchIds ?? []).includes(swatch.id))
       .map((kit) => kit.name),
-    renderCount: renders.items.filter((item) => item.swatchId === swatch.id).length,
+    renderCount: renders.items.filter((item) => item.swatchId === swatch.id)
+      .length,
   };
 }
 
-function Badge({ children, muted = false }: { children: string; muted?: boolean }) {
+function Badge({
+  children,
+  muted = false,
+}: {
+  children: string;
+  muted?: boolean;
+}) {
   return (
     <li
       className={`border px-2 py-1 text-[9px] uppercase tracking-[0.18em] ${
@@ -59,23 +68,28 @@ export default function ColorsSection({
   kits,
   renders,
   vendors = [],
-  heading = "Colours",
+  copy,
 }: ColorsSectionProps) {
+  const labels = copy.swatchLabels;
   if (swatches.length === 0) return null;
 
   return (
     <section className="relative z-10 py-32 pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
       <header className="mb-16 flex items-baseline justify-between gap-6 border-b border-ink/20 pb-3">
-        <h2 className="text-[10px] uppercase tracking-[0.34em]">{heading}</h2>
+        <h2 className="text-[10px] uppercase tracking-[0.34em]">
+          {copy.headings.colors}
+        </h2>
         <span className="text-[10px] uppercase tracking-[0.2em] tabular-nums text-ink/60">
-          {countLabel(swatches.length, "finish", "finishes")}
+          {countLabel(swatches.length, copy.counts.finish)}
         </span>
       </header>
 
       <ul className="grid gap-x-10 gap-y-16 sm:grid-cols-2">
         {swatches.map((swatch) => {
           const usage = resolveUsage(swatch, kits, renders);
-          const vendor = vendors.find((candidate) => candidate.id === swatch.vendorId);
+          const vendor = vendors.find(
+            (candidate) => candidate.id === swatch.vendorId,
+          );
           const hasUsage = usage.kitNames.length > 0 || usage.renderCount > 0;
 
           return (
@@ -96,49 +110,63 @@ export default function ColorsSection({
                 </span>
               </div>
 
+              {swatch.description ? (
+                <p className="mt-3 max-w-[38ch] text-xs leading-relaxed text-ink/65">
+                  {swatch.description}
+                </p>
+              ) : null}
+
               {/* Codes: hex always, RAL and Pantone where a match exists. */}
               <dl className="mt-4 space-y-2 text-[10px] uppercase tracking-[0.18em]">
                 <div className="flex justify-between gap-4">
-                  <dt className="text-ink/50">Hex</dt>
-                  <dd className="tabular-nums text-ink/85">{swatch.hex.toUpperCase()}</dd>
+                  <dt className="text-ink/50">{labels.hex}</dt>
+                  <dd className="tabular-nums text-ink/85">
+                    {swatch.hex.toUpperCase()}
+                  </dd>
                 </div>
                 {swatch.references?.ral ? (
                   <div className="flex justify-between gap-4">
-                    <dt className="text-ink/50">RAL</dt>
+                    <dt className="text-ink/50">{labels.ral}</dt>
                     <dd className="text-ink/85">{swatch.references.ral}</dd>
                   </div>
                 ) : null}
                 {swatch.references?.pantone ? (
                   <div className="flex justify-between gap-4">
-                    <dt className="text-ink/50">Pantone</dt>
+                    <dt className="text-ink/50">{labels.pantone}</dt>
                     <dd className="text-ink/85">{swatch.references.pantone}</dd>
                   </div>
                 ) : null}
                 <div className="flex justify-between gap-4">
-                  <dt className="text-ink/50">Finish</dt>
-                  <dd className="text-ink/85">{FINISH_LABEL[swatch.finish]}</dd>
+                  <dt className="text-ink/50">{labels.finish}</dt>
+                  <dd className="text-ink/85">
+                    {copy.swatchFinish[swatch.finish]}
+                  </dd>
                 </div>
                 {vendor ? (
                   <div className="flex justify-between gap-4">
-                    <dt className="text-ink/50">Finisher</dt>
+                    <dt className="text-ink/50">{labels.finisher}</dt>
                     <dd className="text-ink/85">{vendor.name}</dd>
                   </div>
                 ) : null}
               </dl>
 
               <div className="mt-5">
-                <h4 className="text-[9px] uppercase tracking-[0.22em] text-ink/45">Used on</h4>
+                <h4 className="text-[9px] uppercase tracking-[0.22em] text-ink/45">
+                  {labels.usedOn}
+                </h4>
                 <ul className="mt-2 flex flex-wrap gap-2">
                   {usage.kitNames.map((name) => (
                     <Badge key={name}>{name}</Badge>
                   ))}
                   {usage.renderCount > 0 ? (
                     <Badge>
-                      {usage.renderCount === 1 ? "1 render" : `${usage.renderCount} renders`}
+                      {plainCount(usage.renderCount, labels.renderCount)}
                     </Badge>
                   ) : null}
-                  {!swatch.available ? <Badge muted>Not released</Badge> : null}
-                  {!hasUsage ? <Badge muted>Unassigned</Badge> : null}
+                  {!swatch.available ? (
+                    <Badge muted>{labels.notReleased}</Badge>
+                  ) : null}
+                  {!hasUsage ? <Badge muted>{labels.unassigned}</Badge> : null}
                 </ul>
               </div>
             </li>

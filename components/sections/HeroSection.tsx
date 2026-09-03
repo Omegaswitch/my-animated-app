@@ -1,4 +1,4 @@
-import type { Hero, Meta } from "@/types/project";
+import type { Hero, Meta, ProjectCopy } from "@/types/project";
 import {
   ROUTE_GAP,
   ROUTE_POSITION_CLASS,
@@ -22,9 +22,10 @@ import {
 export interface HeroSectionProps {
   hero: Hero;
   meta: Meta;
+  copy: ProjectCopy;
 }
 
-export default function HeroSection({ hero, meta }: HeroSectionProps) {
+export default function HeroSection({ hero, meta, copy }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen">
       {/* Content clears the rail on mobile and sits right of centre on desktop,
@@ -92,7 +93,7 @@ export default function HeroSection({ hero, meta }: HeroSectionProps) {
           />
         </svg>
         <span className="absolute left-9 top-1 whitespace-nowrap text-[10px] uppercase tracking-[0.22em] text-ink/60">
-          Origin — {meta.code} / {meta.year}
+          {copy.originLabel} — {meta.code} / {meta.year}
         </span>
       </div>
     </section>

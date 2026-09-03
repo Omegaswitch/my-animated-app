@@ -21,6 +21,8 @@ export interface AssetFrameProps {
   /** Rendered small on the placeholder, e.g. a view or kit code. */
   tag?: string;
   className?: string;
+  /** Printed when no `tag` is given. Comes from project copy. */
+  placeholderLabel?: string;
   /** Passed to next/image once assets exist; ignored by the placeholder. */
   sizes?: string;
   priority?: boolean;
@@ -29,6 +31,7 @@ export interface AssetFrameProps {
 export default function AssetFrame({
   asset,
   tag,
+  placeholderLabel,
   className = "",
   sizes,
   priority,
@@ -37,7 +40,10 @@ export default function AssetFrame({
 
   if (ASSETS_AVAILABLE) {
     return (
-      <div className={`relative overflow-hidden ${className}`} style={{ aspectRatio: ratio }}>
+      <div
+        className={`relative overflow-hidden ${className}`}
+        style={{ aspectRatio: ratio }}
+      >
         <Image
           src={asset.src}
           alt={asset.alt}
@@ -65,12 +71,16 @@ export default function AssetFrame({
         viewBox="0 0 100 100"
         fill="none"
       >
-        <path d="M0 0 L100 100 M100 0 L0 100" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+        <path
+          d="M0 0 L100 100 M100 0 L0 100"
+          stroke="currentColor"
+          vectorEffect="non-scaling-stroke"
+        />
       </svg>
 
       <div className="absolute inset-0 flex flex-col justify-between p-3">
         <span className="text-[9px] uppercase tracking-[0.2em] text-ink/45">
-          {tag ?? "Plate reserved"}
+          {tag ?? placeholderLabel}
         </span>
         <span className="text-[9px] tabular-nums tracking-[0.12em] text-ink/45">
           {asset.width}×{asset.height}

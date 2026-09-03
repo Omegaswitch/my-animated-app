@@ -1,4 +1,4 @@
-import type { Logo, Meta } from "@/types/project";
+import type { Logo, Meta, ProjectCopy, ThankYou } from "@/types/project";
 import AssetFrame from "@/components/ui/AssetFrame";
 import {
   ROUTE_POSITION_CLASS,
@@ -26,18 +26,17 @@ import {
 export interface ThankYouSectionProps {
   meta: Meta;
   logos: Logo[];
-  /** Overrides the default closing line. */
-  message?: string;
-  /** Logo ids to print as credits, in order. Defaults to all logos. */
-  creditIds?: string[];
+  thanks: ThankYou;
+  copy: ProjectCopy;
 }
 
 export default function ThankYouSection({
   meta,
   logos,
-  message,
-  creditIds,
+  thanks,
+  copy,
 }: ThankYouSectionProps) {
+  const creditIds = thanks.creditLogoIds;
   const credits = creditIds
     ? creditIds
         .map((id) => logos.find((logo) => logo.id === id))
@@ -80,22 +79,21 @@ export default function ThankYouSection({
 
       <div className="pb-40 pl-16 pr-6 pt-32 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
         <p className="text-[10px] uppercase tracking-[0.34em] text-ink/60">
-          Terminus — {meta.code}
+          {thanks.eyebrow} — {meta.code}
         </p>
 
         <h2 className="mt-8 max-w-[18ch] text-[clamp(2rem,4.5vw,3.5rem)] font-medium leading-[0.95] tracking-[-0.03em]">
-          Thank you for riding Line A
+          {thanks.headline}
         </h2>
 
         <p className="mt-8 max-w-[46ch] text-sm leading-relaxed text-ink/80">
-          {message ??
-            `${meta.name} exists because people backed it before it was a thing you could hold. ${meta.studio ? `Manufactured by ${meta.studio}.` : ""}`}
+          {thanks.message}
         </p>
 
         {credits.length > 0 ? (
           <div className="mt-20 border-t border-ink/20 pt-8">
             <h3 className="text-[10px] uppercase tracking-[0.28em] text-ink/50">
-              Credits
+              {thanks.creditsHeading}
             </h3>
             <ul className="mt-6 flex flex-wrap items-end gap-x-12 gap-y-8">
               {credits.map((logo) => (
@@ -103,6 +101,7 @@ export default function ThankYouSection({
                   <AssetFrame
                     asset={logo.asset}
                     tag={logo.variant}
+                    placeholderLabel={copy.assetPlaceholder}
                     className="w-32"
                     sizes="128px"
                   />

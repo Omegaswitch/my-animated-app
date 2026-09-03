@@ -1,5 +1,10 @@
 import { LIFECYCLE_ORDER } from "@/data/project";
-import type { Lifecycle, LifecyclePhase, LifecycleStage, StageState } from "@/types/project";
+import type {
+  Lifecycle,
+  LifecyclePhase,
+  LifecycleStage,
+  StageState,
+} from "@/types/project";
 
 /**
  * Lifecycle derivation.
@@ -21,7 +26,10 @@ export function phaseIndex(phase: LifecyclePhase): number {
   return LIFECYCLE_ORDER.indexOf(phase);
 }
 
-export function resolveStageState(phase: LifecyclePhase, current: LifecyclePhase): StageState {
+export function resolveStageState(
+  phase: LifecyclePhase,
+  current: LifecyclePhase,
+): StageState {
   const at = phaseIndex(phase);
   const now = phaseIndex(current);
   if (at < now) return "complete";
