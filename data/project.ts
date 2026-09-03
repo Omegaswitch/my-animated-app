@@ -299,6 +299,7 @@ const renders: RenderGallery = {
       title: "Full set, top-down",
       view: "top",
       order: 10,
+      model: "65% board",
       credit: "MilkyWay Studio",
       swatchId: "sw-warm5",
       asset: {
@@ -313,6 +314,7 @@ const renders: RenderGallery = {
       title: "Board, three-quarter",
       view: "three-quarter",
       order: 20,
+      model: "65% board",
       credit: "MilkyWay Studio",
       swatchId: "sw-warm5",
       asset: {
@@ -327,6 +329,7 @@ const renders: RenderGallery = {
       title: "Terminus novelty",
       view: "detail",
       order: 30,
+      model: "Novelty, 1u",
       credit: "Atelier Rendu",
       swatchId: "sw-7565",
       asset: {
@@ -341,6 +344,7 @@ const renders: RenderGallery = {
       title: "Numpad",
       view: "front",
       order: 40,
+      model: "Numpad, 23 keys",
       credit: "MilkyWay Studio",
       swatchId: "sw-447",
       asset: {
@@ -355,6 +359,7 @@ const renders: RenderGallery = {
       title: "40s layout",
       view: "top",
       order: 50,
+      model: "40% board",
       credit: "Atelier Rendu",
       swatchId: "sw-7407",
       asset: {
@@ -369,6 +374,7 @@ const renders: RenderGallery = {
       title: "In situ",
       view: "in-situ",
       order: 60,
+      model: "65% board",
       credit: "MilkyWay Studio",
       swatchId: "sw-warm1",
       asset: {

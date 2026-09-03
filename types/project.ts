@@ -141,6 +141,9 @@ export interface RenderItem {
   title: string;
   view: RenderView;
   asset: ImageAsset;
+  /** Board the render depicts, e.g. "65% board". */
+  model?: string;
+  /** Who made the render. */
   credit?: string;
   swatchId?: string;
   /** Ordering weight within the gallery; lower sorts first. */

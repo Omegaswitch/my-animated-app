@@ -73,7 +73,7 @@ export default function Page() {
           />
         </StationStage>
 
-        <StationStage {...stage("renders")}>
+        <StationStage {...stage("renders")} trackVh={300}>
           <RendersSection
             renders={project.renders}
             station={stationById("renders")}
