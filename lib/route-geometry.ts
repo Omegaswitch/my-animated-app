@@ -36,9 +36,6 @@ export const STATION_RADIUS = 15;
 export const STATION_STROKE_WIDTH = 4;
 export const STATION_FILL = "#FFFFFF";
 
-/** Vertical offset between the two discs of an end-of-line double stop. */
-export const TERMINUS_DISC_OFFSET = 34;
-
 /**
  * Where the spine sits: pinned to the left margin on small screens so content
  * keeps the width, centred from `lg` where content offsets around it.

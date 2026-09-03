@@ -147,9 +147,9 @@ export default function StickyIdentity({
     : { scale, y };
 
   return (
-    <div className="pointer-events-none sticky top-0 z-30 flex justify-center pt-6">
+    <div className="pointer-events-none sticky top-0 z-40 flex w-fit justify-start pt-6 ml-24 mr-6 sm:ml-28 lg:ml-[calc(50%+4rem)] lg:mr-16">
       <motion.div
-        className="flex origin-top flex-col items-center gap-3 text-ink"
+        className="flex origin-top-left flex-col items-start gap-3 text-ink"
         style={motionStyle}
       >
         <div className="flex items-center gap-6">

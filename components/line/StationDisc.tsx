@@ -10,7 +10,6 @@ import {
   STATION_FILL,
   STATION_RADIUS,
   STATION_STROKE_WIDTH,
-  TERMINUS_DISC_OFFSET,
 } from "@/lib/route-geometry";
 
 /**
@@ -24,7 +23,7 @@ import {
  * stop on the route rather than a marker on one of its two lines. The ring
  * takes the colour of the track the station is assigned to.
  *
- * A terminus is a double stop: two discs, the schematic's end-of-line mark.
+ * Every stop is a single disc, the terminus included.
  */
 
 export interface StationDiscProps {
@@ -32,8 +31,6 @@ export interface StationDiscProps {
   opacity: MotionValue<number> | number;
   scale: MotionValue<number> | number;
   line: LineRef;
-  /** Renders the end-of-line double stop. */
-  isTerminus?: boolean;
 }
 
 const RING: Record<LineRef, string> = {
@@ -45,14 +42,10 @@ export default function StationDisc({
   opacity,
   scale,
   line,
-  isTerminus = false,
 }: StationDiscProps) {
-  // Room for two discs plus their stroke, so nothing is cropped.
-  const height =
-    STATION_RADIUS * 2 +
-    STATION_STROKE_WIDTH +
-    (isTerminus ? TERMINUS_DISC_OFFSET : 0);
-  const firstY = STATION_RADIUS + STATION_STROKE_WIDTH / 2;
+  // Room for the disc plus its stroke, so nothing is cropped.
+  const height = STATION_RADIUS * 2 + STATION_STROKE_WIDTH;
+  const centreY = STATION_RADIUS + STATION_STROKE_WIDTH / 2;
 
   return (
     <motion.div
@@ -67,22 +60,12 @@ export default function StationDisc({
       >
         <circle
           cx={ROUTE_CENTRE_X}
-          cy={firstY}
+          cy={centreY}
           r={STATION_RADIUS}
           fill={STATION_FILL}
           stroke={RING[line]}
           strokeWidth={STATION_STROKE_WIDTH}
         />
-        {isTerminus ? (
-          <circle
-            cx={ROUTE_CENTRE_X}
-            cy={firstY + TERMINUS_DISC_OFFSET}
-            r={STATION_RADIUS}
-            fill={STATION_FILL}
-            stroke={RING[line]}
-            strokeWidth={STATION_STROKE_WIDTH}
-          />
-        ) : null}
       </svg>
     </motion.div>
   );

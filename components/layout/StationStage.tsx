@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import type { LineRef } from "@/types/project";
 import StationDisc from "@/components/line/StationDisc";
+import { StageProgressProvider } from "./StageProgress";
 
 /**
  * One station's stage.
@@ -42,9 +43,26 @@ export interface StationStageProps {
   line: LineRef;
   isFirst?: boolean;
   isLast?: boolean;
-  /** Track height. Longer holds the station for longer. */
-  trackHeightClass?: string;
+  /**
+   * Track height in viewport heights. Longer holds the station for longer,
+   * and gives a section room to run an internal sequence.
+   */
+  trackVh?: 100 | 200 | 500;
 }
+
+/**
+ * Tailwind needs literal class strings, so heights are looked up.
+ *
+ * 100 means a track exactly one viewport tall: the pane still sticks, but it
+ * unpins the moment it pins, so the station scrolls naturally with no held
+ * span. That is what the intro wants — scrolling should move you along the
+ * line immediately rather than spending a viewport going nowhere.
+ */
+const TRACK_CLASS: Record<100 | 200 | 500, string> = {
+  100: "h-screen",
+  200: "h-[200vh]",
+  500: "h-[500vh]",
+};
 
 const STOPS = [0, 0.2, 0.8, 1];
 const OPACITY = [0, 1, 1, 0];
@@ -69,7 +87,7 @@ export default function StationStage({
   line,
   isFirst = false,
   isLast = false,
-  trackHeightClass = "h-[200vh]",
+  trackVh = 200,
 }: StationStageProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion() ?? false;
@@ -91,13 +109,36 @@ export default function StationStage({
   const opacity = useTransform(scrollYProgress, STOPS, opacityCurve);
   const scale = useTransform(scrollYProgress, STOPS, scaleCurve);
 
+  /**
+   * Sequence progress: 0 the instant the pane pins, 1 the instant it unpins.
+   *
+   * The pane pins once the track's top reaches the top of the viewport — one
+   * viewport of scrolling into a range of `trackVh + 100`. It unpins when the
+   * track's bottom arrives at the bottom of the viewport, `trackVh` in. A
+   * section reading this gets percentages that mean what they say, whatever
+   * the track height.
+   */
+  const total = trackVh + 100;
+  const pinStart = 100 / total;
+  const pinEnd = trackVh / total;
+  /* A one-viewport track has no held span, so the two bounds collapse onto
+     each other. useTransform needs a strictly increasing input range, so fall
+     back to the whole pass rather than handing it a zero-width one. */
+  const hasHeldSpan = pinEnd > pinStart;
+  const sequenceProgress = useTransform(
+    scrollYProgress,
+    hasHeldSpan ? [pinStart, pinEnd] : [0, 1],
+    [0, 1],
+    { clamp: true },
+  );
+
   // Reduced motion: no scroll-linked geometry, content simply present.
   const contentStyle = prefersReducedMotion ? undefined : { opacity, scale };
   const discOpacity = prefersReducedMotion ? 1 : opacity;
   const discScale = prefersReducedMotion ? 1 : scale;
 
   return (
-    <div ref={trackRef} className={`relative ${trackHeightClass}`}>
+    <div ref={trackRef} className={`relative ${TRACK_CLASS[trackVh]}`}>
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         {/* Content — z-20, above the spine, below the stop. */}
         <motion.div
@@ -106,17 +147,16 @@ export default function StationStage({
         >
           {/* The section's own vertical padding is redundant once the pane
               centres it, and costs height a full-screen stage cannot spare. */}
-          <div className="w-full [&>section]:py-0">{children}</div>
+          <div className="w-full [&>section]:py-0">
+            <StageProgressProvider value={sequenceProgress}>
+              {children}
+            </StageProgressProvider>
+          </div>
         </motion.div>
 
         {/* The stop — z-30, sitting on the spine. */}
         <div className="absolute inset-0 z-30">
-          <StationDisc
-            opacity={discOpacity}
-            scale={discScale}
-            line={line}
-            isTerminus={isLast}
-          />
+          <StationDisc opacity={discOpacity} scale={discScale} line={line} />
         </div>
       </div>
     </div>

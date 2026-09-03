@@ -49,11 +49,13 @@ export default function Page() {
       />
 
       <main className="relative">
-        <StationStage {...stage("intro")}>
+        {/* One-viewport track: the intro scrolls naturally, with no held
+            span to scroll through before the line starts moving. */}
+        <StationStage {...stage("intro")} trackVh={100}>
           <IntroSection intro={project.intro} />
         </StationStage>
 
-        <StationStage {...stage("kits")}>
+        <StationStage {...stage("kits")} trackVh={500}>
           <KitsSection
             kits={project.kits}
             swatches={project.swatches}
