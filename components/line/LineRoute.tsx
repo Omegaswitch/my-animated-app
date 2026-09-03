@@ -4,20 +4,42 @@ import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import type { LineRef } from "@/types/project";
 import LineStation, { type StationState } from "./LineStation";
+import {
+  ROUTE_POSITION_CLASS,
+  ROUTE_PRIMARY_X,
+  ROUTE_SECONDARY_X,
+  ROUTE_STROKE_WIDTH,
+  ROUTE_TRACK_CLASS,
+  ROUTE_TRACK_WIDTH,
+} from "@/lib/route-geometry";
 
 /**
- * The route — two parallel rails that trace the document's scroll progress.
+ * The route — two solid parallel rails that draw as the document scrolls.
  *
- * Native scrolling only: this component reads the scroll position and never
- * drives it. Nothing here snaps, pins, or hijacks the wheel.
+ * Drawn as SVG rather than scaled boxes. The progressive reveal is
+ * `pathLength`, which framer-motion normalises to 0–1 and applies as
+ * stroke-dash geometry, so the stroke is *drawn* from the top down at a
+ * constant 8px width. Scaling a box on scaleY would have stretched the shape
+ * instead, and could not carry a round cap or share a coordinate system with
+ * the station markers.
  *
- * Layout follows the brief's two cases:
+ * The `<svg>` has no viewBox on purpose: user units are then CSS pixels, so
+ * `strokeWidth={8}` is 8px at every viewport and no aspect correction is
+ * needed for a full-height element of fixed width.
+ *
+ * Native scrolling only: this reads scroll position and never drives it.
+ * Nothing snaps, pins or hijacks the wheel.
+ *
+ * Layout follows the brief:
  *   mobile  — pinned to the left margin, content takes the remaining width
  *   desktop — centred, content offsets around it editorially
  *
+ * All positioning comes from `lib/route-geometry`, which the hero's origin
+ * marker and the thank-you terminus import too.
+ *
  * The rails are decorative (`aria-hidden`). The lifecycle they depict is real
- * content rendered elsewhere on the page; a screen reader should read that,
- * not a progress bar. Content sections need `relative z-10` to sit above.
+ * content rendered by `ProjectStatus`; a screen reader should read that, not a
+ * progress bar. Content sections need `relative z-10` to sit above.
  */
 
 export interface RouteStation {
@@ -25,7 +47,7 @@ export interface RouteStation {
   label: string;
   /** Position along the route, 0 (top) to 1 (bottom). Clamped. */
   progress: number;
-  /** Rail the node is pinned to. Defaults to the primary. */
+  /** Retained for callers; markers carry both colours, so it is not read. */
   line?: LineRef;
 }
 
@@ -42,7 +64,13 @@ const PRIMARY_SPRING = { stiffness: 140, damping: 30, restDelta: 0.0005 };
 /** The second rail runs softer, so the pair separates slightly in motion. */
 const SECONDARY_SPRING = { stiffness: 70, damping: 26, restDelta: 0.0005 };
 
-export default function LineRoute({ stations, showLabels = false }: LineRouteProps) {
+/** Unfilled route beneath the draw, so the whole line reads from the top. */
+const TRACK_OPACITY = 0.16;
+
+export default function LineRoute({
+  stations,
+  showLabels = false,
+}: LineRouteProps) {
   // `?? false` because useReducedMotion resolves to null before hydration.
   const prefersReducedMotion = useReducedMotion() ?? false;
 
@@ -98,35 +126,70 @@ export default function LineRoute({ stations, showLabels = false }: LineRoutePro
     return index < activeIndex ? "passed" : "upcoming";
   };
 
+  const rails = [
+    {
+      x: ROUTE_PRIMARY_X,
+      colour: "var(--color-line-primary)",
+      trace: primaryTrace,
+    },
+    {
+      x: ROUTE_SECONDARY_X,
+      colour: "var(--color-line-secondary)",
+      trace: secondaryTrace,
+    },
+  ];
+
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-y-0 left-6 z-0 sm:left-8 lg:left-1/2 lg:-translate-x-1/2"
+      className={`pointer-events-none fixed inset-y-0 z-0 ${ROUTE_TRACK_CLASS} ${ROUTE_POSITION_CLASS}`}
     >
-      <div className="relative h-full w-2">
-        {/* Unfilled route. The whole line is visible from the top, the way a
-            printed diagram shows the full journey before you travel it. */}
-        <div className="absolute inset-y-0 left-0 w-px bg-line-primary opacity-25" />
-        <div className="absolute inset-y-0 right-0 w-px bg-line-secondary opacity-25" />
+      <svg
+        width={ROUTE_TRACK_WIDTH}
+        height="100%"
+        // Labels are drawn at negative x, outside the track box.
+        style={{ overflow: "visible" }}
+        className="h-full"
+      >
+        {/* Unfilled route. Delete these two lines for a bare progressive draw. */}
+        {rails.map((rail) => (
+          <line
+            key={`track-${rail.x}`}
+            x1={rail.x}
+            y1={0}
+            x2={rail.x}
+            y2="100%"
+            stroke={rail.colour}
+            strokeWidth={ROUTE_STROKE_WIDTH}
+            opacity={TRACK_OPACITY}
+          />
+        ))}
 
-        {/* Filled trace. Under reduced motion these are plain full-height
-            divs — a clean static trace, with no scroll-linked transform. */}
-        {prefersReducedMotion ? (
-          <>
-            <div className="absolute inset-y-0 left-0 w-px bg-line-primary" />
-            <div className="absolute inset-y-0 right-0 w-px bg-line-secondary" />
-          </>
-        ) : (
-          <>
-            <motion.div
-              className="absolute inset-y-0 left-0 w-px origin-top bg-line-primary"
-              style={{ scaleY: primaryTrace }}
+        {/* Drawn route. Under reduced motion the rails are rendered solid and
+            full length — a clean static trace with no scroll-linked geometry. */}
+        {rails.map((rail) =>
+          prefersReducedMotion ? (
+            <line
+              key={`trace-${rail.x}`}
+              x1={rail.x}
+              y1={0}
+              x2={rail.x}
+              y2="100%"
+              stroke={rail.colour}
+              strokeWidth={ROUTE_STROKE_WIDTH}
             />
-            <motion.div
-              className="absolute inset-y-0 right-0 w-px origin-top bg-line-secondary"
-              style={{ scaleY: secondaryTrace }}
+          ) : (
+            <motion.line
+              key={`trace-${rail.x}`}
+              x1={rail.x}
+              y1={0}
+              x2={rail.x}
+              y2="100%"
+              stroke={rail.colour}
+              strokeWidth={ROUTE_STROKE_WIDTH}
+              style={{ pathLength: rail.trace }}
             />
-          </>
+          ),
         )}
 
         {ordered.map((station, index) => (
@@ -135,12 +198,11 @@ export default function LineRoute({ stations, showLabels = false }: LineRoutePro
             label={station.label}
             progress={station.progress}
             state={stationState(index)}
-            line={station.line ?? "primary"}
             showLabel={showLabels}
             staticTrace={prefersReducedMotion}
           />
         ))}
-      </div>
+      </svg>
     </div>
   );
 }

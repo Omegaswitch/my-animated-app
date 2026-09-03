@@ -1,14 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { LineRef } from "@/types/project";
+import { ROUTE_CENTRE_X, ROUTE_PRIMARY_X } from "@/lib/route-geometry";
 
 /**
- * A single node on the route — the tick where a section meets the line.
+ * A station on the route, drawn as a metro interchange marker.
  *
- * Purely presentational: it is told where it sits and what state it is in,
- * and never reads scroll itself. `LineRoute` owns the scroll subscription so
- * that a page with twelve stations still has exactly one listener.
+ * These are SVG nodes rendered *inside* `LineRoute`'s single `<svg>`, not
+ * absolutely positioned HTML. That is what guarantees they sit on the strokes:
+ * they share the same coordinate system as the lines rather than trying to
+ * match it from the outside.
+ *
+ * The marker is a concentric pair carrying both line colours — an outer ring
+ * in the primary and an inner disc in the secondary, over a ground-filled
+ * core so the rails do not show through. That is the printed convention for
+ * an interchange, as opposed to the plain tick used for a single-line stop.
+ *
+ * Purely presentational: it is told where it sits and what state it is in, and
+ * never reads scroll itself. `LineRoute` owns the one scroll subscription.
  */
 
 export type StationState = "passed" | "active" | "upcoming";
@@ -18,80 +27,84 @@ export interface LineStationProps {
   /** Position along the route, 0 (top) to 1 (bottom). */
   progress: number;
   state: StationState;
-  /** Which rail the node is pinned to. */
-  line: LineRef;
   /** Render the label beside the node. Desktop only; off by default. */
   showLabel?: boolean;
   /** Suppresses transitions; set by `LineRoute` from `useReducedMotion`. */
   staticTrace?: boolean;
 }
 
-/**
- * Tailwind scans for complete class strings, so these are written out in full
- * rather than interpolated (`bg-line-${line}` would never be generated).
- * The tokens resolve to #CD7925 and #BE8D4D — see `app/globals.css`.
- */
-const NODE_FILL: Record<LineRef, string> = {
-  primary: "bg-line-primary",
-  secondary: "bg-line-secondary",
-};
-
-const NODE_BORDER: Record<LineRef, string> = {
-  primary: "border-line-primary",
-  secondary: "border-line-secondary",
-};
+/** Outer ring radius, active and at rest. */
+const RING_R = 9;
+const RING_R_ACTIVE = 11;
+/** Inner disc radius. */
+const CORE_R = 3.5;
+const CORE_R_ACTIVE = 4.5;
 
 export default function LineStation({
   label,
   progress,
   state,
-  line,
   showLabel = false,
   staticTrace = false,
 }: LineStationProps) {
   const isUpcoming = state === "upcoming";
   const isActive = state === "active";
 
+  const y = `${progress * 100}%`;
+  const transition = staticTrace
+    ? { duration: 0 }
+    : ({ type: "spring", stiffness: 320, damping: 26 } as const);
+
   return (
-    <div
-      className="absolute left-1/2 -translate-x-1/2"
-      style={{ top: `${progress * 100}%` }}
-      data-station={label}
-      data-state={state}
-    >
-      <motion.span
-        className={[
-          "block h-2 w-2 -translate-y-1/2 border",
-          NODE_BORDER[line],
-          // An upcoming station is drawn but not filled — the diagram shows
-          // the whole route from the start, the way a printed map would.
-          isUpcoming ? "bg-transparent" : NODE_FILL[line],
-        ].join(" ")}
+    <g data-station={label} data-state={state} opacity={isUpcoming ? 0.45 : 1}>
+      {/* Ground-filled core: masks the rails so the ring reads as a stop on
+          the line rather than a circle floating over it. */}
+      <motion.circle
+        cx={ROUTE_CENTRE_X}
+        cy={y}
+        fill="var(--color-ground)"
         initial={false}
-        animate={{
-          scale: isActive ? 1.75 : 1,
-          opacity: isUpcoming ? 0.45 : 1,
-        }}
-        transition={
-          staticTrace
-            ? { duration: 0 }
-            : { type: "spring", stiffness: 320, damping: 26 }
-        }
+        animate={{ r: isActive ? RING_R_ACTIVE : RING_R }}
+        transition={transition}
+      />
+
+      {/* Outer ring — primary line colour. */}
+      <motion.circle
+        cx={ROUTE_CENTRE_X}
+        cy={y}
+        fill="none"
+        stroke="var(--color-line-primary)"
+        strokeWidth={3}
+        initial={false}
+        animate={{ r: isActive ? RING_R_ACTIVE : RING_R }}
+        transition={transition}
+      />
+
+      {/* Inner disc — secondary line colour. */}
+      <motion.circle
+        cx={ROUTE_CENTRE_X}
+        cy={y}
+        fill="var(--color-line-secondary)"
+        initial={false}
+        animate={{ r: isActive ? CORE_R_ACTIVE : CORE_R }}
+        transition={transition}
       />
 
       {showLabel ? (
-        // Labels hang to the *left* of the rail. On desktop the content column
-        // sits to the right of the centre line, so a right-hand label would
-        // run straight into the type; the left half is the empty one.
-        <motion.span
-          className="pointer-events-none absolute right-5 top-0 hidden -translate-y-1/2 whitespace-nowrap text-right text-[10px] uppercase tracking-[0.18em] text-ink lg:block"
-          initial={false}
-          animate={{ opacity: isUpcoming ? 0.4 : 1 }}
-          transition={staticTrace ? { duration: 0 } : { duration: 0.24 }}
+        // Labels hang to the left of the track: on desktop the content column
+        // sits right of the centre line, so a right-hand label would run into
+        // the type. `x` is negative, i.e. outside the track box, which the
+        // parent svg allows via overflow: visible.
+        <text
+          x={ROUTE_PRIMARY_X - 18}
+          y={y}
+          textAnchor="end"
+          dominantBaseline="middle"
+          className="hidden fill-ink text-[10px] uppercase tracking-[0.18em] lg:block"
         >
           {label}
-        </motion.span>
+        </text>
       ) : null}
-    </div>
+    </g>
   );
 }

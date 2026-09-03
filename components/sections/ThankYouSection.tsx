@@ -1,5 +1,13 @@
 import type { Logo, Meta } from "@/types/project";
 import AssetFrame from "@/components/ui/AssetFrame";
+import {
+  ROUTE_POSITION_CLASS,
+  ROUTE_PRIMARY_X,
+  ROUTE_SECONDARY_X,
+  ROUTE_STROKE_WIDTH,
+  ROUTE_TRACK_CLASS,
+  ROUTE_TRACK_WIDTH,
+} from "@/lib/route-geometry";
 
 /**
  * Thank you — the terminus.
@@ -43,12 +51,31 @@ export default function ThankYouSection({
     // section itself would offset the marker a second time and throw it off
     // the line by half the viewport.
     <section className="relative z-10">
-      {/* Terminal marker — the two rails, ended. */}
-      <div className="pointer-events-none absolute left-6 top-32 sm:left-8 lg:left-1/2 lg:-translate-x-1/2">
-        <div className="relative h-1.5 w-2">
-          <span className="absolute left-0 top-0 block h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-line-primary" />
-          <span className="absolute right-0 top-0 block h-1.5 w-1.5 translate-x-1/2 rounded-full bg-line-secondary" />
-        </div>
+      {/* Terminal marker — the two rails, ended. Termini are drawn as discs
+          where stations are rings: the convention for a stop a line ends at.
+          Geometry comes from lib/route-geometry so it lands on the rails. */}
+      <div
+        className={`pointer-events-none absolute top-32 ${ROUTE_TRACK_CLASS} ${ROUTE_POSITION_CLASS}`}
+      >
+        <svg
+          width={ROUTE_TRACK_WIDTH}
+          height={ROUTE_STROKE_WIDTH}
+          style={{ overflow: "visible" }}
+          aria-hidden
+        >
+          <circle
+            cx={ROUTE_PRIMARY_X}
+            cy={ROUTE_STROKE_WIDTH / 2}
+            r={ROUTE_STROKE_WIDTH / 2}
+            fill="var(--color-line-primary)"
+          />
+          <circle
+            cx={ROUTE_SECONDARY_X}
+            cy={ROUTE_STROKE_WIDTH / 2}
+            r={ROUTE_STROKE_WIDTH / 2}
+            fill="var(--color-line-secondary)"
+          />
+        </svg>
       </div>
 
       <div className="pb-40 pl-16 pr-6 pt-32 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
