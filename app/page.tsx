@@ -1,69 +1,65 @@
-import Image from "next/image";
+import LineRoute, { type RouteStation } from "@/components/line/LineRoute";
+import StickyIdentity from "@/components/layout/StickyIdentity";
+import HeroSection from "@/components/sections/HeroSection";
+import KitsSection from "@/components/sections/KitsSection";
+import ColorsSection from "@/components/sections/ColorsSection";
+import RendersSection from "@/components/sections/RendersSection";
+import ProductInfoSection from "@/components/sections/ProductInfoSection";
+import PackagingSection from "@/components/sections/PackagingSection";
+import ProjectStatus from "@/components/sections/ProjectStatus";
+import VendorsSection from "@/components/sections/VendorsSection";
+import ThankYouSection from "@/components/sections/ThankYouSection";
+import { project } from "@/data/project";
 
-export default function Home() {
+/**
+ * MW LINE A — the document.
+ *
+ * A server component. Everything on the page is rendered from `project`; the
+ * only client code is the route, the identity and the two galleries that open
+ * a lightbox.
+ *
+ * The order is the journey: what it is, what you can buy, what it looks like,
+ * what it is made of, where the run has got to, where to buy it, and the
+ * terminus.
+ */
+
+/**
+ * Lifecycle phases become the stations on the rail, spaced evenly down the
+ * document. They are markers of scroll position, not of programme progress —
+ * the programme's real state is derived separately in `ProjectStatus`.
+ */
+const stations: RouteStation[] = project.lifecycle.stages.map((stage, index, all) => ({
+  id: stage.id,
+  label: stage.label,
+  progress: all.length > 1 ? index / (all.length - 1) : 0,
+  line: index % 2 === 0 ? "primary" : "secondary",
+}));
+
+export default function Page() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      <StickyIdentity
+        manufacturerLabel={project.meta.studio ?? project.meta.name}
+        projectLabel={project.meta.name}
+      />
+      <LineRoute stations={stations} showLabels />
+
+      <main className="relative">
+        <HeroSection hero={project.hero} meta={project.meta} />
+        <KitsSection kits={project.kits} swatches={project.swatches} />
+        <ColorsSection
+          swatches={project.swatches}
+          kits={project.kits}
+          renders={project.renders}
+          vendors={project.vendors}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        <RendersSection renders={project.renders} />
+        <ProductInfoSection info={project.info} />
+        <PackagingSection packaging={project.packaging} vendors={project.vendors} />
+        <ProjectStatus lifecycle={project.lifecycle} />
+        <VendorsSection vendors={project.vendors} />
+        <ThankYouSection meta={project.meta} logos={project.logos} />
       </main>
-    </div>
+    </>
   );
 }

@@ -229,26 +229,38 @@ export interface Packaging {
  * Vendors
  * ------------------------------------------------------------------------- */
 
-export type VendorRole =
-  | "manufacturing"
-  | "tooling"
-  | "finishing"
-  | "print"
-  | "packaging"
-  | "logistics";
+export type VendorRole = "manufacturer" | "vendor" | "designer" | "logistics";
 
-export type VendorStatus = "engaged" | "quoting" | "contracted" | "dormant";
+/**
+ * Regions a group buy is run through. `global` covers a vendor that ships
+ * everywhere rather than serving one territory.
+ */
+export type VendorRegion =
+  | "europe"
+  | "north-america"
+  | "south-america"
+  | "asia"
+  | "oceania"
+  | "africa"
+  | "global";
+
+export type VendorStatus = "confirmed" | "pending" | "closed";
 
 export interface Vendor {
   id: string;
   name: string;
   role: VendorRole;
-  /** City, country. */
-  location: string;
+  region: VendorRegion;
+  /** City, country. Omitted for vendors that trade online only. */
+  location?: string;
   status: VendorStatus;
-  /** Typical turnaround in working days. */
-  leadTimeDays?: number;
-  contact?: Link;
+  /**
+   * Storefront. Omitted while a vendor is confirmed but has not published a
+   * listing yet — the section prints a pending state rather than a dead link.
+   */
+  url?: string;
+  /** Territories served, printed as a scan line beneath the name. */
+  serves?: string[];
   notes?: string;
 }
 
@@ -293,8 +305,16 @@ export type LifecyclePhase =
   | "fulfilment"
   | "completed";
 
-/** Derived state for a stage, driving which line colour it renders in. */
-export type StageState = "complete" | "active" | "upcoming";
+/**
+ * Stage state is *derived*, never authored.
+ *
+ * `Lifecycle.current` is the single status key: everything before it is
+ * complete, it is active, everything after is pending. Storing a state on each
+ * stage as well would let the two disagree — a stage marked complete that sits
+ * after the current phase — so the field does not exist. Use
+ * `resolveStageState` in `lib/lifecycle.ts`.
+ */
+export type StageState = "complete" | "active" | "pending";
 
 export interface LifecycleStage {
   id: LifecyclePhase;
@@ -302,7 +322,6 @@ export interface LifecycleStage {
   index: number;
   label: string;
   description?: string;
-  state: StageState;
   startedOn?: ISODate;
   completedOn?: ISODate;
   /** Vendor ids active during this stage. */
@@ -311,6 +330,7 @@ export interface LifecycleStage {
 
 export interface Lifecycle {
   heading: string;
+  /** The single status key the whole diagram is derived from. */
   current: LifecyclePhase;
   updatedOn: ISODate;
   stages: LifecycleStage[];

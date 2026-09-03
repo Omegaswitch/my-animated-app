@@ -1,18 +1,32 @@
 import type { Metadata } from "next";
+import { project } from "@/data/project";
 import "./globals.css";
 
-/* No next/font loader here: Helvetica Neue is a system face, not a served
-   webfont, so it is declared as a stack in globals.css instead. */
+/**
+ * Root layout.
+ *
+ * No `next/font` loader: Helvetica Neue is licensed and cannot be served, so
+ * it is declared as a `local()` @font-face in globals.css with a fallback
+ * stack. See the note at the top of that file.
+ *
+ * Metadata is read from the project data rather than written twice.
+ */
 
 export const metadata: Metadata = {
-  title: "MW LINE A",
-  description: "MW LINE A",
+  title: `${project.meta.name} — ${project.meta.tagline}`,
+  description: project.meta.description,
+  ...(project.meta.url ? { metadataBase: new URL(project.meta.url) } : {}),
+  openGraph: {
+    title: project.meta.name,
+    description: project.meta.description,
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang={project.meta.locale} className="h-full antialiased">
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

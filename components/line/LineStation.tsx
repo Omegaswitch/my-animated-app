@@ -80,8 +80,11 @@ export default function LineStation({
       />
 
       {showLabel ? (
+        // Labels hang to the *left* of the rail. On desktop the content column
+        // sits to the right of the centre line, so a right-hand label would
+        // run straight into the type; the left half is the empty one.
         <motion.span
-          className="pointer-events-none absolute left-4 top-0 hidden -translate-y-1/2 whitespace-nowrap text-[10px] uppercase tracking-[0.18em] text-ink lg:block"
+          className="pointer-events-none absolute right-5 top-0 hidden -translate-y-1/2 whitespace-nowrap text-right text-[10px] uppercase tracking-[0.18em] text-ink lg:block"
           initial={false}
           animate={{ opacity: isUpcoming ? 0.4 : 1 }}
           transition={staticTrace ? { duration: 0 } : { duration: 0.24 }}

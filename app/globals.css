@@ -1,8 +1,71 @@
 @import "tailwindcss";
 
-/* MW LINE A — design tokens.
-   Tailwind v4 is CSS-first: tokens declared here generate utilities
-   (--color-ground -> bg-ground / text-ground / border-ground). */
+/* ---------------------------------------------------------------------------
+ * Helvetica Neue, loaded from the reader's own machine.
+ *
+ * Helvetica Neue is licensed and cannot be self-hosted without a licence, so
+ * there are no font files here — `local()` uses the reader's installed copy
+ * where they have one (most macOS and iOS readers) and loads nothing at all
+ * where they do not.
+ *
+ * When a `local()` source resolves nowhere, the whole @font-face fails and the
+ * browser moves on to the next family in `--font-sans`. That is why the stack
+ * below still ends in Helvetica, Arial and the Linux metric equivalents: on
+ * Windows and Android this file is inert by design and Arial does the work.
+ *
+ * The face names are spelled several ways because the family is reported
+ * differently across systems and versions.
+ * ------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Helvetica Neue Local";
+  src:
+    local("Helvetica Neue"),
+    local("HelveticaNeue"),
+    local("Helvetica Neue Roman"),
+    local("HelveticaNeue-Roman");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue Local";
+  src:
+    local("Helvetica Neue Medium"),
+    local("HelveticaNeue-Medium"),
+    local("HelveticaNeue Medium");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue Local";
+  src:
+    local("Helvetica Neue Bold"),
+    local("HelveticaNeue-Bold"),
+    local("HelveticaNeue Bold");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue Local";
+  src:
+    local("Helvetica Neue Italic"),
+    local("HelveticaNeue-Italic");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---------------------------------------------------------------------------
+ * MW LINE A — design tokens.
+ * Tailwind v4 is CSS-first: tokens declared here generate utilities
+ * (--color-ground -> bg-ground / text-ground / border-ground).
+ * ------------------------------------------------------------------------- */
 @theme {
   --color-ground: #aca39a;
   --color-line-primary: #cd7925;
@@ -12,7 +75,9 @@
      warm grey ground. Adjust if the intended value differs. */
   --color-ink: #1a1714;
 
-  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans:
+    "Helvetica Neue Local", "Helvetica Neue", Helvetica, Arial, "Liberation Sans", "Nimbus Sans",
+    sans-serif;
 }
 
 /* Fixed palette by design — no prefers-color-scheme inversion. A transit

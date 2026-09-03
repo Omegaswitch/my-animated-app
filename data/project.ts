@@ -1,13 +1,15 @@
 /**
  * MW LINE A — single source of truth.
  *
- * Everything the page renders comes from `project` below. There is no CMS:
- * edit this file, and the document changes. Optional fields are omitted
- * rather than left blank, so a section with nothing to say stays silent.
+ * A transit-themed doubleshot keycap set, manufactured by MilkyWay and run as
+ * a regional group buy. Everything the page renders comes from `project`
+ * below. There is no CMS: edit this file, and the document changes. Optional
+ * fields are omitted rather than left blank, so a section with nothing to say
+ * stays silent.
  *
- * PLACEHOLDER DATA — copy, codes, vendors and prices are stand-ins.
- * Image `src` paths point at files that do not exist in `/public` yet; add the
- * assets (or swap the paths) before any layout renders them.
+ * PLACEHOLDER DATA — vendor names, prices, dates and codes are stand-ins.
+ * Image `src` paths point at files that do not exist in `/public` yet;
+ * `AssetFrame` draws aspect-correct placeholders until they do.
  */
 
 import type {
@@ -65,47 +67,31 @@ const colors: Palette = {
 
 const logos: Logo[] = [
   {
-    id: "logo-wordmark",
+    id: "logo-milkyway",
     variant: "wordmark",
-    label: "MW LINE A wordmark",
-    asset: {
-      src: "/logos/mw-line-a-wordmark.svg",
-      alt: "MW LINE A",
-      width: 640,
-      height: 96,
-    },
+    label: "MilkyWay wordmark",
+    asset: { src: "/logos/milkyway-wordmark.svg", alt: "MilkyWay", width: 640, height: 96 },
     minWidthMm: 24,
     clearSpace: "Half the cap height on all sides.",
   },
   {
-    id: "logo-monogram",
-    variant: "monogram",
-    label: "MW monogram",
-    asset: {
-      src: "/logos/mw-monogram.svg",
-      alt: "MW",
-      width: 128,
-      height: 128,
-    },
-    minWidthMm: 8,
-    notes: "Use where the wordmark falls below minimum width.",
+    id: "logo-line-a",
+    variant: "lockup",
+    label: "MW LINE A lockup",
+    asset: { src: "/logos/mw-line-a-lockup.svg", alt: "MW LINE A", width: 720, height: 160 },
+    clearSpace: "One line-width on all sides.",
   },
   {
-    id: "logo-lockup",
-    variant: "lockup",
-    label: "Wordmark with line mark",
-    asset: {
-      src: "/logos/mw-line-a-lockup.svg",
-      alt: "MW LINE A with route mark",
-      width: 720,
-      height: 160,
-    },
-    clearSpace: "One line-width on all sides.",
+    id: "logo-designer",
+    variant: "monogram",
+    label: "Designer monogram",
+    asset: { src: "/logos/designer-monogram.svg", alt: "Designer monogram", width: 128, height: 128 },
+    minWidthMm: 8,
   },
 ];
 
 /* ---------------------------------------------------------------------------
- * Product colour swatches
+ * Colourways
  * ------------------------------------------------------------------------- */
 
 const swatches: ProductSwatch[] = [
@@ -117,7 +103,7 @@ const swatches: ProductSwatch[] = [
     finish: "matte",
     references: { pantone: "PANTONE 1595 C", ral: "RAL 2011" },
     available: true,
-    vendorId: "vnd-finish",
+    vendorId: "vnd-milkyway",
   },
   {
     id: "sw-brass",
@@ -127,28 +113,28 @@ const swatches: ProductSwatch[] = [
     finish: "satin",
     references: { pantone: "PANTONE 4515 C", ral: "RAL 1024" },
     available: true,
-    vendorId: "vnd-finish",
+    vendorId: "vnd-milkyway",
   },
   {
     id: "sw-ash",
     name: "Ash Grey",
     code: "LA-ASH",
     hex: "#ACA39A",
-    finish: "raw",
-    // No Pantone match on file for the raw finish — only the RAL chip.
+    finish: "matte",
+    // Matched off the RAL chip only; no Pantone equivalent on file.
     references: { ral: "RAL 7038" },
     available: true,
-    vendorId: "vnd-manufacture",
+    vendorId: "vnd-milkyway",
   },
   {
     id: "sw-graphite",
     name: "Graphite",
     code: "LA-GRA",
     hex: "#1A1714",
-    finish: "anodised",
+    finish: "matte",
     references: { pantone: "PANTONE Black 6 C", ral: "RAL 9011" },
     available: true,
-    vendorId: "vnd-finish",
+    vendorId: "vnd-milkyway",
   },
   {
     id: "sw-bone",
@@ -158,7 +144,7 @@ const swatches: ProductSwatch[] = [
     finish: "gloss",
     references: { pantone: "PANTONE 9184 C" },
     available: false,
-    vendorId: "vnd-finish",
+    vendorId: "vnd-milkyway",
   },
 ];
 
@@ -168,151 +154,162 @@ const swatches: ProductSwatch[] = [
 
 const kits: Kit[] = [
   {
-    id: "kit-core",
-    code: "LA-K01",
-    name: "Core Kit",
-    summary: "The base configuration. One housing, one carrier, mounting hardware.",
+    id: "kit-base",
+    code: "LA-BASE",
+    name: "Base Kit",
+    summary:
+      "Alphas, core modifiers and the standard bottom row. Covers ANSI on a 60 through TKL.",
     line: "primary",
     availability: "released",
     contents: [
-      { name: "Housing", quantity: 1, material: "Anodised aluminium" },
-      { name: "Carrier plate", quantity: 1, material: "Cold-rolled steel" },
-      { name: "Mounting hardware", quantity: 8, note: "M4, stainless" },
-      { name: "Spec card", quantity: 1, material: "300gsm uncoated" },
+      { name: "Alphas", quantity: 47, material: "ABS doubleshot" },
+      { name: "Modifiers", quantity: 31, material: "ABS doubleshot" },
+      { name: "6.25u spacebar", quantity: 1, material: "ABS doubleshot" },
+      { name: "Function row", quantity: 13, material: "ABS doubleshot" },
     ],
-    priceMinor: 18500,
+    priceMinor: 12500,
     currency: "EUR",
-    swatchIds: ["sw-signal", "sw-ash", "sw-graphite"],
+    swatchIds: ["sw-ash", "sw-graphite", "sw-signal"],
     image: {
-      src: "/renders/kit-core.png",
-      alt: "Core Kit, contents laid flat",
-      width: 1600,
-      height: 1200,
+      src: "/renders/kit-base.png",
+      alt: "Base Kit laid out on a board",
+      width: 2400,
+      height: 1600,
     },
   },
   {
-    id: "kit-extended",
-    code: "LA-K02",
-    name: "Extended Kit",
-    summary: "Core Kit plus the secondary carrier and the full fixing set.",
+    id: "kit-extension",
+    code: "LA-EXT",
+    name: "Extension Kit",
+    summary:
+      "ISO, split spacebars, stepped caps and the 40s row. Everything the base kit leaves out.",
     line: "primary",
+    availability: "released",
+    contents: [
+      { name: "ISO Enter and Shift", quantity: 3, material: "ABS doubleshot" },
+      { name: "Split spacebars", quantity: 4, material: "ABS doubleshot" },
+      { name: "40s kit", quantity: 18, material: "ABS doubleshot" },
+      { name: "Stepped Caps Lock", quantity: 1, material: "ABS doubleshot" },
+    ],
+    priceMinor: 6500,
+    currency: "EUR",
+    swatchIds: ["sw-ash", "sw-graphite", "sw-brass"],
+    image: {
+      src: "/renders/kit-extension.png",
+      alt: "Extension Kit laid flat",
+      width: 2400,
+      height: 1600,
+    },
+  },
+  {
+    id: "kit-novelty",
+    code: "LA-NOV",
+    name: "Novelty Kit",
+    summary:
+      "The line map set: terminus, interchange and depot caps, plus the Line A destination blade.",
+    line: "secondary",
     availability: "sampling",
     contents: [
-      { name: "Housing", quantity: 1, material: "Anodised aluminium" },
-      { name: "Carrier plate", quantity: 2, material: "Cold-rolled steel" },
-      { name: "Extension arm", quantity: 1, material: "Anodised aluminium" },
-      { name: "Mounting hardware", quantity: 16, note: "M4, stainless" },
-      { name: "Spec card", quantity: 1, material: "300gsm uncoated" },
+      { name: "Novelty 1u", quantity: 8, material: "ABS doubleshot" },
+      { name: "Destination blade, 2.25u", quantity: 1, material: "ABS doubleshot" },
+      { name: "Depot Escape", quantity: 1, material: "ABS doubleshot" },
     ],
-    priceMinor: 27500,
+    priceMinor: 3500,
     currency: "EUR",
-    swatchIds: ["sw-signal", "sw-brass", "sw-graphite"],
+    swatchIds: ["sw-signal", "sw-brass"],
     image: {
-      src: "/renders/kit-extended.png",
-      alt: "Extended Kit, contents laid flat",
+      src: "/renders/kit-novelty.png",
+      alt: "Novelty Kit caps arranged in a row",
       width: 1600,
-      height: 1200,
+      height: 1600,
     },
-  },
-  {
-    id: "kit-service",
-    code: "LA-K03",
-    name: "Service Kit",
-    summary: "Consumables and replacement fixings. Ships without a housing.",
-    line: "secondary",
-    availability: "in-development",
-    contents: [
-      { name: "Gasket set", quantity: 4, material: "EPDM" },
-      { name: "Mounting hardware", quantity: 16, note: "M4, stainless" },
-      { name: "Tool", quantity: 1, material: "Hardened steel" },
-    ],
-    swatchIds: ["sw-ash"],
   },
 ];
 
 /* ---------------------------------------------------------------------------
- * Renders gallery
+ * Renders
  * ------------------------------------------------------------------------- */
 
 const renders: RenderGallery = {
   heading: "Renders",
-  intro: "Studio passes at 1:1. Finishes as specified; hardware shown in Graphite.",
+  intro:
+    "Studio passes on a 65% board. Colours are render approximations — the RAL and Pantone chips are the reference.",
   items: [
     {
-      id: "rnd-01",
-      title: "Housing, front elevation",
-      view: "front",
-      order: 10,
-      swatchId: "sw-signal",
-      asset: {
-        src: "/renders/la-front.png",
-        alt: "Housing photographed straight on",
-        width: 2000,
-        height: 2500,
-      },
-    },
-    {
-      id: "rnd-02",
-      title: "Housing, three-quarter",
-      view: "three-quarter",
-      order: 20,
-      swatchId: "sw-signal",
-      asset: {
-        src: "/renders/la-three-quarter.png",
-        alt: "Housing at a three-quarter angle",
-        width: 2000,
-        height: 1500,
-      },
-    },
-    {
-      id: "rnd-03",
-      title: "Carrier plate, top",
+      id: "rnd-top",
+      title: "Full set, top-down",
       view: "top",
-      order: 30,
+      order: 10,
       swatchId: "sw-ash",
       asset: {
         src: "/renders/la-top.png",
-        alt: "Carrier plate seen from above",
-        width: 2000,
-        height: 1500,
+        alt: "The full set installed, photographed from above",
+        width: 2400,
+        height: 1350,
       },
     },
     {
-      id: "rnd-04",
-      title: "Fixing detail",
-      view: "detail",
-      order: 40,
+      id: "rnd-quarter",
+      title: "65% board, three-quarter",
+      view: "three-quarter",
+      order: 20,
+      swatchId: "sw-ash",
+      asset: {
+        src: "/renders/la-three-quarter.png",
+        alt: "Board at a three-quarter angle",
+        width: 2400,
+        height: 1600,
+      },
+    },
+    {
+      id: "rnd-alphas",
+      title: "Alphas, front elevation",
+      view: "front",
+      order: 30,
       swatchId: "sw-graphite",
       asset: {
-        src: "/renders/la-detail.png",
-        alt: "Close crop of the mounting hardware",
+        src: "/renders/la-alphas.png",
+        alt: "Alpha caps seen straight on",
         width: 1600,
-        height: 1600,
-        caption: "M4 stainless, 8mm, captive washer.",
+        height: 2000,
       },
     },
     {
-      id: "rnd-05",
-      title: "Exploded assembly",
+      id: "rnd-novelty",
+      title: "Terminus novelty",
+      view: "detail",
+      order: 40,
+      swatchId: "sw-signal",
+      asset: {
+        src: "/renders/la-novelty.png",
+        alt: "Close crop of the terminus novelty cap",
+        width: 1600,
+        height: 1600,
+        caption: "Doubleshot legend, no printing, no coating.",
+      },
+    },
+    {
+      id: "rnd-kits",
+      title: "Kit layout",
       view: "exploded",
       order: 50,
       asset: {
-        src: "/renders/la-exploded.png",
-        alt: "All components separated along the assembly axis",
+        src: "/renders/la-kits.png",
+        alt: "All three kits laid out side by side",
         width: 2400,
-        height: 1600,
-        caption: "Fourteen parts, no adhesives.",
+        height: 1400,
+        caption: "Base, Extension and Novelty kits at 1:1.",
       },
     },
     {
-      id: "rnd-06",
-      title: "Wall mount, in situ",
+      id: "rnd-desk",
+      title: "Board in situ",
       view: "in-situ",
       order: 60,
       swatchId: "sw-brass",
       asset: {
-        src: "/renders/la-in-situ.png",
-        alt: "Unit mounted on a plaster wall",
+        src: "/renders/la-desk.png",
+        alt: "Board on a desk",
         width: 2400,
         height: 1600,
       },
@@ -326,145 +323,169 @@ const renders: RenderGallery = {
 
 const packaging: Packaging = {
   heading: "Packaging",
-  intro: "Flat-packed, unbleached board. No foam, no plastics, no printed inserts.",
+  intro: "Moulded pulp trays in an unbleached carton. No foam, no plastic clamshells.",
   components: [
     {
-      id: "pkg-outer",
+      id: "pkg-tray",
+      name: "Moulded cap tray",
+      material: "Moulded paper pulp",
+      dimensions: { widthMm: 330, heightMm: 122, depthMm: 24, weightG: 88 },
+      vendorId: "vnd-packaging",
+    },
+    {
+      id: "pkg-carton",
       name: "Outer carton",
       material: "Unbleached E-flute corrugate",
-      dimensions: { widthMm: 320, heightMm: 220, depthMm: 90, weightG: 180 },
+      dimensions: { widthMm: 344, heightMm: 136, depthMm: 62, weightG: 165 },
       print: "1/0 flexo, line black",
       vendorId: "vnd-packaging",
     },
     {
       id: "pkg-sleeve",
-      name: "Sleeve",
+      name: "Line map sleeve",
       material: "300gsm uncoated stock",
-      dimensions: { widthMm: 318, heightMm: 218, depthMm: 2, weightG: 42 },
+      dimensions: { widthMm: 342, heightMm: 134, depthMm: 2, weightG: 38 },
       print: "2/0 screen, Signal Orange and line black",
       vendorId: "vnd-print",
-    },
-    {
-      id: "pkg-tray",
-      name: "Moulded tray",
-      material: "Moulded paper pulp",
-      dimensions: { widthMm: 310, heightMm: 210, depthMm: 70, weightG: 96 },
-      vendorId: "vnd-packaging",
     },
   ],
   notes: [
     "92% post-consumer recycled content across all components.",
     "Kerbside recyclable in full; no separation required.",
-    "Ships flat at 40 units per pallet layer.",
+    "Trays nest four deep for vendor-to-buyer reshipping.",
   ],
 };
 
 /* ---------------------------------------------------------------------------
  * Vendors
+ *
+ * A group buy runs through regional storefronts. `url` is omitted where a
+ * vendor is confirmed but has not published a listing yet.
  * ------------------------------------------------------------------------- */
 
 const vendors: Vendor[] = [
   {
-    id: "vnd-manufacture",
-    name: "Nordwerk Fertigung",
-    role: "manufacturing",
-    location: "Solingen, DE",
-    status: "contracted",
-    leadTimeDays: 35,
-    contact: { label: "nordwerk.example", href: "https://nordwerk.example", external: true },
+    id: "vnd-milkyway",
+    name: "MilkyWay",
+    role: "manufacturer",
+    region: "global",
+    location: "Dongguan, CN",
+    status: "confirmed",
+    url: "https://milkyway.example",
+    notes: "Doubleshot tooling and production.",
   },
   {
-    id: "vnd-tooling",
-    name: "Atelier Précis",
-    role: "tooling",
-    location: "Besançon, FR",
-    status: "contracted",
-    leadTimeDays: 60,
-    notes: "Holds the T1 and T2 tools for the housing.",
+    id: "vnd-eu",
+    name: "Kesselhaus Keys",
+    role: "vendor",
+    region: "europe",
+    location: "Leipzig, DE",
+    status: "confirmed",
+    url: "https://kesselhaus.example",
+    serves: ["EU", "UK", "CH", "NO"],
   },
   {
-    id: "vnd-finish",
-    name: "Superficie Milano",
-    role: "finishing",
-    location: "Milan, IT",
-    status: "engaged",
-    leadTimeDays: 14,
-    notes: "Anodising and screen finishes. Bone gloss still under test.",
+    id: "vnd-na",
+    name: "Meridian Supply",
+    role: "vendor",
+    region: "north-america",
+    location: "Portland, US",
+    status: "confirmed",
+    url: "https://meridian-supply.example",
+    serves: ["US", "CA", "MX"],
+  },
+  {
+    id: "vnd-asia",
+    name: "Interchange Works",
+    role: "vendor",
+    region: "asia",
+    location: "Singapore, SG",
+    status: "confirmed",
+    // Listing not published yet — the section prints a pending state.
+    serves: ["SG", "MY", "JP", "KR", "TW"],
+  },
+  {
+    id: "vnd-oce",
+    name: "Southline Keys",
+    role: "vendor",
+    region: "oceania",
+    location: "Melbourne, AU",
+    status: "pending",
+    serves: ["AU", "NZ"],
+    notes: "Allocation still being confirmed.",
+  },
+  {
+    id: "vnd-sa",
+    name: "Terminal Sur",
+    role: "vendor",
+    region: "south-america",
+    location: "São Paulo, BR",
+    status: "confirmed",
+    url: "https://terminalsur.example",
+    serves: ["BR", "AR", "CL"],
   },
   {
     id: "vnd-print",
     name: "Kesselhaus Druck",
-    role: "print",
+    // Not a sales channel — it must not appear in the regional vendor scan.
+    role: "logistics",
+    region: "europe",
     location: "Leipzig, DE",
-    status: "quoting",
-    leadTimeDays: 10,
+    status: "confirmed",
+    notes: "Sleeve print only; not a sales channel.",
   },
   {
     id: "vnd-packaging",
     name: "Pulp & Board Co.",
-    role: "packaging",
-    location: "Ghent, BE",
-    status: "contracted",
-    leadTimeDays: 21,
-  },
-  {
-    id: "vnd-logistics",
-    name: "Meridian Freight",
     role: "logistics",
-    location: "Rotterdam, NL",
-    status: "dormant",
-    leadTimeDays: 7,
-    notes: "Engaged at fulfilment only.",
+    region: "europe",
+    location: "Ghent, BE",
+    status: "confirmed",
+    url: "https://pulpandboard.example",
   },
 ];
 
 /* ---------------------------------------------------------------------------
- * Dynamic product info
+ * Specification
  * ------------------------------------------------------------------------- */
 
 const info: ProductInfo = {
   heading: "Specification",
-  intro: "Figures are from the T2 tool. Tolerances hold to ±0.2mm unless noted.",
-  dimensions: { widthMm: 280, heightMm: 180, depthMm: 62, weightG: 1240 },
-  materials: [
-    "Anodised aluminium, 6082-T6",
-    "Cold-rolled steel, DC01",
-    "EPDM gasket, 60 Shore A",
-    "Stainless fixings, A2-70",
-  ],
+  intro: "Figures are from the approved production sample, not the prototypes.",
+  materials: ["ABS, doubleshot", "No coating", "MX-compatible cross stem"],
   groups: [
     {
-      id: "inf-dimensions",
-      heading: "Dimensions",
+      id: "inf-caps",
+      heading: "Caps",
       line: "primary",
       rows: [
-        { label: "Width", value: "280 mm" },
-        { label: "Height", value: "180 mm" },
-        { label: "Depth", value: "62 mm" },
-        { label: "Weight", value: "1,240 g" },
-        { label: "Tolerance", value: "±0.2 mm" },
+        { label: "Profile", value: "Cherry" },
+        { label: "Material", value: "ABS" },
+        { label: "Legends", value: "Doubleshot" },
+        { label: "Wall thickness", value: "1.5 mm" },
+        { label: "Stem", value: "MX cross" },
       ],
     },
     {
-      id: "inf-construction",
-      heading: "Construction",
+      id: "inf-coverage",
+      heading: "Coverage",
       line: "secondary",
       rows: [
-        { label: "Parts", value: "14" },
-        { label: "Adhesives", value: "None" },
-        { label: "Fixings", value: "M4 stainless, A2-70" },
-        { label: "Serviceable", value: "Yes, full teardown" },
+        { label: "Kits", value: "03" },
+        { label: "Caps, all kits", value: "128" },
+        { label: "Layouts", value: "ANSI, ISO, 40s" },
+        { label: "Boards", value: "60% – TKL" },
       ],
     },
     {
-      id: "inf-compliance",
-      heading: "Compliance",
+      id: "inf-terms",
+      heading: "Group buy",
       line: "secondary",
       rows: [
-        { label: "REACH", value: "Conformant" },
-        { label: "RoHS", value: "Conformant" },
-        { label: "Warranty", value: "5 years" },
-        { label: "Origin", value: "Made in the EU" },
+        { label: "Minimum", value: "300 sets" },
+        { label: "Extras", value: "Vendor discretion" },
+        { label: "Estimated ship", value: "Q2 2027" },
+        { label: "Region", value: "Six vendors" },
       ],
     },
   ],
@@ -472,6 +493,9 @@ const info: ProductInfo = {
 
 /* ---------------------------------------------------------------------------
  * Lifecycle
+ *
+ * `current` is the single status key. Stage states are derived from it in
+ * `lib/lifecycle.ts` — do not author them here.
  * ------------------------------------------------------------------------- */
 
 const lifecycle: Lifecycle = {
@@ -482,63 +506,56 @@ const lifecycle: Lifecycle = {
     {
       id: "preparing",
       index: 1,
-      label: "Preparing",
-      description: "Brief fixed, references gathered, target cost agreed.",
-      state: "complete",
+      label: "Interest check",
+      description: "Renders published, layout coverage set against the response.",
       startedOn: "2026-01-12",
       completedOn: "2026-02-20",
     },
     {
       id: "sampling",
       index: 2,
-      label: "Sampling",
-      description: "Three housing samples; Signal Orange approved off the second.",
-      state: "complete",
+      label: "Prototypes",
+      description: "Three colour passes; Signal Orange approved off the second.",
       startedOn: "2026-02-21",
       completedOn: "2026-04-30",
-      vendorIds: ["vnd-manufacture", "vnd-finish"],
+      vendorIds: ["vnd-milkyway"],
     },
     {
       id: "tooling",
       index: 3,
       label: "Tooling",
-      description: "T1 cut and revised; T2 signed off at first shot.",
-      state: "complete",
+      description: "Doubleshot moulds cut and revised; first shot signed off.",
       startedOn: "2026-05-04",
       completedOn: "2026-07-17",
-      vendorIds: ["vnd-tooling"],
+      vendorIds: ["vnd-milkyway"],
     },
     {
       id: "production",
       index: 4,
       label: "Production",
-      description: "First run of 500 housings. Finishing in batches of 100.",
-      state: "active",
+      description: "Full run in moulding. Novelty kit follows the base kits.",
       startedOn: "2026-08-10",
-      vendorIds: ["vnd-manufacture", "vnd-finish"],
+      vendorIds: ["vnd-milkyway"],
     },
     {
       id: "assembly",
       index: 5,
-      label: "Assembly",
-      description: "Hand assembly and QC against the T2 datum.",
-      state: "upcoming",
-      vendorIds: ["vnd-manufacture"],
+      label: "Sorting and packing",
+      description: "Caps sorted to kit, trayed and boxed.",
+      vendorIds: ["vnd-milkyway", "vnd-packaging"],
     },
     {
       id: "fulfilment",
       index: 6,
-      label: "Fulfilment",
-      description: "Pack, palletise, dispatch from Rotterdam.",
-      state: "upcoming",
-      vendorIds: ["vnd-packaging", "vnd-logistics"],
+      label: "Vendor shipping",
+      description: "Freight to the regional vendors, then out to buyers.",
+      vendorIds: ["vnd-eu", "vnd-na", "vnd-asia", "vnd-oce", "vnd-sa"],
     },
     {
       id: "completed",
       index: 7,
-      label: "Completed",
-      description: "Run closed, tooling archived, spares held for five years.",
-      state: "upcoming",
+      label: "Delivered",
+      description: "Run closed. Tooling held for a possible round two.",
     },
   ],
 };
@@ -551,25 +568,25 @@ export const project: Project = {
   meta: {
     name: "MW LINE A",
     code: "MW-LA",
-    tagline: "A modular carrier system, documented end to end",
+    tagline: "A transit map for your keyboard",
     description:
-      "MW LINE A is a modular carrier system built from fourteen parts and no adhesives. This document tracks the line from brief to dispatch.",
-    studio: "Metalwork Studio",
-    year: "2025–2026",
+      "MW LINE A is a doubleshot keycap set drawn from transit diagrams — terminus, interchange and depot novelties on a warm grey base. Manufactured by MilkyWay, run as a regional group buy.",
+    studio: "MilkyWay",
+    year: "2026–2027",
     locale: "en",
   },
   colors,
   logos,
   hero: {
     eyebrow: "LINE A / 01",
-    headline: "A carrier system, documented end to end",
-    subhead: "Fourteen parts. No adhesives. Five-year spares.",
-    lead: "MW LINE A runs from brief to dispatch on a single page. Every figure below is the working figure — when the line moves, this document moves with it.",
+    headline: "A transit map for your keyboard",
+    subhead: "Doubleshot ABS. Cherry profile. Three kits.",
+    lead: "MW LINE A runs from interest check to doorstep on a single page. Every figure below is the working figure — when the run moves, this document moves with it.",
     keyline: [
-      { label: "Programme", value: "2025–2026" },
+      { label: "Programme", value: "2026–2027" },
       { label: "Phase", value: "Production" },
       { label: "Kits", value: "03" },
-      { label: "Finishes", value: "05" },
+      { label: "Colourways", value: "05" },
     ],
   },
   kits,
