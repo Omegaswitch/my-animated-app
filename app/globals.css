@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* MW LINE A — design tokens.
+   Tailwind v4 is CSS-first: tokens declared here generate utilities
+   (--color-ground -> bg-ground / text-ground / border-ground). */
+@theme {
+  --color-ground: #aca39a;
+  --color-line-primary: #cd7925;
+  --color-line-secondary: #be8d4d;
+
+  /* Ink is not in the brief; added as the editorial counterweight to the
+     warm grey ground. Adjust if the intended value differs. */
+  --color-ink: #1a1714;
+
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Fixed palette by design — no prefers-color-scheme inversion. A transit
+   diagram is a printed object; it does not have a dark mode. */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* The lightbox backdrop. ::backdrop sits outside the element's inheritance
+   chain, so it is declared here against :root tokens rather than as a utility
+   on the dialog. */
+dialog::backdrop {
+  background: color-mix(in srgb, #1a1714 92%, transparent);
 }
