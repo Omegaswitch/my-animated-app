@@ -1,0 +1,175 @@
+import type {
+  GbStage,
+  ProjectCopy,
+  StageState,
+  Station,
+  Terminus,
+} from "@/types/project";
+import { GB_STAGE_ORDER } from "@/data/project";
+import StationHeader from "./StationHeader";
+import {
+  ROUTE_POSITION_CLASS,
+  ROUTE_PRIMARY_X,
+  ROUTE_SECONDARY_X,
+  ROUTE_STROKE_WIDTH,
+  ROUTE_TRACK_CLASS,
+  ROUTE_TRACK_WIDTH,
+  STATION_FILL,
+  STATION_RADIUS,
+  STATION_STROKE_WIDTH,
+} from "@/lib/route-geometry";
+
+/**
+ * Station 6 — the terminus.
+ *
+ * Three things end here: the line, the group buy, and the document.
+ *
+ * The end-of-line marker follows the Prague convention — a terminating route
+ * is capped on *every* track it carries, so both tracks get a white disc and
+ * the pair is closed with a cross-tie. Geometry comes from
+ * `lib/route-geometry`, so the discs land on the strokes exactly.
+ *
+ * The stage indicator is derived from a single key. `terminus.current` is the
+ * only authored status; everything before it is complete and everything after
+ * is pending. Storing a state per stage as well would let the two disagree —
+ * a stage marked done sitting after the current one.
+ */
+
+export interface TerminusSectionProps {
+  terminus: Terminus;
+  station: Station;
+  copy: ProjectCopy;
+}
+
+function resolveStageState(stage: GbStage, current: GbStage): StageState {
+  const at = GB_STAGE_ORDER.indexOf(stage);
+  const now = GB_STAGE_ORDER.indexOf(current);
+  if (at < now) return "complete";
+  if (at === now) return "active";
+  return "pending";
+}
+
+export default function TerminusSection({
+  terminus,
+  station,
+  copy,
+}: TerminusSectionProps) {
+  const stages = GB_STAGE_ORDER.map((stage) => ({
+    id: stage,
+    label: terminus.stageLabels[stage],
+    state: resolveStageState(stage, terminus.current),
+  }));
+
+  return (
+    <section className="relative py-24">
+      {/* End of line: a disc on each track, closed with a cross-tie. */}
+      <div
+        className={`pointer-events-none absolute top-10 ${ROUTE_TRACK_CLASS} ${ROUTE_POSITION_CLASS}`}
+      >
+        <svg
+          width={ROUTE_TRACK_WIDTH}
+          height={ROUTE_STROKE_WIDTH * 3}
+          style={{ overflow: "visible" }}
+          aria-hidden
+        >
+          {/* The tie across both tracks — the bar that closes a terminus. */}
+          <line
+            x1={ROUTE_PRIMARY_X}
+            y1={4}
+            x2={ROUTE_SECONDARY_X}
+            y2={4}
+            stroke="var(--color-ink)"
+            strokeWidth={3}
+          />
+          <circle
+            cx={ROUTE_PRIMARY_X}
+            cy={STATION_RADIUS + 6}
+            r={STATION_RADIUS}
+            fill={STATION_FILL}
+            stroke="var(--color-line-primary)"
+            strokeWidth={STATION_STROKE_WIDTH}
+          />
+          <circle
+            cx={ROUTE_SECONDARY_X}
+            cy={STATION_RADIUS + 6}
+            r={STATION_RADIUS}
+            fill={STATION_FILL}
+            stroke="var(--color-line-secondary)"
+            strokeWidth={STATION_STROKE_WIDTH}
+          />
+        </svg>
+      </div>
+
+      <div className="pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
+        <StationHeader
+          station={station}
+          meta={`${copy.labels.updated} ${terminus.updatedOn}`}
+        />
+
+        <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-ink/60">
+          {terminus.eyebrow}
+        </p>
+
+        <h3 className="mt-5 max-w-[18ch] text-[clamp(1.75rem,4vw,3rem)] font-bold leading-[0.96] tracking-[-0.03em]">
+          {terminus.headline}
+        </h3>
+
+        <p className="mt-5 max-w-[48ch] text-sm leading-relaxed text-ink/80">
+          {terminus.message}
+        </p>
+
+        {/* Group buy stage — the run's position on its own little line. */}
+        <ol className="mt-10 flex flex-col gap-0 border-t-2 border-ink/25 pt-5 sm:flex-row sm:gap-0">
+          {stages.map((stage, index) => {
+            const reached = stage.state !== "pending";
+            const isLast = index === stages.length - 1;
+
+            return (
+              <li
+                key={stage.id}
+                className="relative flex gap-3 sm:flex-1 sm:flex-col sm:gap-2"
+              >
+                <div className="relative flex w-3 shrink-0 justify-center sm:h-3 sm:w-full sm:justify-start">
+                  {!isLast ? (
+                    <span
+                      aria-hidden
+                      className={`absolute left-1/2 top-3 h-full w-0.5 -translate-x-1/2 sm:left-0 sm:top-1/2 sm:h-0.5 sm:w-full sm:-translate-y-1/2 sm:translate-x-0 ${
+                        stage.state === "complete"
+                          ? "bg-line-primary"
+                          : "bg-ink/20"
+                      }`}
+                    />
+                  ) : null}
+                  <span
+                    aria-hidden
+                    className={`relative z-10 block h-3 w-3 rounded-full border-[3px] ${
+                      reached
+                        ? "border-line-primary bg-white"
+                        : "border-ink/30 bg-ground"
+                    }`}
+                  />
+                </div>
+
+                <div className="pb-4 sm:pb-0 sm:pr-4">
+                  <p
+                    className={`text-[11px] font-bold uppercase tracking-[0.1em] ${
+                      stage.state === "active"
+                        ? "text-ink"
+                        : reached
+                          ? "text-ink/70"
+                          : "text-ink/40"
+                    }`}
+                  >
+                    {stage.label}
+                  </p>
+                  {/* The state in words — what assistive tech reads. */}
+                  <p className="sr-only">{stage.state}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </section>
+  );
+}

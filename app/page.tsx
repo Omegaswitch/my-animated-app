@@ -1,42 +1,43 @@
 import LineRoute, { type RouteStation } from "@/components/line/LineRoute";
 import StickyIdentity from "@/components/layout/StickyIdentity";
 import SectionStop from "@/components/layout/SectionStop";
-import HeroSection from "@/components/sections/HeroSection";
+import IntroSection from "@/components/sections/IntroSection";
 import KitsSection from "@/components/sections/KitsSection";
 import ColorsSection from "@/components/sections/ColorsSection";
 import RendersSection from "@/components/sections/RendersSection";
-import ProductInfoSection from "@/components/sections/ProductInfoSection";
-import PackagingSection from "@/components/sections/PackagingSection";
-import ProjectStatus from "@/components/sections/ProjectStatus";
 import VendorsSection from "@/components/sections/VendorsSection";
-import ThankYouSection from "@/components/sections/ThankYouSection";
+import TerminusSection from "@/components/sections/TerminusSection";
 import { project } from "@/data/project";
+import type { StationId } from "@/types/project";
 
 /**
- * MW LINE A — the document.
+ * MW LINE A — the route.
  *
- * A server component. Everything on the page is rendered from `project`; the
- * only client code is the route, the identity and the two galleries that open
- * a lightbox.
+ * Six stations, in order, each holding its own viewport stage. A server
+ * component: the only client code is the route, the identity, the stop
+ * wrappers, and the two galleries that open a lightbox.
  *
- * The order is the journey: what it is, what you can buy, what it looks like,
- * what it is made of, where the run has got to, where to buy it, and the
- * terminus.
+ * The station list in `data/project.ts` is the sequence. Adding a stop means
+ * adding it there and rendering it here — the route markers, the labels and
+ * the spacing all follow from that one list.
  */
 
-/**
- * Lifecycle phases become the stations on the rail, spaced evenly down the
- * document. They are markers of scroll position, not of programme progress —
- * the programme's real state is derived separately in `ProjectStatus`.
- */
-const stations: RouteStation[] = project.lifecycle.stages.map(
-  (stage, index, all) => ({
-    id: stage.id,
-    label: stage.label,
+/** Stations are spaced evenly down the document. */
+const routeStations: RouteStation[] = project.stations.map(
+  (station, index, all) => ({
+    id: station.id,
+    label: station.label,
     progress: all.length > 1 ? index / (all.length - 1) : 0,
-    line: index % 2 === 0 ? "primary" : "secondary",
+    line: station.line,
   }),
 );
+
+const stationById = (id: StationId) => {
+  const station = project.stations.find((candidate) => candidate.id === id);
+  if (!station)
+    throw new Error(`Station "${id}" is missing from project.stations`);
+  return station;
+};
 
 export default function Page() {
   return (
@@ -45,73 +46,57 @@ export default function Page() {
         manufacturerLabel={project.meta.studio ?? project.meta.name}
         projectLabel={project.meta.name}
       />
-      <LineRoute stations={stations} showLabels />
+      <LineRoute stations={routeStations} showLabels />
 
       <main className="relative">
-        {/* Origin and terminus are not stops, and are deliberately unwrapped:
-            both carry a marker positioned against the fixed rails, and `scale`
-            transforms the whole subtree — pinning them would drag those
-            markers off the line. */}
-        <HeroSection
-          hero={project.hero}
-          meta={project.meta}
-          copy={project.copy}
-        />
+        <SectionStop mode="stop">
+          <IntroSection
+            intro={project.intro}
+            meta={project.meta}
+            copy={project.copy}
+          />
+        </SectionStop>
 
-        {/* `pass`: content is taller than the viewport. See SectionStop — a
-            pinned pane would clip the overflow with no way to reach it. */}
-        <SectionStop mode="pass">
+        <SectionStop mode="stop">
           <KitsSection
             kits={project.kits}
             swatches={project.swatches}
+            station={stationById("kits")}
             copy={project.copy}
           />
         </SectionStop>
 
-        <SectionStop mode="pass">
+        <SectionStop mode="stop">
           <ColorsSection
             swatches={project.swatches}
-            kits={project.kits}
+            station={stationById("colors")}
+            copy={project.copy}
+          />
+        </SectionStop>
+
+        <SectionStop mode="stop">
+          <RendersSection
             renders={project.renders}
-            vendors={project.vendors}
-            copy={project.copy}
-          />
-        </SectionStop>
-
-        <SectionStop mode="pass">
-          <RendersSection renders={project.renders} copy={project.copy} />
-        </SectionStop>
-
-        {/* `stop`: these three fit the viewport, so they pin and hold. */}
-        <SectionStop mode="stop">
-          <ProductInfoSection info={project.info} copy={project.copy} />
-        </SectionStop>
-
-        {/* `pass`: adding the component images took this from 662px to
-            1338px, past the viewport, so it can no longer pin without
-            clipping. Drop the images and it can go back to `stop`. */}
-        <SectionStop mode="pass">
-          <PackagingSection
-            packaging={project.packaging}
-            vendors={project.vendors}
+            station={stationById("renders")}
             copy={project.copy}
           />
         </SectionStop>
 
         <SectionStop mode="stop">
-          <ProjectStatus lifecycle={project.lifecycle} copy={project.copy} />
+          <VendorsSection
+            vendors={project.vendors}
+            station={stationById("vendors")}
+            copy={project.copy}
+          />
         </SectionStop>
 
-        <SectionStop mode="pass">
-          <VendorsSection vendors={project.vendors} copy={project.copy} />
+        <SectionStop mode="stop">
+          <TerminusSection
+            terminus={project.terminus}
+            station={stationById("terminus")}
+            copy={project.copy}
+          />
         </SectionStop>
-
-        <ThankYouSection
-          meta={project.meta}
-          logos={project.logos}
-          thanks={project.thanks}
-          copy={project.copy}
-        />
       </main>
     </>
   );

@@ -1,246 +1,128 @@
 "use client";
 
 import { useState } from "react";
-import type { Kit, ProductSwatch, ProjectCopy } from "@/types/project";
+import type { Kit, ProductSwatch, ProjectCopy, Station } from "@/types/project";
 import AssetFrame from "@/components/ui/AssetFrame";
 import Lightbox from "@/components/ui/Lightbox";
+import StationHeader from "./StationHeader";
 import { countLabel, formatPrice } from "@/lib/format";
 
 /**
- * Kits — the configurations the line ships in.
+ * Station 2 — the kits.
  *
- * The layout is chosen by how many kits there are, not forced into a grid of
- * identical cards:
- *
- *   1 kit   — a single feature, image and specification side by side
- *   2 kits  — an asymmetric pair, 7/5, so neither reads as a repeat
- *   3+ kits — the first is featured, the rest run beneath it at a smaller
- *             emphasis, which also absorbs a fourth or tenth kit without
- *             changing shape
- *
- * A kit with no image is not given an empty frame; it simply lays out as text.
+ * A two-up grid rather than a stack: the station has to hold inside a single
+ * viewport, so each kit shows a plate, a name, and the three figures that
+ * decide a purchase. The full contents list belongs on a vendor listing, not
+ * on a map.
  */
 
 export interface KitsSectionProps {
   kits: Kit[];
   swatches: ProductSwatch[];
+  station: Station;
   copy: ProjectCopy;
-}
-
-type Emphasis = "feature" | "standard";
-
-function KitBlock({
-  kit,
-  swatches,
-  emphasis,
-  copy,
-  onOpenImage,
-}: {
-  kit: Kit;
-  swatches: ProductSwatch[];
-  emphasis: Emphasis;
-  copy: ProjectCopy;
-  onOpenImage: (kit: Kit) => void;
-}) {
-  const isFeature = emphasis === "feature";
-  const kitSwatches = (kit.swatchIds ?? [])
-    .map((id) => swatches.find((swatch) => swatch.id === id))
-    .filter((swatch): swatch is ProductSwatch => Boolean(swatch));
-
-  return (
-    <article className="flex flex-col gap-5">
-      {kit.image ? (
-        <button
-          type="button"
-          onClick={() => onOpenImage(kit)}
-          className="group block w-full text-left outline-none focus-visible:ring-1 focus-visible:ring-line-primary"
-          aria-label={`View ${kit.name} full size`}
-        >
-          <AssetFrame
-            asset={kit.image}
-            tag={kit.code}
-            className="transition-opacity group-hover:opacity-85"
-            sizes={
-              isFeature
-                ? "(min-width: 1024px) 50vw, 100vw"
-                : "(min-width: 1024px) 25vw, 100vw"
-            }
-          />
-        </button>
-      ) : null}
-
-      <div>
-        <div className="flex items-baseline justify-between gap-4 border-b border-ink/20 pb-2">
-          <h3
-            className={
-              isFeature
-                ? "text-3xl tracking-tight lg:text-4xl"
-                : "text-xl tracking-tight lg:text-2xl"
-            }
-          >
-            {kit.name}
-          </h3>
-          <span className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-ink/60 tabular-nums">
-            {kit.code}
-          </span>
-        </div>
-
-        <p
-          className={`mt-4 leading-relaxed text-ink/80 ${
-            isFeature ? "max-w-[52ch] text-base" : "max-w-[44ch] text-sm"
-          }`}
-        >
-          {kit.summary}
-        </p>
-
-        <dl className="mt-6 flex flex-wrap items-baseline gap-x-8 gap-y-3 text-[10px] uppercase tracking-[0.2em] text-ink/60">
-          <div>
-            <dt className="sr-only">{copy.kitLabels.availability}</dt>
-            <dd>{copy.kitAvailability[kit.availability]}</dd>
-          </div>
-          {/* Price is omitted entirely while a kit is unpriced. */}
-          {kit.priceMinor !== undefined && kit.currency ? (
-            <div>
-              <dt className="sr-only">{copy.kitLabels.price}</dt>
-              <dd className="tabular-nums text-ink">
-                {formatPrice(kit.priceMinor, kit.currency)}
-              </dd>
-            </div>
-          ) : null}
-          <div>
-            <dt className="sr-only">{copy.kitLabels.line}</dt>
-            <dd>{copy.lineNames[kit.line]}</dd>
-          </div>
-        </dl>
-
-        {kitSwatches.length > 0 ? (
-          <ul className="mt-5 flex flex-wrap items-center gap-2">
-            {kitSwatches.map((swatch) => (
-              <li key={swatch.id} className="flex items-center gap-2">
-                <span
-                  className="block h-3 w-3 border border-ink/25"
-                  style={{ backgroundColor: swatch.hex }}
-                  aria-hidden
-                />
-                <span className="text-[10px] uppercase tracking-[0.16em] text-ink/60">
-                  {swatch.name}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        <ul className="mt-6 divide-y divide-ink/10 border-t border-ink/10">
-          {kit.contents.map((component) => (
-            <li
-              key={component.name}
-              className="flex items-baseline justify-between gap-4 py-2 text-sm"
-            >
-              <span className="text-ink/85">
-                {component.name}
-                {component.material ? (
-                  <span className="text-ink/50"> — {component.material}</span>
-                ) : null}
-              </span>
-              <span className="shrink-0 tabular-nums text-ink/60">
-                ×{component.quantity}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </article>
-  );
 }
 
 export default function KitsSection({
   kits,
   swatches,
+  station,
   copy,
 }: KitsSectionProps) {
   const [activeKit, setActiveKit] = useState<Kit | null>(null);
 
   if (kits.length === 0) return null;
 
-  const [first, ...rest] = kits;
-
   return (
-    <section className="relative z-10 py-32 pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
-      <header className="mb-16 flex items-baseline justify-between gap-6 border-b border-ink/20 pb-3">
-        <h2 className="text-[10px] uppercase tracking-[0.34em]">
-          {copy.headings.kits}
-        </h2>
-        <span className="text-[10px] uppercase tracking-[0.2em] tabular-nums text-ink/60">
-          {countLabel(kits.length, copy.counts.configuration)}
-        </span>
-      </header>
+    <section className="relative py-24 pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
+      <StationHeader
+        station={station}
+        meta={countLabel(kits.length, copy.counts.kit)}
+      />
 
-      {kits.length === 1 ? (
-        <KitBlock
-          kit={first}
-          swatches={swatches}
-          emphasis="feature"
-          copy={copy}
-          onOpenImage={setActiveKit}
-        />
-      ) : kits.length === 2 ? (
-        // Deliberately unequal: a 7/5 split reads as an editorial pair rather
-        // than two of the same thing.
-        <div className="grid gap-16 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <KitBlock
-              kit={first}
-              swatches={swatches}
-              emphasis="feature"
-              copy={copy}
-              onOpenImage={setActiveKit}
-            />
-          </div>
-          <div className="lg:col-span-5 lg:pt-16">
-            <KitBlock
-              kit={rest[0]}
-              swatches={swatches}
-              emphasis="standard"
-              copy={copy}
-              onOpenImage={setActiveKit}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-20">
-          <KitBlock
-            kit={first}
-            swatches={swatches}
-            emphasis="feature"
-            copy={copy}
-            onOpenImage={setActiveKit}
-          />
-          <div className="grid gap-x-12 gap-y-20 sm:grid-cols-2">
-            {rest.map((kit) => (
-              <KitBlock
-                key={kit.id}
-                kit={kit}
-                swatches={swatches}
-                emphasis="standard"
-                copy={copy}
-                onOpenImage={setActiveKit}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      <ul className="grid gap-x-8 gap-y-8 sm:grid-cols-2">
+        {kits.map((kit) => {
+          const kitSwatches = (kit.swatchIds ?? [])
+            .map((id) => swatches.find((swatch) => swatch.id === id))
+            .filter((swatch): swatch is ProductSwatch => Boolean(swatch));
+
+          return (
+            <li key={kit.id} className="flex flex-col">
+              {kit.image ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveKit(kit)}
+                  className="group block w-full text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary"
+                  aria-label={`View ${kit.name} full size`}
+                >
+                  <AssetFrame
+                    asset={kit.image}
+                    tag={kit.code}
+                    placeholderLabel={copy.labels.assetPlaceholder}
+                    className="transition-opacity group-hover:opacity-85"
+                    sizes="(min-width: 1024px) 22vw, 100vw"
+                  />
+                </button>
+              ) : null}
+
+              <div className="mt-3 flex items-baseline justify-between gap-3 border-b border-ink/20 pb-1.5">
+                <h3 className="text-base font-bold tracking-tight">
+                  {kit.name}
+                </h3>
+                <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.14em] tabular-nums text-ink/55">
+                  {kit.code}
+                </span>
+              </div>
+
+              <p className="mt-2 text-xs leading-relaxed text-ink/75">
+                {kit.summary}
+              </p>
+
+              <dl className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-[10px] font-bold uppercase tracking-[0.14em] text-ink/55">
+                <dd>{copy.kitAvailability[kit.availability]}</dd>
+                {kit.capCount !== undefined ? (
+                  <dd className="tabular-nums">
+                    {kit.capCount} {copy.labels.caps}
+                  </dd>
+                ) : null}
+                {/* Price is omitted entirely while a kit is unpriced. */}
+                {kit.priceMinor !== undefined && kit.currency ? (
+                  <dd className="tabular-nums text-ink">
+                    {formatPrice(kit.priceMinor, kit.currency)}
+                  </dd>
+                ) : null}
+              </dl>
+
+              {kitSwatches.length > 0 ? (
+                <ul className="mt-3 flex flex-wrap items-center gap-1.5">
+                  {kitSwatches.map((swatch) => (
+                    <li key={swatch.id}>
+                      <span
+                        className="block h-3.5 w-3.5 border border-ink/30"
+                        style={{ backgroundColor: swatch.hex }}
+                        title={swatch.name}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
 
       <Lightbox
         open={activeKit !== null}
         onClose={() => setActiveKit(null)}
         title={activeKit?.name ?? ""}
         meta={activeKit?.code}
-        caption={activeKit?.image?.caption ?? activeKit?.summary}
+        caption={activeKit?.summary}
       >
         {activeKit?.image ? (
           <AssetFrame
             asset={activeKit.image}
             tag={activeKit.code}
+            placeholderLabel={copy.labels.assetPlaceholder}
             sizes="90vw"
           />
         ) : null}

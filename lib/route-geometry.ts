@@ -1,34 +1,38 @@
 /**
  * Route geometry — one source of truth for where the two lines live.
  *
- * The rails are drawn by `LineRoute`, but three other places have to land on
- * them exactly: the hero's origin marker, the thank-you terminus, and any
- * future marker. Previously each repeated the positioning classes by hand,
- * and the terminus drifted 356px off the line the moment one of them changed.
- * Import from here instead of retyping the numbers.
+ * Prague Metro proportions: two bold solid tracks running in parallel, with
+ * white interchange discs sitting directly on them.
  *
- * Track, left to right:
+ *   0 ├──── 10px ────┤ 10 ├── 6px gap ──┤ 16 ├──── 10px ────┤ 26
+ *         orange track                        gold track
  *
- *   0 ├──── 8px stroke ────┤ 8 ┤── 8px gap ──┤ 16 ├──── 8px stroke ────┤ 24
- *              line 1                                      line 2
+ * Stroke centres sit at x=5 and x=21; the painted gap between them is 6px.
  *
- * Stroke centres therefore sit at x=4 and x=20, and the gap between the two
- * painted edges is exactly 8px.
+ * Everything that has to land on the rails imports from here — the route
+ * itself, the station discs, and the terminus. Repeating these numbers by
+ * hand is what once threw the terminus 356px off the line.
  */
 
-export const ROUTE_STROKE_WIDTH = 8;
-export const ROUTE_GAP = 8;
+export const ROUTE_STROKE_WIDTH = 10;
+export const ROUTE_GAP = 6;
 
 /** Full width of the track: stroke + gap + stroke. */
-export const ROUTE_TRACK_WIDTH = ROUTE_STROKE_WIDTH * 2 + ROUTE_GAP; // 24
+export const ROUTE_TRACK_WIDTH = ROUTE_STROKE_WIDTH * 2 + ROUTE_GAP; // 26
 
 /** Centre line of each stroke, in track-local pixels. */
-export const ROUTE_PRIMARY_X = ROUTE_STROKE_WIDTH / 2; // 4
+export const ROUTE_PRIMARY_X = ROUTE_STROKE_WIDTH / 2; // 5
 export const ROUTE_SECONDARY_X =
-  ROUTE_STROKE_WIDTH + ROUTE_GAP + ROUTE_STROKE_WIDTH / 2; // 20
+  ROUTE_STROKE_WIDTH + ROUTE_GAP + ROUTE_STROKE_WIDTH / 2; // 21
 
-/** Centre of the track, where an interchange marker is drawn. */
-export const ROUTE_CENTRE_X = ROUTE_TRACK_WIDTH / 2; // 12
+/** Centre of the track. */
+export const ROUTE_CENTRE_X = ROUTE_TRACK_WIDTH / 2; // 13
+
+/** Station disc: white fill, bold stroke in the track's own colour. */
+export const STATION_RADIUS = 8;
+export const STATION_RADIUS_ACTIVE = 10;
+export const STATION_STROKE_WIDTH = 3;
+export const STATION_FILL = "#FFFFFF";
 
 /**
  * Where the track sits: pinned to the left margin on mobile so content keeps
@@ -39,5 +43,5 @@ export const ROUTE_CENTRE_X = ROUTE_TRACK_WIDTH / 2; // 12
 export const ROUTE_POSITION_CLASS =
   "left-6 sm:left-8 lg:left-1/2 lg:-translate-x-1/2";
 
-/** Track width as a utility. `w-6` is 24px — keep in step with ROUTE_TRACK_WIDTH. */
-export const ROUTE_TRACK_CLASS = "w-6";
+/** Track width as a utility. `w-[26px]` matches ROUTE_TRACK_WIDTH. */
+export const ROUTE_TRACK_CLASS = "w-[26px]";

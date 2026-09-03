@@ -66,14 +66,22 @@
  * Tailwind v4 is CSS-first: tokens declared here generate utilities
  * (--color-ground -> bg-ground / text-ground / border-ground).
  * ------------------------------------------------------------------------- */
+/* The five specified colours, and nothing else. Every token below is one of
+   them, so no utility in the app can reach a colour outside the palette.
+
+     Pantone 447 C   #373A36  ink
+     Pantone 7407 C  #CBA052  gold track
+     Pantone 7565 C  #CD7925  orange track
+     Warm Gray 1 C   #D7D2CB  paper
+     Warm Gray 5 C   #ACA39A  page background
+
+   White is used only for the station discs, per the metro convention. */
 @theme {
   --color-ground: #aca39a;
+  --color-paper: #d7d2cb;
   --color-line-primary: #cd7925;
-  --color-line-secondary: #be8d4d;
-
-  /* Ink is not in the brief; added as the editorial counterweight to the
-     warm grey ground. Adjust if the intended value differs. */
-  --color-ink: #1a1714;
+  --color-line-secondary: #cba052;
+  --color-ink: #373a36;
 
   --font-sans:
     "Helvetica Neue Local", "Helvetica Neue", Helvetica, Arial, "Liberation Sans", "Nimbus Sans",
@@ -92,5 +100,5 @@ body {
    chain, so it is declared here against :root tokens rather than as a utility
    on the dialog. */
 dialog::backdrop {
-  background: color-mix(in srgb, #1a1714 92%, transparent);
+  background: color-mix(in srgb, #373a36 94%, transparent);
 }
