@@ -223,6 +223,7 @@ export interface ProjectCopy {
     origin: string;
     caps: string;
     credit: string;
+    usedOn: string;
     listingPending: string;
     opensInNewTab: string;
     stage: string;

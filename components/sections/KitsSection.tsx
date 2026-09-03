@@ -13,6 +13,7 @@ import AssetFrame from "@/components/ui/AssetFrame";
 import Lightbox from "@/components/ui/Lightbox";
 import StationHeader from "./StationHeader";
 import { useStageProgress } from "@/components/layout/StageProgress";
+import { FINALE_IN, FINALE_SET, useSequenceSlide } from "@/lib/sequence";
 import { countLabel, formatPrice } from "@/lib/format";
 
 /**
@@ -47,17 +48,6 @@ export interface KitsSectionProps {
   copy: ProjectCopy;
 }
 
-/** Each kit owns a fifth of the sequence; the overview takes the rest. */
-const STEP = 0.2;
-/** How far before and after its slot a slide travels. */
-const LEAD = 0.06;
-const LAG = 0.02;
-/** Vertical travel of a slide entering and leaving, in percent of its height. */
-const TRAVEL = 65;
-
-const OVERVIEW_IN = 0.78;
-const OVERVIEW_SET = 0.88;
-
 function swatchesFor(kit: Kit, swatches: ProductSwatch[]) {
   return (kit.swatchIds ?? [])
     .map((id) => swatches.find((swatch) => swatch.id === id))
@@ -71,6 +61,7 @@ function swatchesFor(kit: Kit, swatches: ProductSwatch[]) {
 function KitSlide({
   kit,
   index,
+  count,
   swatches,
   copy,
   progress,
@@ -78,33 +69,13 @@ function KitSlide({
 }: {
   kit: Kit;
   index: number;
+  count: number;
   swatches: ProductSwatch[];
   copy: ProjectCopy;
   progress: MotionValue<number>;
   onOpenImage: (kit: Kit) => void;
 }) {
-  const enter = index * STEP;
-  const leave = (index + 1) * STEP;
-  const isFirst = index === 0;
-
-  /* The first kit is already on screen when the station arrives — it has
-     nothing to slide in from, so its entry keyframes sit at zero. */
-  const stops = isFirst
-    ? [0, 0.001, leave - LEAD, leave + LAG]
-    : [enter - LEAD, enter + LAG, leave - LEAD, leave + LAG];
-
-  const opacity = useTransform(
-    progress,
-    stops,
-    isFirst ? [1, 1, 1, 0] : [0, 1, 1, 0],
-    { clamp: true },
-  );
-  const y = useTransform(
-    progress,
-    stops,
-    isFirst ? [0, 0, 0, -TRAVEL] : [TRAVEL, 0, 0, -TRAVEL],
-    { clamp: true },
-  );
+  const { opacity, y } = useSequenceSlide(progress, index, count);
 
   const kitSwatches = swatchesFor(kit, swatches);
 
@@ -203,7 +174,7 @@ export default function KitsSection({
 
   const overviewOpacity = useTransform(
     progress,
-    [OVERVIEW_IN, OVERVIEW_SET],
+    [FINALE_IN, FINALE_SET],
     [0, 1],
     {
       clamp: true,
@@ -211,7 +182,7 @@ export default function KitsSection({
   );
   const overviewScale = useTransform(
     progress,
-    [OVERVIEW_IN, OVERVIEW_SET],
+    [FINALE_IN, FINALE_SET],
     [0.92, 1],
     {
       clamp: true,
@@ -235,6 +206,7 @@ export default function KitsSection({
             key={kit.id}
             kit={kit}
             index={index}
+            count={kits.length}
             swatches={swatches}
             copy={copy}
             progress={progress}

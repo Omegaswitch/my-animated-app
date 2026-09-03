@@ -5,6 +5,7 @@ import {
   motion,
   useReducedMotion,
   useScroll,
+  useSpring,
   useTransform,
 } from "framer-motion";
 import type { LineRef } from "@/types/project";
@@ -47,7 +48,7 @@ export interface StationStageProps {
    * Track height in viewport heights. Longer holds the station for longer,
    * and gives a section room to run an internal sequence.
    */
-  trackVh?: 100 | 200 | 500;
+  trackVh?: 100 | 200 | 300;
 }
 
 /**
@@ -58,10 +59,28 @@ export interface StationStageProps {
  * span. That is what the intro wants — scrolling should move you along the
  * line immediately rather than spending a viewport going nowhere.
  */
-const TRACK_CLASS: Record<100 | 200 | 500, string> = {
+const TRACK_CLASS: Record<100 | 200 | 300, string> = {
   100: "h-screen",
   200: "h-[200vh]",
-  500: "h-[500vh]",
+  300: "h-[300vh]",
+};
+
+/**
+ * Scroll is piped through a spring before anything reads it.
+ *
+ * Raw `scrollYProgress` steps in whatever increments the input device emits,
+ * so a notched wheel drives the sequence in visible jumps. The spring gives
+ * the value its own momentum, so one flick carries a slide all the way
+ * through its transition instead of stopping wherever the ticks stopped.
+ *
+ * Low mass and heavy damping: it should trail the scroll by a few frames,
+ * not wobble past it.
+ */
+const SCROLL_SPRING = {
+  stiffness: 80,
+  damping: 25,
+  mass: 0.1,
+  restDelta: 0.001,
 };
 
 const STOPS = [0, 0.2, 0.8, 1];
@@ -99,6 +118,12 @@ export default function StationStage({
     offset: ["start end", "end start"],
   });
 
+  /* Springing the progress is what makes a single flick glide. Under reduced
+     motion the raw value is used, so nothing keeps moving after the input
+     stops. */
+  const springProgress = useSpring(scrollYProgress, SCROLL_SPRING);
+  const progress = prefersReducedMotion ? scrollYProgress : springProgress;
+
   const opacityCurve = isFirst
     ? FIRST_OPACITY
     : isLast
@@ -106,8 +131,8 @@ export default function StationStage({
       : OPACITY;
   const scaleCurve = isFirst ? FIRST_SCALE : isLast ? LAST_SCALE : SCALE;
 
-  const opacity = useTransform(scrollYProgress, STOPS, opacityCurve);
-  const scale = useTransform(scrollYProgress, STOPS, scaleCurve);
+  const opacity = useTransform(progress, STOPS, opacityCurve);
+  const scale = useTransform(progress, STOPS, scaleCurve);
 
   /**
    * Sequence progress: 0 the instant the pane pins, 1 the instant it unpins.
@@ -126,7 +151,7 @@ export default function StationStage({
      back to the whole pass rather than handing it a zero-width one. */
   const hasHeldSpan = pinEnd > pinStart;
   const sequenceProgress = useTransform(
-    scrollYProgress,
+    progress,
     hasHeldSpan ? [pinStart, pinEnd] : [0, 1],
     [0, 1],
     { clamp: true },

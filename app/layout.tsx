@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { project } from "@/data/project";
+import SmoothScroll from "@/components/layout/SmoothScroll";
+// Lenis needs `html.lenis { height: auto }` or the page cannot scroll at all.
+import "lenis/dist/lenis.css";
 import "./globals.css";
 
 /**
@@ -26,7 +29,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang={project.meta.locale} className="h-full antialiased">
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <SmoothScroll />
+        {children}
+      </body>
     </html>
   );
 }

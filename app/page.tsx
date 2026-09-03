@@ -55,7 +55,7 @@ export default function Page() {
           <IntroSection intro={project.intro} />
         </StationStage>
 
-        <StationStage {...stage("kits")} trackVh={500}>
+        <StationStage {...stage("kits")} trackVh={300}>
           <KitsSection
             kits={project.kits}
             swatches={project.swatches}
@@ -64,9 +64,10 @@ export default function Page() {
           />
         </StationStage>
 
-        <StationStage {...stage("colors")}>
+        <StationStage {...stage("colors")} trackVh={300}>
           <ColorsSection
             swatches={project.swatches}
+            kits={project.kits}
             station={stationById("colors")}
             copy={project.copy}
           />

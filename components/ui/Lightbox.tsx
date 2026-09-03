@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { pauseSmoothScroll, resumeSmoothScroll } from "@/lib/smooth-scroll";
 
 /**
  * Lightbox — a modal built on the native `<dialog>` element.
@@ -47,14 +48,19 @@ export default function Lightbox({
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
-  // `showModal` does not stop the page behind from scrolling.
+  /* `showModal` does not stop the page behind from scrolling, and neither
+     does `overflow: hidden` once Lenis is running — it drives the scroll
+     position programmatically and ignores overflow. Both are needed: the
+     overflow lock for native scrolling, and pausing Lenis for smooth. */
   useEffect(() => {
     if (!open) return;
     const root = document.documentElement;
     const previous = root.style.overflow;
     root.style.overflow = "hidden";
+    pauseSmoothScroll();
     return () => {
       root.style.overflow = previous;
+      resumeSmoothScroll();
     };
   }, [open]);
 
@@ -107,7 +113,9 @@ export default function Lightbox({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-auto">{children}</div>
+          <div className="min-h-0 flex-1 overflow-auto" data-lenis-prevent>
+            {children}
+          </div>
 
           {caption ? (
             <p className="max-w-prose text-xs leading-relaxed text-ground/80">

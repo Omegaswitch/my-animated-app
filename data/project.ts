@@ -136,6 +136,7 @@ const copy: ProjectCopy = {
     origin: "Origin",
     caps: "caps",
     credit: "Render",
+    usedOn: "Used on",
     listingPending: "Listing pending",
     opensInNewTab: "opens in a new tab",
     stage: "Stage",
