@@ -1,3 +1,4 @@
+import RouteBackbone from "@/components/line/RouteBackbone";
 import StickyIdentity from "@/components/layout/StickyIdentity";
 import StationStage from "@/components/layout/StationStage";
 import IntroSection from "@/components/sections/IntroSection";
@@ -12,9 +13,12 @@ import type { StationId } from "@/types/project";
 /**
  * MW LINE A — the route.
  *
- * Six stations, each holding its own viewport stage. There is no permanent
- * line down the page: the twin tracks exist only in transit, between stops.
- * `StationStage` owns that choreography.
+ * Six stations, each holding its own viewport stage.
+ *
+ * The spine is permanent — `RouteBackbone` is fixed to the viewport and never
+ * fades. Stops are not: each station's disc lives inside its own stage, so
+ * only the one you have reached is ever on screen. There is no column of
+ * upcoming stops down the side of the page.
  *
  * A server component. The client code is the identity, the six stages, and
  * the two galleries that open a lightbox.
@@ -38,6 +42,7 @@ export default function Page() {
 
   return (
     <>
+      <RouteBackbone />
       <StickyIdentity
         manufacturerLabel={project.meta.studio ?? project.meta.name}
         projectLabel={project.meta.name}

@@ -48,7 +48,7 @@ export default function VendorsSection({
   if (byRegion.length === 0) return null;
 
   return (
-    <section className="relative py-24 pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
+    <section className="relative py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16">
       <StationHeader
         station={station}
         meta={countLabel(vendors.length, copy.counts.vendor)}

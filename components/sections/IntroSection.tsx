@@ -17,7 +17,7 @@ export interface IntroSectionProps {
 export default function IntroSection({ intro }: IntroSectionProps) {
   return (
     <section className="relative py-24">
-      <div className="pl-16 pr-6 sm:pl-20 lg:ml-[50%] lg:pl-16 lg:pr-16">
+      <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16">
         {intro.eyebrow ? (
           <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-ink/60">
             {intro.eyebrow}

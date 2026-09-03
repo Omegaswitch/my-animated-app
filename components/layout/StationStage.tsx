@@ -8,36 +8,37 @@ import {
   useTransform,
 } from "framer-motion";
 import type { LineRef } from "@/types/project";
-import TransitTrack from "@/components/line/TransitTrack";
+import StationDisc from "@/components/line/StationDisc";
 
 /**
- * One station's stage — the two-phase choreography.
+ * One station's stage.
  *
- * Each station owns a tall scroll track with a sticky, viewport-height pane.
- * `useScroll` on that track gives a 0–1 progress that is split in two:
+ * The spine is permanent and lives outside this component — `RouteBackbone`
+ * is fixed to the viewport and never fades. What belongs to a station is its
+ * stop disc and its content, and both are scoped to this stage. That is what
+ * keeps the page from becoming a timeline: there is no list of upcoming
+ * stops rendered ahead of you, because a stop only exists inside the stage
+ * that owns it.
  *
- *   0.0 – 0.2   IN TRANSIT (arriving)  the twin lines draw down from the top
- *                                      into the node, which illuminates; the
- *                                      content is still faded back
- *   0.2 – 0.8   AT STATION             content at opacity 1, scale 1, z-20;
- *                                      the whole track layer is at opacity 0,
- *                                      so no line cuts through the view
- *   0.8 – 1.0   IN TRANSIT (departing) content falls to 0.95 and fades out;
- *                                      the lines return at z-30 and draw on
- *                                      out of the bottom toward the next stop
+ * Each stage is a tall track with a sticky, viewport-height pane. `useScroll`
+ * on the track gives a 0–1 progress:
  *
- * The two layers are exclusive by construction: their opacity curves are
- * mirror images, so content and track are never both solid, and no station
- * ever previews the ones after it. The pane is `overflow-hidden`, so nothing
- * — content or stray label — escapes into a neighbour.
+ *   0.0 – 0.2   arriving   disc and content fade up from 0.95 as the spine
+ *                          carries you in
+ *   0.2 – 0.8   at stop    disc and content at full opacity, scale 1
+ *   0.8 – 1.0   departing  both recede to 0.95 and fade out, leaving the
+ *                          spine to carry you to the next stage
  *
- * Native scrolling only. Nothing here drives the scroll position; the hold at
- * a station is CSS `position: sticky`, which the browser handles.
+ * Disc and content share one pair of curves, so the stop and the thing it
+ * marks always arrive and leave together. The pane is `overflow-hidden`, so
+ * neither can spill into a neighbouring stage.
+ *
+ * Native scrolling only: the hold at a stop is CSS `position: sticky`.
  */
 
 export interface StationStageProps {
   children: ReactNode;
-  /** Track the station's node is stroked in. */
+  /** Track the stop's ring is drawn in. */
   line: LineRef;
   isFirst?: boolean;
   isLast?: boolean;
@@ -45,30 +46,23 @@ export interface StationStageProps {
   trackHeightClass?: string;
 }
 
-/** Content: faded back in transit, full and still at the station. */
-const CONTENT_STOPS = [0, 0.2, 0.8, 1];
-const CONTENT_OPACITY = [0, 1, 1, 0];
-const CONTENT_SCALE = [0.95, 1, 1, 0.95];
-
-/** Track: the exact inverse — present only between stations. */
-const TRACK_OPACITY = [1, 0, 0, 1];
+const STOPS = [0, 0.2, 0.8, 1];
+const OPACITY = [0, 1, 1, 0];
+const SCALE = [0.95, 1, 1, 0.95];
 
 /**
  * The ends of the line are asymmetric, and have to be.
  *
  * The first station has nothing to arrive from, so it must already be at full
- * opacity at progress 0 — otherwise the very first paint, and the
- * server-rendered HTML, are a blank screen that only fills in once framer has
- * measured the scroll position. The last station has nowhere to depart to, so
- * it holds rather than fading out into an empty tail.
+ * opacity at progress 0 — otherwise the first paint, and the server-rendered
+ * HTML, are a blank screen that fills in only once framer has measured the
+ * scroll. The last has nowhere to depart to, so it holds rather than fading
+ * out into an empty tail.
  */
 const FIRST_OPACITY = [1, 1, 1, 0];
 const FIRST_SCALE = [1, 1, 1, 0.95];
-const FIRST_TRACK_OPACITY = [0, 0, 0, 1];
-
 const LAST_OPACITY = [0, 1, 1, 1];
 const LAST_SCALE = [0.95, 1, 1, 1];
-const LAST_TRACK_OPACITY = [1, 0, 0, 0];
 
 export default function StationStage({
   children,
@@ -82,8 +76,8 @@ export default function StationStage({
 
   const { scrollYProgress } = useScroll({
     target: trackRef,
-    // Measured across the whole pass, so the departure of one station and the
-    // arrival of the next overlap rather than leaving a dead frame between.
+    // Measured across the whole pass, so one station's departure and the
+    // next one's arrival overlap rather than leaving a dead frame between.
     offset: ["start end", "end start"],
   });
 
@@ -91,39 +85,21 @@ export default function StationStage({
     ? FIRST_OPACITY
     : isLast
       ? LAST_OPACITY
-      : CONTENT_OPACITY;
-  const scaleCurve = isFirst
-    ? FIRST_SCALE
-    : isLast
-      ? LAST_SCALE
-      : CONTENT_SCALE;
-  const trackCurve = isFirst
-    ? FIRST_TRACK_OPACITY
-    : isLast
-      ? LAST_TRACK_OPACITY
-      : TRACK_OPACITY;
+      : OPACITY;
+  const scaleCurve = isFirst ? FIRST_SCALE : isLast ? LAST_SCALE : SCALE;
 
-  const contentOpacity = useTransform(
-    scrollYProgress,
-    CONTENT_STOPS,
-    opacityCurve,
-  );
-  const contentScale = useTransform(scrollYProgress, CONTENT_STOPS, scaleCurve);
-  const trackOpacity = useTransform(scrollYProgress, CONTENT_STOPS, trackCurve);
+  const opacity = useTransform(scrollYProgress, STOPS, opacityCurve);
+  const scale = useTransform(scrollYProgress, STOPS, scaleCurve);
 
-  // Reduced motion: no scroll-linked geometry. Content simply present, and the
-  // track drawn whole and still rather than animating between stops.
-  const contentStyle = prefersReducedMotion
-    ? undefined
-    : { opacity: contentOpacity, scale: contentScale };
-  const trackStyle = prefersReducedMotion
-    ? { opacity: 0.35 }
-    : { opacity: trackOpacity };
+  // Reduced motion: no scroll-linked geometry, content simply present.
+  const contentStyle = prefersReducedMotion ? undefined : { opacity, scale };
+  const discOpacity = prefersReducedMotion ? 1 : opacity;
+  const discScale = prefersReducedMotion ? 1 : scale;
 
   return (
     <div ref={trackRef} className={`relative ${trackHeightClass}`}>
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Content layer — owns the screen at the station. */}
+        {/* Content — z-20, above the spine, below the stop. */}
         <motion.div
           style={contentStyle}
           className="absolute inset-0 z-20 flex items-center will-change-transform"
@@ -133,16 +109,15 @@ export default function StationStage({
           <div className="w-full [&>section]:py-0">{children}</div>
         </motion.div>
 
-        {/* Track layer — owns the screen between stations. */}
-        <motion.div style={trackStyle} className="absolute inset-0 z-30">
-          <TransitTrack
-            progress={scrollYProgress}
+        {/* The stop — z-30, sitting on the spine. */}
+        <div className="absolute inset-0 z-30">
+          <StationDisc
+            opacity={discOpacity}
+            scale={discScale}
             line={line}
-            isFirst={isFirst}
-            isLast={isLast}
-            staticTrace={prefersReducedMotion}
+            isTerminus={isLast}
           />
-        </motion.div>
+        </div>
       </div>
     </div>
   );
