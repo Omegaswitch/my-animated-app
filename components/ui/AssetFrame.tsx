@@ -29,6 +29,20 @@ import type { ImageAsset } from "@/types/project";
  * The stand-in is drawn at the asset's declared aspect ratio, so the
  * composition is real even when the pictures are not.
  *
+ * ## Three ways to size a frame
+ *
+ * `fill` locks the box and contains the image in it — for anything that has
+ * to stay one shape across assets of differing ratios.
+ *
+ * `natural` does the opposite: both axes are auto and the caller caps them,
+ * so the file keeps its own proportions and grows until it meets whichever
+ * bound it meets first. That is what a logo needs — a set of marks can be
+ * portrait, square and landscape at once, and only a box normalises them
+ * without distortion. Capping the height alone is the usual instinct and is
+ * wrong for a tall mark: at 56px a 1:2 logo is 28px across.
+ *
+ * The default reserves the declared ratio, for plates that are not yet in.
+ *
  * Filenames are case-sensitive on Linux hosting even though Windows resolves
  * them either way: `Render-01.png` will work locally and 404 in production.
  */
@@ -48,6 +62,14 @@ export interface AssetFrameProps {
    * frame resizes per image and everything below it jumps.
    */
   fill?: boolean;
+  /**
+   * Take the height from `className` and the width from the file.
+   *
+   * The declared width and height are still passed to the image, but only as
+   * the placeholder ratio held before it loads; once it has loaded, `w-auto`
+   * against a fixed height resolves against the real thing.
+   */
+  natural?: boolean;
   sizes?: string;
   priority?: boolean;
 }
@@ -58,6 +80,7 @@ export default function AssetFrame({
   placeholderLabel,
   className = "",
   fill = false,
+  natural = false,
   sizes,
   priority,
 }: AssetFrameProps) {
@@ -83,6 +106,36 @@ export default function AssetFrame({
       cancelled = true;
     };
   }, [asset.src]);
+
+  if (natural) {
+    if (missing) {
+      /* Its own box, not the caller's. The caller's is a pair of maximums,
+         which a mark fills from its own dimensions — and a stand-in has
+         none, so it would collapse to a line. */
+      return (
+        <div
+          className="h-10 w-28 shrink-0 border border-ink/25 bg-ink/[0.04] sm:h-12 sm:w-36"
+          aria-hidden
+        />
+      );
+    }
+    return (
+      <Image
+        src={asset.src}
+        alt={asset.alt}
+        width={asset.width}
+        height={asset.height}
+        sizes={sizes}
+        priority={priority}
+        onError={() => setMissingSrc(asset.src)}
+        /* Both axes auto: with only one set, the image would be laid out
+           from the *declared* dimensions, which are routinely wrong. Auto on
+           both makes it use the file's own size, capped by the caller's box.
+           Next also warns when exactly one axis is overridden. */
+        className={`h-auto w-auto shrink-0 object-contain ${className}`}
+      />
+    );
+  }
 
   /* In fill mode the parent owns the box, so the frame must not also
      declare a ratio — two competing boxes is exactly the jump this avoids. */

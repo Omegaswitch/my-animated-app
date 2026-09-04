@@ -1,12 +1,25 @@
-import type { Intro, Meta, ProjectCopy, Station } from "@/types/project";
+import type {
+  Identity,
+  Intro,
+  Meta,
+  ProjectCopy,
+  Station,
+} from "@/types/project";
+import AssetFrame from "@/components/ui/AssetFrame";
 import StationHeader from "./StationHeader";
 import StationPanel from "@/components/layout/StationPanel";
 
 /**
  * Station 1 — where the line starts.
  *
- * A server component: no state, no scroll. The motion on this screen belongs
- * to the identity above it and the route behind it.
+ * A server component: no state, no scroll. Nothing on this screen moves; the
+ * route behind it does.
+ *
+ * The two marks are centred at the top of the card. They used to ride the
+ * page in a sticky header, shrinking as you scrolled away from the hero,
+ * which put a scroll-driven scale on the one element that should be the
+ * steadiest thing here — and left them small by the time you could read
+ * anything. They are full size and still, stated once.
  *
  * The origin marker takes its geometry from `lib/route-geometry`, so it lands
  * on the tracks at every breakpoint. If the route moves, this moves with it.
@@ -16,18 +29,64 @@ export interface IntroSectionProps {
   intro: Intro;
   meta: Meta;
   station: Station;
+  /**
+   * Real artwork. Either side may be missing, and that side falls back to
+   * a frame, so dropping in one mark does not require having the other.
+   */
+  identity: Identity;
   copy: ProjectCopy;
 }
+
+/**
+ * The box both marks are fitted into, rather than a height they are set to.
+ * A mark keeps its own proportions and grows until it meets one of these.
+ */
+const MARK_BOX = "max-h-12 max-w-[220px] sm:max-h-14 sm:max-w-[240px]";
 
 export default function IntroSection({
   intro,
   meta,
   station,
+  identity,
   copy,
 }: IntroSectionProps) {
   return (
-    <section className="relative pt-8 pb-12 lg:pt-[14vh] lg:pb-[45vh]">
+    <section className="relative py-12 lg:py-[45vh]">
       <StationPanel routeSide="left">
+        {identity.manufacturer || identity.project ? (
+          <div className="mb-12 flex w-full items-center justify-center gap-8">
+            {identity.manufacturer ? (
+              <AssetFrame
+                asset={identity.manufacturer}
+                tag={meta.studio ?? meta.name}
+                className={MARK_BOX}
+                natural
+                priority
+                sizes="240px"
+              />
+            ) : null}
+
+            {/* The rule between the marks is the line, in miniature. */}
+            {identity.manufacturer && identity.project ? (
+              <span
+                className="block h-10 w-px shrink-0 bg-line-primary"
+                aria-hidden
+              />
+            ) : null}
+
+            {identity.project ? (
+              <AssetFrame
+                asset={identity.project}
+                tag={meta.name}
+                className={MARK_BOX}
+                natural
+                priority
+                sizes="240px"
+              />
+            ) : null}
+          </div>
+        ) : null}
+
         <StationHeader station={station} />
 
         {intro.eyebrow ? (

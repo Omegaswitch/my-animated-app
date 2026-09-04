@@ -50,7 +50,7 @@ export default function TerminusSection({
   }));
 
   return (
-    <section className="relative pt-12 pb-24 lg:pt-[45vh] lg:pb-[24vh]">
+    <section className="relative py-12 lg:py-[45vh]">
       <StationPanel routeSide="right">
         <StationHeader station={station} />
 
@@ -128,23 +128,33 @@ export default function TerminusSection({
             <h4 className="text-[10px] font-bold uppercase tracking-[0.22em] text-ink/45">
               {copy.labels.designedBy}
             </h4>
-            {/* Fixed height, contained: a mark's real proportions are not
-              knowable from the data — a file supplied square against a 240x64
-              declaration is normal — so the frame must never take its shape
-              from the declaration. Sizing off it stretched every logo. */}
-            <ul className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-4">
+            {/* Height fixed, width from the file. A mark's real proportions
+              are not knowable from the data — one supplied square against a
+              240x64 declaration is normal — so nothing here may take its
+              shape from the declaration.
+
+              A taller box than the hero uses, because these two marks are
+              not the same shape: one is square, the other is 1:2 portrait.
+              A portrait mark is only ever as wide as its ratio allows, so a
+              56px cap would leave it 28px across and reading as a thumbnail.
+              The box is the only normaliser that fits all three shapes
+              without distorting any of them. */}
+            <ul className="mt-5 flex flex-wrap items-start justify-center gap-x-12 gap-y-8">
               {designers.map((designer) => (
                 <li
                   key={designer.id}
-                  className="relative h-8 w-32 shrink-0 sm:h-9"
+                  className="flex shrink-0 flex-col items-center gap-3"
                 >
                   <AssetFrame
                     asset={designer.asset}
                     tag={designer.name}
-                    placeholderLabel={copy.labels.assetPlaceholder}
-                    fill
-                    sizes="128px"
+                    className="max-h-20 max-w-[180px] sm:max-h-24 sm:max-w-[200px]"
+                    natural
+                    sizes="240px"
                   />
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink/70">
+                    {designer.name}
+                  </p>
                 </li>
               ))}
             </ul>

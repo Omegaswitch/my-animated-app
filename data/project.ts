@@ -537,8 +537,8 @@ const identity: Identity = {
     /* Nominal only: the header box is fixed and the mark is contained inside
        it, so these do not affect layout. */
     alt: "MilkyWay",
-    width: 480,
-    height: 160,
+    width: 946,
+    height: 241,
   },
   project: {
     src: `${ASSETS.logos}/project.png`,
@@ -559,8 +559,8 @@ const designers: DesignerCredit[] = [
     asset: {
       src: `${ASSETS.logos}/designer-01.png`,
       alt: "Studio One",
-      width: 240,
-      height: 64,
+      width: 3000,
+      height: 3134,
     },
   },
   {
@@ -569,8 +569,8 @@ const designers: DesignerCredit[] = [
     asset: {
       src: `${ASSETS.logos}/designer-02.png`,
       alt: "Studio Two",
-      width: 240,
-      height: 64,
+      width: 3000,
+      height: 6176,
     },
   },
 ];

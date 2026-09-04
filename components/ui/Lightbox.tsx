@@ -118,8 +118,10 @@ export default function Lightbox({
       <div className="flex h-full w-full items-center justify-center overflow-hidden p-4 sm:p-8">
         <motion.div
           className="flex max-h-full w-full max-w-5xl flex-col gap-4 overflow-hidden"
-          initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.985 }}
-          animate={{ opacity: 1, scale: 1 }}
+          /* Opacity only. The panel used to come up off a 0.985 scale, which
+             is a pop-in however small, and the page has none of those. */
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={
             prefersReducedMotion
               ? { duration: 0 }

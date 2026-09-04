@@ -1,5 +1,4 @@
 import Route from "@/components/line/Route";
-import StickyIdentity from "@/components/layout/StickyIdentity";
 import IntroSection from "@/components/sections/IntroSection";
 import KitsSection from "@/components/sections/KitsSection";
 import ColorsSection from "@/components/sections/ColorsSection";
@@ -34,17 +33,16 @@ export default function Page() {
   return (
     <>
       <Route />
-      <StickyIdentity
-        manufacturerLabel={project.meta.studio ?? project.meta.name}
-        projectLabel={project.meta.name}
-        identity={project.identity}
-      />
-
-      <main className="relative z-20">
+      {/* Every section carries the same padding, so the distance from one
+          station to the next is the same everywhere. Only the two ends are
+          trimmed, and they are trimmed here rather than in the sections, so
+          that the uniform rule stays uniform. */}
+      <main className="relative z-20 [&>section:first-child]:pt-6 [&>section:last-child]:pb-16 lg:[&>section:first-child]:pt-[10vh] lg:[&>section:last-child]:pb-[16vh]">
         <IntroSection
           intro={project.intro}
           meta={project.meta}
           station={stationById("intro")}
+          identity={project.identity}
           copy={project.copy}
         />
 
