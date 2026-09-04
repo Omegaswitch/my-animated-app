@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import type { ProjectCopy, RenderGallery, Station } from "@/types/project";
 import AssetFrame from "@/components/ui/AssetFrame";
 import Lightbox from "@/components/ui/Lightbox";
@@ -19,6 +20,9 @@ import { countLabel } from "@/lib/format";
  * The lightbox is where a render is actually judged, so it opens at fit and
  * toggles to 100% on click.
  */
+
+/** Pure opacity, no travel — anything else would reintroduce reflow. */
+const FADE = { duration: 0.2, ease: "easeOut" } as const;
 
 export interface RendersSectionProps {
   renders: RenderGallery;
@@ -56,43 +60,68 @@ export default function RendersSection({
       />
 
       <figure>
+        {/* Hard-locked box: one shape for every plate, whatever its ratio. */}
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="group block w-full cursor-zoom-in text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary"
+          className="group relative mx-auto block aspect-[16/10] w-full max-w-5xl cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary"
           aria-label={`View ${item.title} full screen`}
         >
-          <AssetFrame
-            asset={item.asset}
-            tag={copy.renderView[item.view]}
-            placeholderLabel={copy.labels.assetPlaceholder}
-            className="transition-opacity group-hover:opacity-85"
-            sizes="(min-width: 1024px) 40vw, 90vw"
-            priority={carousel.index === 0}
-          />
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={FADE}
+              className="absolute inset-0"
+            >
+              <AssetFrame
+                asset={item.asset}
+                tag={copy.renderView[item.view]}
+                placeholderLabel={copy.labels.assetPlaceholder}
+                className="transition-opacity group-hover:opacity-85"
+                fill
+                sizes="(min-width: 1024px) 40vw, 90vw"
+                priority={carousel.index === 0}
+              />
+            </motion.div>
+          </AnimatePresence>
         </button>
 
-        {/* Anchored beneath the plate: title, board, then who made it. */}
-        <figcaption className="mt-4 border-t-2 border-ink/25 pt-3">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h3 className="text-base font-bold tracking-tight lg:text-lg">
-              {item.title}
-            </h3>
-            <span className="shrink-0 text-[10px] font-bold uppercase tabular-nums tracking-[0.14em] text-ink/50">
-              {copy.renderView[item.view]}
-            </span>
-          </div>
+        {/* Anchored beneath the plate, at a fixed height so a two-line title
+            cannot push the controls down. */}
+        <figcaption className="relative mx-auto mt-4 h-20 w-full max-w-5xl border-t-2 border-ink/25 pt-3">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={FADE}
+              className="absolute inset-x-0 top-3 flex flex-col justify-start"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <h3 className="truncate text-base font-bold tracking-tight lg:text-lg">
+                  {item.title}
+                </h3>
+                <span className="shrink-0 text-[10px] font-bold uppercase tabular-nums tracking-[0.14em] text-ink/50">
+                  {copy.renderView[item.view]}
+                </span>
+              </div>
 
-          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/55">
-            {item.model ? (
-              <span className="text-ink/75">{item.model}</span>
-            ) : null}
-            {item.credit ? (
-              <span>
-                {copy.labels.credit}: {item.credit}
-              </span>
-            ) : null}
-          </div>
+              <div className="mt-1.5 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/55">
+                {item.model ? (
+                  <span className="text-ink/75">{item.model}</span>
+                ) : null}
+                {item.credit ? (
+                  <span>
+                    {copy.labels.credit}: {item.credit}
+                  </span>
+                ) : null}
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </figcaption>
       </figure>
 

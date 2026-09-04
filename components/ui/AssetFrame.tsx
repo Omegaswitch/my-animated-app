@@ -23,6 +23,14 @@ export interface AssetFrameProps {
   className?: string;
   /** Printed when no `tag` is given. Comes from project copy. */
   placeholderLabel?: string;
+  /**
+   * Fill the parent instead of reserving the asset's own aspect ratio.
+   *
+   * The parent must be `relative` and size itself. Use this wherever a frame
+   * has to stay one shape across assets of differing ratios — otherwise the
+   * frame resizes per image and everything below it jumps.
+   */
+  fill?: boolean;
   /** Passed to next/image once assets exist; ignored by the placeholder. */
   sizes?: string;
   priority?: boolean;
@@ -33,16 +41,24 @@ export default function AssetFrame({
   tag,
   placeholderLabel,
   className = "",
+  fill = false,
   sizes,
   priority,
 }: AssetFrameProps) {
-  const ratio = `${asset.width} / ${asset.height}`;
+  /* In fill mode the parent owns the box, so the frame must not also
+     declare a ratio — two competing boxes is exactly the jump this avoids. */
+  const box = fill
+    ? { className: "absolute inset-0", style: undefined }
+    : {
+        className: "relative",
+        style: { aspectRatio: `${asset.width} / ${asset.height}` },
+      };
 
   if (ASSETS_AVAILABLE) {
     return (
       <div
-        className={`relative overflow-hidden ${className}`}
-        style={{ aspectRatio: ratio }}
+        className={`${box.className} overflow-hidden ${className}`}
+        style={box.style}
       >
         <Image
           src={asset.src}
@@ -50,7 +66,9 @@ export default function AssetFrame({
           fill
           sizes={sizes}
           priority={priority}
-          className="object-cover"
+          /* Contain in a locked frame: cropping to fill would hide part of a
+             render whose ratio differs from the frame's. */
+          className={fill ? "object-contain" : "object-cover"}
         />
       </div>
     );
@@ -58,8 +76,8 @@ export default function AssetFrame({
 
   return (
     <div
-      className={`relative overflow-hidden border border-ink/25 bg-ink/[0.04] ${className}`}
-      style={{ aspectRatio: ratio }}
+      className={`${box.className} overflow-hidden border border-ink/25 bg-ink/[0.04] ${className}`}
+      style={box.style}
       // The placeholder carries no information the caption does not; the alt
       // text belongs to the real image, so this is hidden from assistive tech.
       aria-hidden
