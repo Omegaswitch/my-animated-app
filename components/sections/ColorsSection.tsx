@@ -30,6 +30,9 @@ import { countLabel } from "@/lib/format";
  * The cross-fade is `AnimatePresence mode="wait"` on opacity only — no spring,
  * no travel. Anything with overshoot would reintroduce the wobble the fixed
  * height is there to remove.
+ *
+ * Hover previews and click commits, but a click also clears the hover latch:
+ * hover is a transient preview and must never outrank a deliberate choice.
  */
 
 export interface ColorsSectionProps {
@@ -47,6 +50,16 @@ function usedOn(swatch: ProductSwatch, kits: Kit[]): string[] {
 }
 
 const FADE = { duration: 0.16, ease: "easeOut" } as const;
+
+/**
+ * Chip frame: Pantone 447 C, faint at rest, full strength when active.
+ *
+ * Warm Gray 5 C is the page background, so without a frame that chip
+ * dissolves into the canvas and reads as a gap in the strip. A hairline keeps
+ * every chip architecturally framed; a shadow would just add haze.
+ */
+const CHIP_BORDER = "rgba(55, 58, 54, 0.2)";
+const CHIP_BORDER_ACTIVE = "#373A36";
 
 export default function ColorsSection({
   swatches,
@@ -76,26 +89,33 @@ export default function ColorsSection({
 
       {/* The strip: all five, side by side, always. Only the chip's own
           height eases — nothing around it depends on that height. */}
-      <ul
-        className="flex w-full border-2 border-ink/30"
-        onMouseLeave={() => setHovered(null)}
-      >
+      <ul className="flex w-full" onMouseLeave={() => setHovered(null)}>
         {swatches.map((entry, index) => {
           const active = index === activeIndex;
           return (
             <li key={entry.id} className="min-w-0 flex-1">
               <button
                 type="button"
-                onClick={() => setSelected(index)}
+                onClick={() => {
+                  /* Clearing the hover latch matters: a hover that outlives
+                     the pointer — focus, a stale enter with no matching
+                     leave — would otherwise keep overriding the selection,
+                     and every click after the first would look ignored. */
+                  setSelected(index);
+                  setHovered(null);
+                }}
                 onMouseEnter={() => setHovered(index)}
                 onFocus={() => setHovered(index)}
                 onBlur={() => setHovered(null)}
                 aria-current={index === selected ? "true" : undefined}
                 aria-label={`${entry.name}, ${entry.hex}`}
-                className={`block w-full outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink ${
+                className={`block w-full border border-solid outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink ${
                   active ? "h-24 lg:h-36" : "h-20 lg:h-28"
                 }`}
-                style={{ backgroundColor: entry.hex }}
+                style={{
+                  backgroundColor: entry.hex,
+                  borderColor: active ? CHIP_BORDER_ACTIVE : CHIP_BORDER,
+                }}
               />
             </li>
           );
