@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type {
   DesignerCredit,
   GbStage,
@@ -140,22 +141,37 @@ export default function TerminusSection({
               The box is the only normaliser that fits all three shapes
               without distorting any of them. */}
             <ul className="mt-5 flex flex-wrap items-start justify-center gap-x-8 gap-y-8 sm:gap-x-12">
-              {designers.map((designer) => (
-                <li
-                  key={designer.id}
-                  className="flex shrink-0 flex-col items-center gap-3"
-                >
-                  <AssetFrame
-                    asset={designer.asset}
-                    tag={designer.name}
-                    className="max-h-16 max-w-[110px] sm:max-h-20 sm:max-w-[180px] lg:max-h-24 lg:max-w-[200px]"
-                    natural
-                    sizes="240px"
-                  />
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink/70">
-                    {designer.name}
-                  </p>
-                </li>
+              {designers.map((designer, index) => (
+                <Fragment key={designer.id}>
+                  {/* A hairline between the marks, leaning the way a solidus
+                    does. Two logos side by side read as a list; the same two
+                    with a slash between them read as a collaboration. Drawn
+                    as a rotated rule rather than set as a "/" so it stays a
+                    hairline at any size and takes the ink colour at a weight
+                    no glyph would give. Centred on the marks' band, not on
+                    the columns, so the names below it do not pull it down. */}
+                  {index > 0 ? (
+                    <li
+                      aria-hidden
+                      className="flex h-16 shrink-0 items-center sm:h-20 lg:h-24"
+                    >
+                      <span className="block h-12 w-px rotate-[20deg] bg-ink/20 sm:h-14 lg:h-16" />
+                    </li>
+                  ) : null}
+
+                  <li className="flex shrink-0 flex-col items-center gap-3">
+                    <AssetFrame
+                      asset={designer.asset}
+                      tag={designer.name}
+                      className="max-h-16 max-w-[110px] sm:max-h-20 sm:max-w-[180px] lg:max-h-24 lg:max-w-[200px]"
+                      natural
+                      sizes="240px"
+                    />
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink/70">
+                      {designer.name}
+                    </p>
+                  </li>
+                </Fragment>
               ))}
             </ul>
           </div>
