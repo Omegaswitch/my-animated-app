@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CONTENT_CLEARANCE_CLASS } from "@/lib/route-geometry";
 
 /**
  * The content panel for a station: a card in the normal document flow.
@@ -68,7 +69,9 @@ export default function StationPanel({
       data-station-panel
       // Read by the route, which measures this box and passes on this side.
       data-route-side={routeSide}
-      className={`rounded-2xl pl-24 pr-6 sm:pl-28 lg:border lg:border-ink/15 lg:bg-paper lg:px-12 lg:py-12 ${MARGINS[routeSide]}`}
+      /* The gutter comes from the route's own geometry: it is what clears the
+         rail below `lg`, and the two numbers have to move together. */
+      className={`rounded-2xl ${CONTENT_CLEARANCE_CLASS} lg:border lg:border-ink/15 lg:bg-paper lg:px-12 lg:py-12 ${MARGINS[routeSide]}`}
     >
       {children}
     </div>

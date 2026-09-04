@@ -41,7 +41,8 @@ export interface IntroSectionProps {
  * The box both marks are fitted into, rather than a height they are set to.
  * A mark keeps its own proportions and grows until it meets one of these.
  */
-const MARK_BOX = "max-h-12 max-w-[220px] sm:max-h-14 sm:max-w-[240px]";
+const MARK_BOX =
+  "max-h-9 max-w-[130px] sm:max-h-12 sm:max-w-[200px] lg:max-h-14 lg:max-w-[240px]";
 
 export default function IntroSection({
   intro,
@@ -54,7 +55,7 @@ export default function IntroSection({
     <section className="relative py-12 lg:py-[45vh]">
       <StationPanel routeSide="left">
         {identity.manufacturer || identity.project ? (
-          <div className="mb-12 flex w-full items-center justify-center gap-8">
+          <div className="mb-10 flex w-full flex-wrap items-center justify-center gap-x-5 gap-y-4 sm:gap-x-8 lg:mb-12">
             {identity.manufacturer ? (
               <AssetFrame
                 asset={identity.manufacturer}
@@ -69,7 +70,7 @@ export default function IntroSection({
             {/* The rule between the marks is the line, in miniature. */}
             {identity.manufacturer && identity.project ? (
               <span
-                className="block h-10 w-px shrink-0 bg-line-primary"
+                className="hidden h-8 w-px shrink-0 bg-line-primary sm:block sm:h-10"
                 aria-hidden
               />
             ) : null}

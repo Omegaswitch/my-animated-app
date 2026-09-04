@@ -52,21 +52,25 @@ function DirectoryRow({ row, copy }: { row: Row; copy: ProjectCopy }) {
           {copy.vendorRegion[row.region]}
         </h3>
       ) : (
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-b border-ink/15 py-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-b border-ink/15 py-1 sm:py-2">
           <div className="min-w-0">
             {row.vendor.url ? (
               <a
                 href={row.vendor.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-bold tracking-tight underline decoration-ink/30 underline-offset-4 outline-none transition-colors hover:decoration-line-primary focus-visible:ring-2 focus-visible:ring-line-primary"
+                /* A finger's worth of height on a phone. The link is one
+                   line of 16px text, which is a fine target for a cursor and
+                   far too small for a thumb; the padding is dropped again
+                   from `sm`, where the row can stay tight. */
+                className="inline-block py-2.5 text-sm font-bold tracking-tight underline decoration-ink/30 underline-offset-4 outline-none transition-colors hover:decoration-line-primary focus-visible:ring-2 focus-visible:ring-line-primary sm:py-0"
               >
                 {row.vendor.name}
                 {/* Spoken, not merely implied by an absent icon. */}
                 <span className="sr-only"> ({copy.labels.opensInNewTab})</span>
               </a>
             ) : (
-              <span className="text-sm font-bold tracking-tight text-ink/60">
+              <span className="inline-block py-2.5 text-sm font-bold tracking-tight text-ink/60 sm:py-0">
                 {row.vendor.name}
                 <span className="ml-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ink/45">
                   {copy.labels.listingPending}

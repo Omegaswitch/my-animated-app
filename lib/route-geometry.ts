@@ -44,7 +44,7 @@ export const STATION_FILL = "#FFFFFF";
  * measured path — the numbers now have to be read in JS, so they live here as
  * numbers rather than as class strings.
  */
-export const RAIL_INSET_SM = 24;
+export const RAIL_INSET_SM = 12;
 export const RAIL_INSET = 32;
 /** Above this width the route runs through the page and bypasses the cards. */
 export const ROUTE_BYPASS_MIN_WIDTH = 1024;
@@ -58,6 +58,10 @@ export const ROUTE_EDGE_INSET = 10;
 
 /**
  * Left padding each section needs to clear the spine below `lg`.
- * The track runs 24–62px at the small inset, so content starts at 96px.
+ *
+ * The track runs 12–50px on a phone and 32–70px from `sm`, so content starts
+ * at 64px and 96px. On a 375px screen the old 96px gutter was a quarter of
+ * the width, and everything inside it — the kit render most of all — was
+ * paying for clearance the rail did not need.
  */
-export const CONTENT_CLEARANCE_CLASS = "pl-24 pr-6 sm:pl-28";
+export const CONTENT_CLEARANCE_CLASS = "pl-16 pr-5 sm:pl-24 sm:pr-6";

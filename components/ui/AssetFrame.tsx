@@ -124,7 +124,7 @@ export default function AssetFrame({
          none, so it would collapse to a line. */
       return (
         <div
-          className="h-10 w-28 shrink-0 border border-ink/25 bg-ink/[0.04] sm:h-12 sm:w-36"
+          className="h-8 w-20 border border-ink/25 bg-ink/[0.04] sm:h-10 sm:w-28 lg:h-12 lg:w-36"
           aria-hidden
         />
       );

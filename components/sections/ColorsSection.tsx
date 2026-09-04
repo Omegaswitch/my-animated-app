@@ -124,8 +124,11 @@ export default function ColorsSection({
         </ul>
 
         {/* Fixed height: the sole reason the strip can be swept without the
-          page moving underneath. */}
-        <div className="relative mt-5 h-[210px] sm:h-[164px]">
+          page moving underneath. It has to be measured per breakpoint, since
+          the detail is one column on a phone and two from `sm`, and the
+          column is much narrower. Too short and the copy is simply cut off —
+          the panel clips, it does not scroll. */}
+        <div className="relative mt-5 h-[280px] sm:h-[190px] lg:h-[164px]">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={swatch.id}
@@ -189,7 +192,9 @@ export default function ColorsSection({
             <h4 className="text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
               {copy.labels.samples}
             </h4>
-            <ul className="mt-3 grid grid-cols-5 gap-2">
+            {/* Three across on a phone: at five, each chip is 52px and the
+              stand-in's own labels do not fit inside it. */}
+            <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
               {samples.map((sample) => (
                 <li key={sample.id}>
                   <AssetFrame

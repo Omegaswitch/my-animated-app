@@ -139,7 +139,7 @@ export default function TerminusSection({
               56px cap would leave it 28px across and reading as a thumbnail.
               The box is the only normaliser that fits all three shapes
               without distorting any of them. */}
-            <ul className="mt-5 flex flex-wrap items-start justify-center gap-x-12 gap-y-8">
+            <ul className="mt-5 flex flex-wrap items-start justify-center gap-x-8 gap-y-8 sm:gap-x-12">
               {designers.map((designer) => (
                 <li
                   key={designer.id}
@@ -148,7 +148,7 @@ export default function TerminusSection({
                   <AssetFrame
                     asset={designer.asset}
                     tag={designer.name}
-                    className="max-h-20 max-w-[180px] sm:max-h-24 sm:max-w-[200px]"
+                    className="max-h-16 max-w-[110px] sm:max-h-20 sm:max-w-[180px] lg:max-h-24 lg:max-w-[200px]"
                     natural
                     sizes="240px"
                   />

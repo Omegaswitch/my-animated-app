@@ -14,8 +14,8 @@ import AssetFrame from "./AssetFrame";
  *
  * ## Panning instead of scrolling
  *
- * Magnified, the image is moved under the pointer rather than put in a
- * scroll container. Scrollbars inside a modal are ugly, they fight the page's
+ * Magnified, the image is moved under the pointer — or the finger — rather
+ * than put in a scroll container. Scrollbars inside a modal are ugly, they fight the page's
  * smooth scroller, and reaching a corner takes two axes of dragging. Mapping
  * the pointer's position in the frame to the image's offset lets any corner
  * be reached by moving toward it, which is what the gesture already means.
@@ -43,8 +43,16 @@ export interface ZoomableAssetProps {
   copy: ProjectCopy;
 }
 
-/** Fitted panel height. Explicit — see the note on sizing above. */
-const FIT_HEIGHT = "min(68vh, 68vw)";
+/**
+ * Fitted panel height. Explicit — see the note on sizing above.
+ *
+ * The width term is the one that matters on a phone: at `68vw` a 375px screen
+ * gave the frame 255px of height while the panel was 343px wide, so a square
+ * render sat in the middle of it at a third of the screen. `92vw` lets the
+ * frame be as tall as the panel is wide, which is as large as a contained
+ * square can be.
+ */
+const FIT_HEIGHT = "min(72vh, 92vw)";
 /** Magnification when inspecting. */
 const ZOOM = 2.4;
 /** Matches the brief's 0.2s ease-out. */
@@ -63,16 +71,27 @@ export default function ZoomableAsset({
      sits at its left extreme, at the right edge its right. The travel is
      exactly the part of the scaled image that does not fit, so the pan can
      never reveal empty space beyond it. */
-  const pan = (event: React.MouseEvent) => {
+  const panTo = (clientX: number, clientY: number) => {
     if (!zoomed) return;
     const frame = frameRef.current;
     if (!frame) return;
     const rect = frame.getBoundingClientRect();
-    const fromCentreX = (event.clientX - rect.left) / rect.width - 0.5;
-    const fromCentreY = (event.clientY - rect.top) / rect.height - 0.5;
+    const fromCentreX = (clientX - rect.left) / rect.width - 0.5;
+    const fromCentreY = (clientY - rect.top) / rect.height - 0.5;
     const travelX = (rect.width * (ZOOM - 1)) / 2;
     const travelY = (rect.height * (ZOOM - 1)) / 2;
     setOffset({ x: -fromCentreX * 2 * travelX, y: -fromCentreY * 2 * travelY });
+  };
+
+  const pan = (event: React.MouseEvent) => panTo(event.clientX, event.clientY);
+
+  /* The same gesture with a finger. Without this the zoom is reachable on a
+     phone but useless: it magnifies the centre of the render and there is no
+     way to reach a legend at the edge of it. */
+  const panTouch = (event: React.TouchEvent) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    panTo(touch.clientX, touch.clientY);
   };
 
   const toggle = () => {
@@ -88,6 +107,7 @@ export default function ZoomableAsset({
         onClick={toggle}
         onMouseMove={pan}
         onMouseLeave={() => setOffset({ x: 0, y: 0 })}
+        onTouchMove={panTouch}
         role="button"
         tabIndex={0}
         aria-label={zoomed ? copy.labels.zoomOut : copy.labels.zoomIn}
@@ -99,7 +119,10 @@ export default function ZoomableAsset({
         }}
         /* `overflow-hidden` is what keeps the magnified image from producing
            a scrollbar; the pan replaces scrolling entirely. */
-        style={{ height: FIT_HEIGHT }}
+        /* `touch-action: none` only while magnified: the drag is then a pan
+           rather than a page scroll. Fitted, the frame must not swallow the
+           gesture — the modal behind it still has to be scrollable past. */
+        style={{ height: FIT_HEIGHT, touchAction: zoomed ? "none" : undefined }}
         className={`relative w-full shrink-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-line-primary ${
           zoomed ? "cursor-zoom-out" : "cursor-zoom-in"
         }`}
