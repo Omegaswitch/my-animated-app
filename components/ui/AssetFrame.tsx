@@ -63,6 +63,15 @@ export interface AssetFrameProps {
    */
   fill?: boolean;
   /**
+   * Fill the frame and crop the overflow, rather than containing the image
+   * inside it.
+   *
+   * Only for a frame whose shape is chosen against artwork already in hand,
+   * where the crop is known to fall on empty ground. A frame that has to hold
+   * whatever arrives must contain, or it will cut the subject in half.
+   */
+  cover?: boolean;
+  /**
    * Take the height from `className` and the width from the file.
    *
    * The declared width and height are still passed to the image, but only as
@@ -80,6 +89,7 @@ export default function AssetFrame({
   placeholderLabel,
   className = "",
   fill = false,
+  cover = false,
   natural = false,
   sizes,
   priority,
@@ -159,9 +169,9 @@ export default function AssetFrame({
           sizes={sizes}
           priority={priority}
           onError={() => setMissingSrc(asset.src)}
-          /* Contain in a locked frame: cropping to fill would hide part of a
-             render whose ratio differs from the frame's. */
-          className={fill ? "object-contain" : "object-cover"}
+          /* Contain in a locked frame by default: cropping to fill would
+             hide part of a render whose ratio differs from the frame's. */
+          className={fill && !cover ? "object-contain" : "object-cover"}
         />
       </div>
     );

@@ -30,9 +30,17 @@ import { formatPrice } from "@/lib/format";
  * route's bends (see `StationPanel`), so the only room left to give the image
  * was the padding.
  *
- * Square because the artwork is: a landscape frame would letterbox it back
- * down. `object-contain` still means nothing is cropped if a kit arrives in
- * another shape.
+ * Not square, though the artwork is. Every kit is shot the same way — the
+ * caps in the middle of a slab of concrete — and the square leaves a fifth of
+ * the frame empty above the top row and about as much below the bottom one.
+ * So the frame is 7:6 and fills rather than contains: it keeps the full width
+ * of the caps, at the full width of the card, and the 14% it crops off the
+ * height is concrete.
+ *
+ * This is the one frame on the page allowed to crop, and only because its
+ * shape was chosen against the artwork already in hand. 16:9 would be the
+ * tidier number and is what the shape of a screen suggests, but it cuts 44%
+ * of the height and the base kit's F-row and 40s block are inside that.
  *
  * ## Two facts
  *
@@ -74,19 +82,16 @@ export default function KitsSection({ kits, station, copy }: KitsSectionProps) {
                edge to edge. Not below `lg` — the card's left padding is there
                to clear the route, and breaking through it would put the image
                under the tracks. */
-            className="group relative block aspect-square w-full cursor-zoom-in overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:-mx-12 lg:w-[calc(100%+6rem)]"
+            className="group relative block aspect-[7/6] w-full cursor-zoom-in overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:-mx-12 lg:w-[calc(100%+6rem)]"
             aria-label={`View ${kit.name} full screen`}
           >
-            {/* Locked box, contained image: the artwork's own ratio is not
-              known until it lands, so the frame must not take its shape from
-              the declaration — a square photo in a 16:10 frame is a crop or a
-              letterbox, and this file is square. */}
             <AssetFrame
               asset={kit.image}
               tag={kit.code}
               placeholderLabel={copy.labels.assetPlaceholder}
               className="transition-opacity group-hover:opacity-85"
               fill
+              cover
               sizes="(min-width: 1024px) 900px, 100vw"
               priority={carousel.index === 0}
             />
