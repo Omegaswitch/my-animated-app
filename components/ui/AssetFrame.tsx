@@ -22,7 +22,10 @@ import type { ImageAsset } from "@/types/project";
  */
 
 export const AVAILABLE_ASSETS: true | readonly string[] = [
-  // Add each path as its file lands in `public/`.
+  // Add each path as its file lands in `public/`. Case must match the file
+  // exactly: Windows resolves paths case-insensitively, Linux hosting does
+  // not, so a capitalised filename works locally and 404s in production.
+  "/logos/manufacturer.png",
 ];
 
 function isAvailable(src: string): boolean {
