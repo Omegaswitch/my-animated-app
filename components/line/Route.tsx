@@ -78,6 +78,13 @@ import {
  * fillet is large — 90px against the circle's 26 — because what reads as
  * sharp is the approach, not the hug.
  *
+ * The parting alone still leaves the disc's top and bottom open, so a ring of
+ * the same radius closes the pocket into a circle — orange on the side the
+ * orange rail runs, gold on the other, so it reads as the two tracks meeting
+ * round the disc rather than a third thing drawn over them. Its radius is the
+ * rails' own offset at the disc's height, so the three are tangent by
+ * construction and cannot drift apart.
+ *
  * The stroke is untouched: 14px throughout. Only the line's own path moves,
  * so the rails cannot thin as they bow.
  *
@@ -151,6 +158,10 @@ interface Shape {
   secondary: string;
   discX: number;
   discY: number;
+  /** Radius of the ring closed around the disc. */
+  ringRadius: number;
+  /** 0 at a platform, 1 in transit. Fades the ring as the pocket shuts. */
+  ringOpacity: number;
 }
 
 interface Hold {
@@ -323,14 +334,28 @@ function measure(): Shape {
     secondary += `${command}${round(x + offset * nx)} ${round(y + offset * ny)}`;
   }
 
-  return { primary, secondary, discX: centre(discY), discY };
+  /* The ring is always tangent to the parted rails: they stand `offset` off
+     the centre line at the disc's own height, and that is exactly its radius.
+     One number drives both, so they cannot come apart. */
+  const ringRadius = REST + open * (DISC_POCKET_RADIUS - REST);
+
+  return {
+    primary,
+    secondary,
+    discX: centre(discY),
+    discY,
+    ringRadius,
+    ringOpacity: open,
+  };
 }
 
 const same = (a: Shape, b: Shape) =>
   a.primary === b.primary &&
   a.secondary === b.secondary &&
   a.discX === b.discX &&
-  a.discY === b.discY;
+  a.discY === b.discY &&
+  a.ringRadius === b.ringRadius &&
+  a.ringOpacity === b.ringOpacity;
 
 export default function Route() {
   const [shape, setShape] = useState<Shape | null>(null);
@@ -401,6 +426,17 @@ export default function Route() {
         data-route
         className="pointer-events-none fixed inset-0 z-0 h-full w-full"
       >
+        {/* Split down the middle, so the ring is the orange rail's colour on
+            the side the orange rail runs and the gold's on the other — it
+            reads as the two tracks closing round the disc, not as a third
+            thing drawn on top of them. */}
+        <defs>
+          <linearGradient id="route-ring" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="48%" stopColor="var(--color-line-primary)" />
+            <stop offset="52%" stopColor="var(--color-line-secondary)" />
+          </linearGradient>
+        </defs>
+
         <path
           d={shape.primary}
           fill="none"
@@ -415,6 +451,21 @@ export default function Route() {
           strokeWidth={ROUTE_STROKE_WIDTH}
           strokeLinejoin="round"
         />
+
+        {/* Closes the pocket into a circle. Drawn under the disc, which is in
+            its own layer above the cards, so the ring reads as track and the
+            disc as the thing riding it. */}
+        {shape.ringOpacity > 0 ? (
+          <circle
+            cx={shape.discX}
+            cy={shape.discY}
+            r={shape.ringRadius}
+            fill="none"
+            stroke="url(#route-ring)"
+            strokeWidth={ROUTE_STROKE_WIDTH}
+            opacity={shape.ringOpacity}
+          />
+        ) : null}
       </svg>
 
       <svg
