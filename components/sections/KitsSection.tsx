@@ -23,21 +23,24 @@ import { formatPrice } from "@/lib/format";
  *
  * ## The render owns the card
  *
- * It used to sit in a 56/44 split beside the copy, which is the wrong way
- * round: the copy is four short facts and a sentence, and the render is the
- * product. Worse, the kit files are square and the frame was 16:10, so the
- * image contained itself into a 256px square in a 409px box — a thumbnail of
- * the thing the page exists to show.
+ * It used to sit in a 56/44 split beside a column of copy, which is the wrong
+ * way round: the render is the product. The frame is now square and runs the
+ * card's full width, breaking out through its padding, because the card's
+ * width is the hard ceiling here — it cannot widen without steepening the
+ * route's bends (see `StationPanel`), so the only room left to give the image
+ * was the padding.
  *
- * The frame is now square and as wide as the card or the viewport's height
- * allows, whichever binds first, so the render is the largest it can be
- * without scrolling the card off screen. Square because the artwork is: a
- * landscape frame would letterbox it back down. `object-contain` still means
- * nothing is ever cropped if a kit arrives in another shape.
+ * Square because the artwork is: a landscape frame would letterbox it back
+ * down. `object-contain` still means nothing is cropped if a kit arrives in
+ * another shape.
  *
- * What was a column of copy is a spec strip under the image — code and name
- * on one side, the numbers on the other, one rule beneath. Read as a data
- * sheet rather than a headline.
+ * ## Two facts
+ *
+ * The name and the price, and nothing else. It carried the kit code, its
+ * availability, a cap count, a summary and a note; none of that is what
+ * anyone is looking at this screen to find out, and all of it was competing
+ * with the render for the space. The summary survives as the lightbox's
+ * caption, where there is room and someone has asked for detail.
  */
 
 export interface KitsSectionProps {
@@ -66,10 +69,12 @@ export default function KitsSection({ kits, station, copy }: KitsSectionProps) {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            /* `max-w-[68vh]` is what keeps the card on one screen: the frame
-               is square, so its width is also its height, and the viewport is
-               the binding constraint on a wide display. */
-            className="group relative mx-auto block aspect-square w-full max-w-[68vh] cursor-zoom-in overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-line-primary"
+            /* Full-bleed from `lg`: the negative margin cancels the card's
+               padding and the width adds it back, so the frame spans the card
+               edge to edge. Not below `lg` — the card's left padding is there
+               to clear the route, and breaking through it would put the image
+               under the tracks. */
+            className="group relative block aspect-square w-full cursor-zoom-in overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:-mx-12 lg:w-[calc(100%+6rem)]"
             aria-label={`View ${kit.name} full screen`}
           >
             {/* Locked box, contained image: the artwork's own ratio is not
@@ -82,46 +87,20 @@ export default function KitsSection({ kits, station, copy }: KitsSectionProps) {
               placeholderLabel={copy.labels.assetPlaceholder}
               className="transition-opacity group-hover:opacity-85"
               fill
-              sizes="(min-width: 1024px) 640px, 90vw"
+              sizes="(min-width: 1024px) 900px, 100vw"
               priority={carousel.index === 0}
             />
           </button>
         ) : null}
 
-        {/* The spec strip. Identity left, numbers right, one rule under it. */}
-        <div className="mt-6 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-b border-ink/15 pb-3">
-          <div className="flex min-w-0 flex-wrap items-baseline gap-x-4 gap-y-1">
-            <span className="text-[11px] font-bold uppercase tabular-nums tracking-[0.18em] text-ink/50">
-              {kit.code}
-            </span>
-            <h3 className="text-base font-bold uppercase tracking-[0.06em] lg:text-lg">
-              {kit.name}
-            </h3>
-          </div>
+        <div className="mt-6 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1">
+          <h3 className="text-lg font-bold uppercase tracking-[0.06em] lg:text-xl">
+            {kit.name}
+          </h3>
 
-          <dl className="flex flex-wrap items-baseline gap-x-6 gap-y-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/60">
-            <dd>{copy.kitAvailability[kit.availability]}</dd>
-            {kit.capCount !== undefined ? (
-              <dd className="tabular-nums text-ink">
-                {kit.capCount} {copy.labels.caps}
-              </dd>
-            ) : null}
-            {kit.priceMinor !== undefined && kit.currency ? (
-              <dd className="tabular-nums text-ink">
-                {formatPrice(kit.priceMinor, kit.currency)}
-              </dd>
-            ) : null}
-          </dl>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
-          <p className="max-w-[54ch] text-sm leading-relaxed text-ink/80">
-            {kit.summary}
-          </p>
-
-          {kit.note ? (
-            <p className="border-l-2 border-line-primary pl-3 text-[10px] font-bold uppercase leading-relaxed tracking-[0.1em] text-ink/60">
-              {kit.note}
+          {kit.priceMinor !== undefined && kit.currency ? (
+            <p className="text-lg font-bold tabular-nums lg:text-xl">
+              {formatPrice(kit.priceMinor, kit.currency)}
             </p>
           ) : null}
         </div>

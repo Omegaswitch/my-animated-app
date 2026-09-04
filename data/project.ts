@@ -110,12 +110,6 @@ const stations: Station[] = [
  * ------------------------------------------------------------------------- */
 
 const copy: ProjectCopy = {
-  kitAvailability: {
-    "in-development": "In development",
-    sampling: "Sampling",
-    released: "Released",
-    archived: "Archived",
-  },
   renderView: {
     front: "Front",
     "three-quarter": "Three-quarter",
@@ -138,7 +132,6 @@ const copy: ProjectCopy = {
   },
   labels: {
     origin: "Origin",
-    caps: "caps",
     credit: "Render",
     appliedTo: "Applied to",
     legend: "Legend",
@@ -185,11 +178,8 @@ const kits: Kit[] = [
     name: "Base Kit with Novelties",
     summary: "Alphas, core modifiers and the line-map novelty set.",
     line: "primary",
-    availability: "released",
-    capCount: 121,
     priceMinor: 12500,
     currency: "EUR",
-    note: "Novelties in development — icon reveals coming soon.",
     image: {
       src: `${ASSETS.kits}/base.png`,
       alt: "Base Kit with novelties, laid out",
@@ -203,8 +193,6 @@ const kits: Kit[] = [
     name: "Numpad",
     summary: "Full numpad coverage, including the tall zero and enter.",
     line: "secondary",
-    availability: "released",
-    capCount: 23,
     priceMinor: 3500,
     currency: "EUR",
     image: {
@@ -220,8 +208,6 @@ const kits: Kit[] = [
     name: "40s",
     summary: "The 40% row: shortened modifiers and split spacebars.",
     line: "primary",
-    availability: "sampling",
-    capCount: 34,
     priceMinor: 3800,
     currency: "EUR",
     image: {
@@ -237,8 +223,6 @@ const kits: Kit[] = [
     name: "NorDe",
     summary: "Nordic and German legends: ISO Enter, umlauts, the lot.",
     line: "secondary",
-    availability: "in-development",
-    capCount: 41,
     priceMinor: 4200,
     currency: "EUR",
     image: {

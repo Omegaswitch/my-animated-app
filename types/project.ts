@@ -96,9 +96,6 @@ export interface Intro {
  * Station 2 — kits
  * ------------------------------------------------------------------------- */
 
-export type KitAvailability =
-  "in-development" | "sampling" | "released" | "archived";
-
 export interface Kit {
   id: string;
   /** SKU or internal code. */
@@ -106,14 +103,9 @@ export interface Kit {
   name: string;
   summary: string;
   line: LineRef;
-  availability: KitAvailability;
-  /** Number of caps in the kit. */
-  capCount?: number;
   /** Minor units (cents) to avoid float drift; omit while unpriced. */
   priceMinor?: number;
   currency?: string;
-  /** A line of standing detail, e.g. a part of the kit still in development. */
-  note?: string;
   image?: ImageAsset;
 }
 
@@ -243,14 +235,12 @@ export interface DesignerCredit {
  * ------------------------------------------------------------------------- */
 
 export interface ProjectCopy {
-  kitAvailability: Record<KitAvailability, string>;
   renderView: Record<RenderView, string>;
   vendorRegion: Record<VendorRegion, string>;
   lineNames: Record<LineRef, string>;
   labels: {
     /** Beside the intro's origin marker. */
     origin: string;
-    caps: string;
     credit: string;
     /** Heads the row rule in the colour detail. */
     appliedTo: string;
