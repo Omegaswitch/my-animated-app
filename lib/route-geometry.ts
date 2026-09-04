@@ -48,11 +48,16 @@ export const STATION_OUTER_RADIUS = STATION_RADIUS + STATION_STROKE_WIDTH / 2; /
  * disc passes, which puts their inner edges at 19px against the disc's outer
  * edge at 16: a 3px pocket, open but tight.
  *
- * The window is deliberately short. Any longer and the pair is never quite
- * parallel anywhere on screen, which is the one thing a schematic has to be.
+ * Depth and radius are one decision, not two: the rail's steepest angle is
+ * roughly 1.72 × depth ÷ radius. At 14 over 32 that is 37 degrees, which is
+ * a flick rather than a bow — the rail visibly kinks out and back. Over 64 it
+ * is 21 degrees, and the pocket reads as something the line curves around.
+ *
+ * Longer than this and the pair is never quite parallel anywhere on screen,
+ * which is the one thing a schematic has to be.
  */
 export const DISC_POCKET_DEPTH = 14;
-export const DISC_POCKET_RADIUS = 32;
+export const DISC_POCKET_RADIUS = 64;
 
 /**
  * Where the spine sits below `lg`: pinned to the left margin, so content

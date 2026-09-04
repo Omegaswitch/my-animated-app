@@ -65,12 +65,12 @@ import {
  * and close again behind it, leaving the disc sitting in open air between
  * them.
  *
- * The parting is a raised cosine over a 32px window: it reaches its full 14px
- * at the disc's own height and returns to zero, with zero gradient, at each
- * end of the window. Zero gradient is the part that matters — the rails leave
- * and rejoin the straight with no corner to see. The window is short on
- * purpose, because a longer one means the pair is never quite parallel
- * anywhere on screen.
+ * The parting reaches its full 14px at the disc's own height and returns to
+ * zero — with zero gradient and zero curvature — at each end of a 64px
+ * window. Both of those matter: gradient alone leaves the curvature stepping
+ * from nothing to something at the join, which is what the eye reads as a
+ * corner. See `pocket` below for the shape, and `route-geometry` for why the
+ * window is as wide as it is.
  *
  * The stroke is untouched: 14px throughout. Only the line's own path moves,
  * so the rails cannot thin as they bow.
@@ -98,13 +98,20 @@ const DISC_INSET = 0.06;
 /**
  * How far the rails have parted at height `y`, given where the disc is.
  *
- * A raised cosine: full depth at the disc, zero at the window's edge, and
- * zero gradient at both — so the bow starts and ends without a corner.
+ * `(1 - t²)³`: full depth at the disc and zero at the window's edge, with
+ * zero gradient *and* zero curvature there. A raised cosine, which was the
+ * first thing here, gives zero gradient but not zero curvature, and the
+ * curvature stepping from nothing to something is exactly the join the eye
+ * reads as a corner.
+ *
+ * Near the disc it flattens to `1 - 3t²`, a parabola — so the rail wraps the
+ * disc the way a circle would rather than peaking over it.
  */
 function pocket(y: number, discY: number): number {
   const t = (y - discY) / DISC_POCKET_RADIUS;
   if (t <= -1 || t >= 1) return 0;
-  return DISC_POCKET_DEPTH * 0.5 * (1 + Math.cos(Math.PI * t));
+  const falloff = 1 - t * t;
+  return DISC_POCKET_DEPTH * falloff * falloff * falloff;
 }
 interface Shape {
   primary: string;
