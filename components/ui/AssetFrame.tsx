@@ -22,7 +22,7 @@ import type { ImageAsset } from "@/types/project";
  */
 
 export const AVAILABLE_ASSETS: true | readonly string[] = [
-  "/logos/manufacturer.png",
+  // Add each path as its file lands in `public/`.
 ];
 
 function isAvailable(src: string): boolean {
