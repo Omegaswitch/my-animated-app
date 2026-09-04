@@ -5,16 +5,29 @@ import type { ImageAsset } from "@/types/project";
  * A framed asset that holds its aspect ratio whether or not the artwork
  * exists yet.
  *
- * The `src` paths in `data/project.ts` are placeholders — nothing is in
- * `/public` — so rendering `next/image` today would 404 once per render and
- * collapse the layout. Until the artwork lands, this draws a technical
- * stand-in at the asset's true aspect ratio, so the composition is real even
- * though the pictures are not.
+ * Rendering `next/image` for a file that is not in `/public` 404s on every
+ * paint, so anything not yet uploaded gets a technical stand-in drawn at the
+ * asset's true aspect ratio. The composition is real even when the pictures
+ * are not.
  *
- * Flip ASSETS_AVAILABLE to true once the files exist. Nothing else changes.
+ * ## Adding artwork
+ *
+ * Upload the file, then add its path to `AVAILABLE_ASSETS`. Per-file rather
+ * than one global switch, because the artwork arrives a few pieces at a time:
+ * a single flag would mean either every placeholder stays until the last file
+ * lands, or every missing file starts 404ing the moment the first one does.
+ *
+ * Set it to `true` instead of a list once everything is in — that skips the
+ * lookup and treats all assets as present.
  */
 
-export const ASSETS_AVAILABLE = false;
+export const AVAILABLE_ASSETS: true | readonly string[] = [
+  "/logos/manufacturer.png",
+];
+
+function isAvailable(src: string): boolean {
+  return AVAILABLE_ASSETS === true || AVAILABLE_ASSETS.includes(src);
+}
 
 export interface AssetFrameProps {
   asset: ImageAsset;
@@ -54,7 +67,7 @@ export default function AssetFrame({
         style: { aspectRatio: `${asset.width} / ${asset.height}` },
       };
 
-  if (ASSETS_AVAILABLE) {
+  if (isAvailable(asset.src)) {
     return (
       <div
         className={`${box.className} overflow-hidden ${className}`}

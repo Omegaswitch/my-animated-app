@@ -34,7 +34,16 @@ export interface StickyIdentityProps {
   identity?: Identity;
 }
 
-/** Both marks render at this height, whatever their intrinsic size. */
+/**
+ * Marks sit in a fixed box and are contained inside it.
+ *
+ * The box does not depend on the asset's declared dimensions, so swapping a
+ * logo for one of a different shape needs no data edit: a wide mark fills the
+ * width, a tall one the height, and `object-contain` preserves either ratio
+ * without cropping or stretching. Sizing off the declared ratio instead meant
+ * a portrait file rendered as a 12px sliver.
+ */
+const MARK_WIDTH = 144;
 const MARK_HEIGHT = 48;
 
 /** Scroll distance, in px, over which the identity settles into its anchor. */
@@ -126,8 +135,8 @@ export default function StickyIdentity({
   projectLabel,
   identity,
 }: StickyIdentityProps) {
-  /* Width is derived from the asset's own ratio at a fixed height, so the two
-     marks sit on one baseline no matter how differently they are drawn. */
+  /* Both marks get the same box, so they sit on one baseline however
+     differently they are drawn. */
   const mark = (
     asset: NonNullable<Identity["manufacturer"]>,
     label: string,
@@ -138,10 +147,7 @@ export default function StickyIdentity({
          against the sticky container and stretch across it on top of each
          other. */
       className="relative block"
-      style={{
-        width: (asset.width / asset.height) * MARK_HEIGHT,
-        height: MARK_HEIGHT,
-      }}
+      style={{ width: MARK_WIDTH, height: MARK_HEIGHT }}
     >
       <AssetFrame
         asset={asset}

@@ -35,9 +35,9 @@ import type {
  * a file at `public/kits/base.png` is fetched as `/kits/base.png` —
  * writing `/public/kits/...` in a src would 404.
  *
- * Drop real WebP, PNG or SVG files into the matching `public/` subdirectory,
- * keep the filename, and flip `ASSETS_AVAILABLE` in `components/ui/AssetFrame`
- * to swap every placeholder for the artwork.
+ * Drop the file into the matching `public/` subdirectory keeping the filename,
+ * then add its path to `AVAILABLE_ASSETS` in `components/ui/AssetFrame` so the
+ * real image renders instead of the placeholder.
  */
 const ASSETS = {
   /** -> public/kits/ */
@@ -519,6 +519,8 @@ const samples: ColorSample[] = [
 const identity: Identity = {
   manufacturer: {
     src: `${ASSETS.logos}/manufacturer.png`,
+    /* Nominal only: the header box is fixed and the mark is contained inside
+       it, so these do not affect layout. */
     alt: "MilkyWay",
     width: 480,
     height: 160,
