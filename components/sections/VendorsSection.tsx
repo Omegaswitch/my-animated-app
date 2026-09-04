@@ -5,6 +5,7 @@ import type {
   VendorRegion,
 } from "@/types/project";
 import StationHeader from "./StationHeader";
+import StationPanel from "@/components/layout/StationPanel";
 import { countLabel } from "@/lib/format";
 
 /**
@@ -115,18 +116,20 @@ export default function VendorsSection({
   return (
     <section
       id="vendors"
-      className="relative flex min-h-screen flex-col justify-center py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-10 lg:pr-8 xl:pl-14 xl:pr-12"
+      className="relative flex min-h-screen flex-col justify-center py-16"
     >
-      <StationHeader
-        station={station}
-        meta={countLabel(vendors.length, copy.counts.vendor)}
-      />
+      <StationPanel>
+        <StationHeader
+          station={station}
+          meta={countLabel(vendors.length, copy.counts.vendor)}
+        />
 
-      <ul>
-        {rows.map((row) => (
-          <DirectoryRow key={row.key} row={row} copy={copy} />
-        ))}
-      </ul>
+        <ul>
+          {rows.map((row) => (
+            <DirectoryRow key={row.key} row={row} copy={copy} />
+          ))}
+        </ul>
+      </StationPanel>
     </section>
   );
 }

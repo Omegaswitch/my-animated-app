@@ -1,4 +1,5 @@
 import type { Intro, Meta, ProjectCopy } from "@/types/project";
+import StationPanel from "@/components/layout/StationPanel";
 
 /**
  * Station 1 — where the line starts.
@@ -19,7 +20,7 @@ export interface IntroSectionProps {
 export default function IntroSection({ intro, meta, copy }: IntroSectionProps) {
   return (
     <section className="relative flex min-h-screen flex-col justify-center py-24">
-      <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-10 lg:pr-8 xl:pl-14 xl:pr-12">
+      <StationPanel alwaysExpanded>
         {intro.eyebrow ? (
           <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-ink/60">
             {intro.eyebrow}
@@ -75,7 +76,7 @@ export default function IntroSection({ intro, meta, copy }: IntroSectionProps) {
             ))}
           </dl>
         ) : null}
-      </div>
+      </StationPanel>
     </section>
   );
 }

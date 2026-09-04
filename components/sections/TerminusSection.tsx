@@ -9,6 +9,7 @@ import type {
 import { GB_STAGE_ORDER } from "@/data/project";
 import AssetFrame from "@/components/ui/AssetFrame";
 import StationHeader from "./StationHeader";
+import StationPanel from "@/components/layout/StationPanel";
 
 /**
  * Station 6 — the terminus.
@@ -50,7 +51,7 @@ export default function TerminusSection({
 
   return (
     <section className="relative flex min-h-screen flex-col justify-center py-24">
-      <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-10 lg:pr-8 xl:pl-14 xl:pr-12">
+      <StationPanel>
         <StationHeader
           station={station}
           meta={`${copy.labels.updated} ${terminus.updatedOn}`}
@@ -140,7 +141,7 @@ export default function TerminusSection({
             </ul>
           </div>
         ) : null}
-      </div>
+      </StationPanel>
     </section>
   );
 }
