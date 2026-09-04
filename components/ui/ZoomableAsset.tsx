@@ -30,6 +30,11 @@ import AssetFrame from "./AssetFrame";
  * routinely wrong — a file supplied square against a 16:10 declaration is
  * normal — and sizing off them cropped the image or produced a box of the
  * wrong shape.
+ *
+ * The height is explicit rather than `flex-1`. The dialog's panel is
+ * `max-h-full`, so it sizes to its content and offers no definite height for
+ * a flex child to resolve against: the frame collapsed to zero and the modal
+ * opened blank.
  */
 
 export interface ZoomableAssetProps {
@@ -38,6 +43,8 @@ export interface ZoomableAssetProps {
   copy: ProjectCopy;
 }
 
+/** Fitted panel height. Explicit — see the note on sizing above. */
+const FIT_HEIGHT = "min(68vh, 68vw)";
 /** Magnification when inspecting. */
 const ZOOM = 2.4;
 /** Matches the brief's 0.2s ease-out. */
@@ -75,7 +82,7 @@ export default function ZoomableAsset({
   };
 
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <div
         ref={frameRef}
         onClick={toggle}
@@ -92,7 +99,8 @@ export default function ZoomableAsset({
         }}
         /* `overflow-hidden` is what keeps the magnified image from producing
            a scrollbar; the pan replaces scrolling entirely. */
-        className={`relative min-h-0 w-full flex-1 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-line-primary ${
+        style={{ height: FIT_HEIGHT }}
+        className={`relative w-full shrink-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-line-primary ${
           zoomed ? "cursor-zoom-out" : "cursor-zoom-in"
         }`}
       >
