@@ -476,8 +476,15 @@ export default function Route() {
             x2={shape.gradient.x2}
             y2={shape.gradient.y2}
           >
-            <stop offset="48%" stopColor="var(--color-line-primary)" />
-            <stop offset="52%" stopColor="var(--color-line-secondary)" />
+            {/* End to end, not a seam at the middle. The axis runs between
+                the two points where the rails meet the ring, so the ends are
+                already exactly each rail's colour; blending the whole way
+                across hands one to the other without a join to see. A narrow
+                crossover put a hard edge across the top and bottom of the
+                ring, which is the part of it furthest from either rail and
+                has no business being a boundary. */}
+            <stop offset="0%" stopColor="var(--color-line-primary)" />
+            <stop offset="100%" stopColor="var(--color-line-secondary)" />
           </linearGradient>
         </defs>
 
