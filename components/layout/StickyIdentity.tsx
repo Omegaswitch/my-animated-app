@@ -133,7 +133,11 @@ export default function StickyIdentity({
     label: string,
   ) => (
     <span
-      className="block"
+      /* `relative` is load-bearing: AssetFrame in fill mode is
+         `absolute inset-0`, so without a positioned parent both marks resolve
+         against the sticky container and stretch across it on top of each
+         other. */
+      className="relative block"
       style={{
         width: (asset.width / asset.height) * MARK_HEIGHT,
         height: MARK_HEIGHT,
