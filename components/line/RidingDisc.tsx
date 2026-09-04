@@ -60,12 +60,20 @@ export default function RidingDisc() {
           height={STATION_RADIUS * 2 + STATION_STROKE_WIDTH}
           style={{ overflow: "visible" }}
         >
+          {/* The disc belongs to both tracks, so its ring runs from one line
+              colour to the other rather than picking a side. */}
+          <defs>
+            <linearGradient id="disc-ring" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--color-line-primary)" />
+              <stop offset="100%" stopColor="var(--color-line-secondary)" />
+            </linearGradient>
+          </defs>
           <circle
             cx={ROUTE_CENTRE_X}
             cy={STATION_RADIUS + STATION_STROKE_WIDTH / 2}
             r={STATION_RADIUS}
             fill={STATION_FILL}
-            stroke="var(--color-line-primary)"
+            stroke="url(#disc-ring)"
             strokeWidth={STATION_STROKE_WIDTH}
           />
         </svg>

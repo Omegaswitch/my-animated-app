@@ -1,27 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import type { Kit, ProductSwatch, ProjectCopy, Station } from "@/types/project";
+import { AnimatePresence, motion } from "framer-motion";
+import type {
+  ColorSample,
+  Kit,
+  ProductSwatch,
+  ProjectCopy,
+  Station,
+} from "@/types/project";
+import AssetFrame from "@/components/ui/AssetFrame";
 import StationHeader from "./StationHeader";
 import { countLabel } from "@/lib/format";
 
 /**
  * Station 3 — the colourway.
  *
- * A strip of all five, always visible, with the detail panel updating in
- * place. A palette is compared, not paged through: seeing them together is
- * the whole point, so nothing here hides the set to show one member of it.
+ * A strip of all five, always visible, with the detail updating in place.
+ * A palette is compared, not paged through.
  *
- * Hover previews and click commits, so a pointer can sweep the strip and read
- * each one without a trail of clicks — but the committed choice survives the
- * pointer leaving.
+ * ## Why the detail panel has a fixed height
  *
- * The "used on" tags are derived: a swatch knows nothing about where it is
- * used, the kits point at it, and this reads those references back.
+ * The five entries have different name lengths, description lengths and tag
+ * counts, so the panel's natural height changes with the selection. Hovering
+ * across the strip then resizes it under the pointer, which moves everything
+ * below and reads as jitter. The panel is given a fixed height and the copy
+ * cross-fades inside it, so nothing outside the panel moves at all.
+ *
+ * The cross-fade is `AnimatePresence mode="wait"` on opacity only — no spring,
+ * no travel. Anything with overshoot would reintroduce the wobble the fixed
+ * height is there to remove.
  */
 
 export interface ColorsSectionProps {
   swatches: ProductSwatch[];
+  samples: ColorSample[];
   kits: Kit[];
   station: Station;
   copy: ProjectCopy;
@@ -33,8 +46,11 @@ function usedOn(swatch: ProductSwatch, kits: Kit[]): string[] {
     .map((kit) => kit.name);
 }
 
+const FADE = { duration: 0.16, ease: "easeOut" } as const;
+
 export default function ColorsSection({
   swatches,
+  samples,
   kits,
   station,
   copy,
@@ -58,7 +74,8 @@ export default function ColorsSection({
         meta={countLabel(swatches.length, copy.counts.colour)}
       />
 
-      {/* The strip: all five, side by side, always. */}
+      {/* The strip: all five, side by side, always. Only the chip's own
+          height eases — nothing around it depends on that height. */}
       <ul
         className="flex w-full border-2 border-ink/30"
         onMouseLeave={() => setHovered(null)}
@@ -75,8 +92,8 @@ export default function ColorsSection({
                 onBlur={() => setHovered(null)}
                 aria-current={index === selected ? "true" : undefined}
                 aria-label={`${entry.name}, ${entry.hex}`}
-                className={`block w-full outline-none transition-[height] duration-200 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink ${
-                  active ? "h-28 lg:h-40" : "h-24 lg:h-32"
+                className={`block w-full outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink ${
+                  active ? "h-24 lg:h-36" : "h-20 lg:h-28"
                 }`}
                 style={{ backgroundColor: entry.hex }}
               />
@@ -85,46 +102,87 @@ export default function ColorsSection({
         })}
       </ul>
 
-      {/* Detail, updated in place. */}
-      <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-10">
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-bold uppercase tabular-nums tracking-[0.18em] text-ink/50">
-            {String(activeIndex + 1).padStart(2, "0")} / {swatch.code}
-          </p>
+      {/* Fixed height: the sole reason the strip can be swept without the
+          page moving underneath. */}
+      <div className="relative mt-5 h-[168px] sm:h-[148px]">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={swatch.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={FADE}
+            className="absolute inset-0 flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-10"
+          >
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink/50">
+                {swatch.code}
+              </p>
 
-          <h3 className="mt-2 text-[clamp(1.35rem,2.6vw,2.15rem)] font-bold leading-[1.04] tracking-[-0.02em]">
-            {swatch.name}
-          </h3>
+              <h3 className="mt-1.5 text-[clamp(1.25rem,2.4vw,1.9rem)] font-bold leading-[1.04] tracking-[-0.02em]">
+                {swatch.name}
+              </h3>
 
-          <p className="mt-2 text-lg font-bold tabular-nums tracking-[0.04em] text-ink/70">
-            {swatch.hex.toUpperCase()}
-          </p>
+              <p className="mt-1.5 text-base font-bold tabular-nums tracking-[0.04em] text-ink/70">
+                {swatch.hex.toUpperCase()}
+              </p>
 
-          {swatch.description ? (
-            <p className="mt-3 max-w-[42ch] text-sm leading-relaxed text-ink/80">
-              {swatch.description}
-            </p>
-          ) : null}
-        </div>
+              {swatch.description ? (
+                <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-ink/80">
+                  {swatch.description}
+                </p>
+              ) : null}
+            </div>
 
-        {tags.length > 0 ? (
-          <div className="shrink-0 lg:w-52">
-            <h4 className="border-t-2 border-ink/25 pt-3 text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
-              {copy.labels.usedOn}
-            </h4>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {tags.map((name) => (
-                <li
-                  key={name}
-                  className="border border-ink/35 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink/75"
-                >
-                  {name}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
+            {tags.length > 0 ? (
+              <div className="shrink-0 sm:w-52">
+                <h4 className="border-t-2 border-ink/25 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
+                  {copy.labels.usedOn}
+                </h4>
+                <ul className="mt-2 flex flex-wrap gap-1.5">
+                  {tags.map((name) => (
+                    <li
+                      key={name}
+                      className="border border-ink/35 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-ink/75"
+                    >
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </motion.div>
+        </AnimatePresence>
       </div>
+
+      {/* Physical chips, against the digital swatches above them. */}
+      {samples.length > 0 ? (
+        <div className="mt-8 border-t-2 border-ink/25 pt-4">
+          <h4 className="text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
+            {copy.labels.samples}
+          </h4>
+          <ul className="mt-3 grid grid-cols-5 gap-2">
+            {samples.map((sample) => (
+              <li key={sample.id}>
+                <AssetFrame
+                  asset={sample.image}
+                  tag={sample.label}
+                  placeholderLabel={copy.labels.assetPlaceholder}
+                  sizes="(min-width: 1024px) 8vw, 18vw"
+                />
+                <p className="mt-1.5 truncate text-[9px] font-bold uppercase tracking-[0.08em] text-ink/60">
+                  {sample.label}
+                </p>
+                {sample.caption ? (
+                  <p className="truncate text-[9px] tracking-[0.06em] text-ink/40">
+                    {sample.caption}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 }

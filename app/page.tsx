@@ -56,6 +56,7 @@ export default function Page() {
 
         <ColorsSection
           swatches={project.swatches}
+          samples={project.samples}
           kits={project.kits}
           station={stationById("colors")}
           copy={project.copy}
@@ -76,6 +77,7 @@ export default function Page() {
         <TerminusSection
           terminus={project.terminus}
           station={stationById("terminus")}
+          designers={project.designers}
           copy={project.copy}
         />
       </main>

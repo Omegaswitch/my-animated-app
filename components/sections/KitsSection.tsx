@@ -75,7 +75,7 @@ export default function KitsSection({
 
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-bold uppercase tabular-nums tracking-[0.18em] text-ink/50">
-            {String(carousel.index + 1).padStart(2, "0")} / {kit.code}
+            {kit.code}
           </p>
 
           <h3 className="mt-2 text-[clamp(1.5rem,3vw,2.5rem)] font-bold leading-[1.02] tracking-[-0.02em]">

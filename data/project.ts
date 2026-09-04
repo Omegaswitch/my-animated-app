@@ -12,6 +12,8 @@
  */
 
 import type {
+  ColorSample,
+  DesignerCredit,
   GbStage,
   Intro,
   Kit,
@@ -45,6 +47,8 @@ const ASSETS = {
   logos: "/logos",
   /** -> public/packaging/ */
   packaging: "/packaging",
+  /** -> public/colors/ */
+  colors: "/colors",
 } as const;
 
 /* ---------------------------------------------------------------------------
@@ -141,6 +145,8 @@ const copy: ProjectCopy = {
     caps: "caps",
     credit: "Render",
     usedOn: "Used on",
+    samples: "Colour-matched samples",
+    designedBy: "Designed by",
     discord: "Discord",
     previous: "Previous",
     next: "Next",
@@ -446,6 +452,93 @@ const vendors: Vendor[] = [
 ];
 
 /* ---------------------------------------------------------------------------
+ * Colour-matched samples — the physical chips, shot against the digital ones
+ * ------------------------------------------------------------------------- */
+
+const samples: ColorSample[] = [
+  {
+    id: "smp-01",
+    label: "Pantone 447 C",
+    image: {
+      src: `${ASSETS.colors}/sample-01.webp`,
+      alt: "Moulded chip matched to Pantone 447 C",
+      width: 800,
+      height: 800,
+    },
+    caption: "ABS, first shot",
+  },
+  {
+    id: "smp-02",
+    label: "Pantone 7407 C",
+    image: {
+      src: `${ASSETS.colors}/sample-02.webp`,
+      alt: "Moulded chip matched to Pantone 7407 C",
+      width: 800,
+      height: 800,
+    },
+    caption: "ABS, first shot",
+  },
+  {
+    id: "smp-03",
+    label: "Pantone 7565 C",
+    image: {
+      src: `${ASSETS.colors}/sample-03.webp`,
+      alt: "Moulded chip matched to Pantone 7565 C",
+      width: 800,
+      height: 800,
+    },
+    caption: "ABS, second shot",
+  },
+  {
+    id: "smp-04",
+    label: "Warm Gray 1 C",
+    image: {
+      src: `${ASSETS.colors}/sample-04.webp`,
+      alt: "Moulded chip matched to Warm Gray 1 C",
+      width: 800,
+      height: 800,
+    },
+  },
+  {
+    id: "smp-05",
+    label: "Warm Gray 5 C",
+    image: {
+      src: `${ASSETS.colors}/sample-05.webp`,
+      alt: "Moulded chip matched to Warm Gray 5 C",
+      width: 800,
+      height: 800,
+    },
+  },
+];
+
+/* ---------------------------------------------------------------------------
+ * Designer credits
+ * ------------------------------------------------------------------------- */
+
+const designers: DesignerCredit[] = [
+  {
+    id: "dsg-01",
+    name: "Studio One",
+    asset: {
+      src: `${ASSETS.logos}/designer-01.svg`,
+      alt: "Studio One",
+      width: 240,
+      height: 64,
+    },
+  },
+  {
+    id: "dsg-02",
+    name: "Studio Two",
+    asset: {
+      src: `${ASSETS.logos}/designer-02.svg`,
+      alt: "Studio Two",
+      width: 240,
+      height: 64,
+    },
+  },
+];
+
+/* ---------------------------------------------------------------------------
  * Station 6 — terminus
  * ------------------------------------------------------------------------- */
 
@@ -487,7 +580,9 @@ export const project: Project = {
   intro,
   kits,
   swatches,
+  samples,
   renders,
+  designers,
   vendors,
   terminus,
 };

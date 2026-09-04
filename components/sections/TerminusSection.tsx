@@ -1,4 +1,5 @@
 import type {
+  DesignerCredit,
   GbStage,
   ProjectCopy,
   StageState,
@@ -6,24 +7,23 @@ import type {
   Terminus,
 } from "@/types/project";
 import { GB_STAGE_ORDER } from "@/data/project";
+import AssetFrame from "@/components/ui/AssetFrame";
 import StationHeader from "./StationHeader";
-import {
-  ROUTE_POSITION_CLASS,
-  ROUTE_PRIMARY_X,
-  ROUTE_SECONDARY_X,
-  ROUTE_STROKE_WIDTH,
-  ROUTE_TRACK_CLASS,
-  ROUTE_TRACK_WIDTH,
-} from "@/lib/route-geometry";
+import { ROUTE_POSITION_CLASS, ROUTE_TRACK_CLASS } from "@/lib/route-geometry";
+
+/** Buffer stop: wider than the 38px track pair, and shallow. */
+const BUMPER_WIDTH = 48;
+const BUMPER_HEIGHT = 10;
 
 /**
  * Station 6 — the terminus.
  *
  * Three things end here: the line, the group buy, and the document.
  *
- * The end-of-line marker is a bar drawn across both tracks — the schematic's
- * way of saying the route stops here. Geometry comes from
- * `lib/route-geometry`, so it spans the spine exactly.
+ * The end of the line is a buffer stop — the solid block a track terminates
+ * against. It is laid perpendicular across both lines and slightly wider than
+ * the pair, so it reads as the end of the route rather than another marker on
+ * it. Position comes from `lib/route-geometry` so it sits on the spine.
  *
  * The stage indicator is derived from a single key. `terminus.current` is the
  * only authored status; everything before it is complete and everything after
@@ -34,6 +34,7 @@ import {
 export interface TerminusSectionProps {
   terminus: Terminus;
   station: Station;
+  designers: DesignerCredit[];
   copy: ProjectCopy;
 }
 
@@ -48,6 +49,7 @@ function resolveStageState(stage: GbStage, current: GbStage): StageState {
 export default function TerminusSection({
   terminus,
   station,
+  designers,
   copy,
 }: TerminusSectionProps) {
   const stages = GB_STAGE_ORDER.map((stage) => ({
@@ -58,21 +60,17 @@ export default function TerminusSection({
 
   return (
     <section className="relative flex min-h-screen flex-col justify-center py-24">
-      {/* End of line: a bar across both tracks, the schematic's terminus. */}
+      {/* Buffer stop: the solid block a track physically ends against, laid
+          perpendicular across both lines. Wider than the pair so it reads as
+          a bumper rather than another station marker. */}
       <div
         aria-hidden
         className={`pointer-events-none absolute bottom-16 ${ROUTE_TRACK_CLASS} ${ROUTE_POSITION_CLASS}`}
       >
-        <svg width={ROUTE_TRACK_WIDTH} height={ROUTE_STROKE_WIDTH}>
-          <line
-            x1={ROUTE_PRIMARY_X - ROUTE_STROKE_WIDTH / 2}
-            y1={ROUTE_STROKE_WIDTH / 2}
-            x2={ROUTE_SECONDARY_X + ROUTE_STROKE_WIDTH / 2}
-            y2={ROUTE_STROKE_WIDTH / 2}
-            stroke="var(--color-ink)"
-            strokeWidth={ROUTE_STROKE_WIDTH}
-          />
-        </svg>
+        <div
+          className="absolute left-1/2 top-0 -translate-x-1/2 bg-[#1A1A1A]"
+          style={{ width: BUMPER_WIDTH, height: BUMPER_HEIGHT }}
+        />
       </div>
 
       <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16">
@@ -144,6 +142,27 @@ export default function TerminusSection({
             );
           })}
         </ol>
+
+        {/* Understated: a line of small caps and two marks, nothing more. */}
+        {designers.length > 0 ? (
+          <div className="mt-12 border-t border-ink/20 pt-5">
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.22em] text-ink/45">
+              {copy.labels.designedBy}
+            </h4>
+            <ul className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-4">
+              {designers.map((designer) => (
+                <li key={designer.id} className="w-28 sm:w-32">
+                  <AssetFrame
+                    asset={designer.asset}
+                    tag={designer.name}
+                    placeholderLabel={copy.labels.assetPlaceholder}
+                    sizes="128px"
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
     </section>
   );

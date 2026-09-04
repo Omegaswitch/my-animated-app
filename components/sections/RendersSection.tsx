@@ -79,7 +79,6 @@ export default function RendersSection({
               {item.title}
             </h3>
             <span className="shrink-0 text-[10px] font-bold uppercase tabular-nums tracking-[0.14em] text-ink/50">
-              {String(carousel.index + 1).padStart(2, "0")} /{" "}
               {copy.renderView[item.view]}
             </span>
           </div>

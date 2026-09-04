@@ -131,6 +131,14 @@ export interface ProductSwatch {
   description?: string;
 }
 
+/** A physical chip shot next to the digital swatch. */
+export interface ColorSample {
+  id: string;
+  label: string;
+  image: ImageAsset;
+  caption?: string;
+}
+
 /* ---------------------------------------------------------------------------
  * Station 4 — renders
  * ------------------------------------------------------------------------- */
@@ -199,6 +207,13 @@ export interface Terminus {
   updatedOn: ISODate;
 }
 
+/** Studio credit printed at the terminus. */
+export interface DesignerCredit {
+  id: string;
+  name: string;
+  asset: ImageAsset;
+}
+
 /* ---------------------------------------------------------------------------
  * Copy
  *
@@ -229,6 +244,8 @@ export interface ProjectCopy {
     caps: string;
     credit: string;
     usedOn: string;
+    samples: string;
+    designedBy: string;
     discord: string;
     previous: string;
     next: string;
@@ -255,7 +272,9 @@ export interface Project {
   intro: Intro;
   kits: Kit[];
   swatches: ProductSwatch[];
+  samples: ColorSample[];
   renders: RenderGallery;
+  designers: DesignerCredit[];
   vendors: Vendor[];
   terminus: Terminus;
 }
