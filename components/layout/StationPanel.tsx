@@ -8,13 +8,18 @@ import {
 } from "react";
 
 /**
- * The content panel for a station, which takes over the page when you arrive.
+ * The content panel for a station: a card that takes over the page when you
+ * arrive at the stop, and gives the width back when you leave.
  *
- * Away from a stop the panel sits in the right-hand column, narrow, with the
- * twin lines running free down the middle of the page. As the station reaches
- * the middle of the viewport it widens across the spine onto a paper ground,
- * so the thing you came to look at gets the room it deserves. Leaving, it
- * gives the width back.
+ * Away from a stop the card sits in one half of the page with the route
+ * running past it. As the station reaches the middle of the viewport the card
+ * widens across most of the width; the route reads the card's box and swings
+ * further out to clear it, so the two move together without either one
+ * knowing anything about the other's internals.
+ *
+ * Cards alternate sides down the page — the route passes left of one and
+ * right of the next — which is what turns a straight line into a slalom and
+ * gives the page its editorial offset.
  *
  * ## Why a discrete state rather than a scroll-linked width
  *
@@ -36,17 +41,18 @@ import {
  * boolean, not the position, so React re-renders only when a station actually
  * arrives or leaves rather than on every scroll event.
  *
- * The paper ground matters as much as the width: expanded on a wide screen the
- * panel crosses the spine, and without an opaque background the lines would
- * run through the type.
+ * ## Why the card's ground is gated to `lg`
  *
- * Below `lg` neither applies. The panel already spans the width there and the
- * spine runs down the left margin, so a paper ground would simply paint over
- * the lines — the one thing that must stay visible.
+ * Below `lg` the card already spans the width and the route runs down the
+ * left margin, so a ground and a border would just be a box around the whole
+ * screen with the route painted over. The bypass is a wide-screen idea and so
+ * is the card.
  */
 
 export interface StationPanelProps {
   children: ReactNode;
+  /** Which side of the card the route passes on. Alternates down the page. */
+  routeSide: "left" | "right";
   /** The intro is arrived at immediately and never recedes. */
   alwaysExpanded?: boolean;
 }
@@ -58,8 +64,27 @@ export interface StationPanelProps {
  */
 const BAND = 0.3;
 
+/**
+ * Card margins.
+ *
+ * Expanded, the card leaves ~17% on the route's side — enough for the 38px
+ * pair, its clearance, and air — and hugs the far edge. Receded, it takes
+ * half the page on the side away from the route, which pulls the route back
+ * toward the middle without any explicit "centre" ever being written down.
+ */
+const EXPANDED = {
+  left: "lg:ml-[17%] lg:mr-[4%]",
+  right: "lg:ml-[4%] lg:mr-[17%]",
+} as const;
+
+const RECEDED = {
+  left: "lg:ml-[50%] lg:mr-0",
+  right: "lg:ml-0 lg:mr-[50%]",
+} as const;
+
 export default function StationPanel({
   children,
+  routeSide,
   alwaysExpanded = false,
 }: StationPanelProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -92,10 +117,12 @@ export default function StationPanel({
     <div
       ref={ref}
       data-station-panel={expanded ? "expanded" : "receded"}
-      className={`transition-[margin,padding,background-color,border-color] duration-500 ease-out ${
+      // Read by the route, which measures this box and passes on this side.
+      data-route-side={routeSide}
+      className={`rounded-2xl transition-[margin,padding,background-color,border-color] duration-500 ease-out ${
         expanded
-          ? "py-10 lg:ml-[6%] lg:mr-[4%] lg:border-y lg:border-ink/15 lg:bg-paper lg:pl-12 lg:pr-12"
-          : "py-0 lg:ml-[50%] lg:mr-0 lg:border-y lg:border-transparent lg:bg-transparent lg:pl-10 lg:pr-8"
+          ? `py-10 lg:border lg:border-ink/15 lg:bg-paper lg:px-12 ${EXPANDED[routeSide]}`
+          : `py-0 lg:border lg:border-transparent lg:bg-transparent lg:px-10 ${RECEDED[routeSide]}`
       } pl-24 pr-6 sm:pl-28`}
     >
       {children}

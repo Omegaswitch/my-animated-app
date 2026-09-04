@@ -1,0 +1,329 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  RAIL_INSET,
+  RAIL_INSET_SM,
+  RAIL_STEP_WIDTH,
+  ROUTE_BYPASS_MIN_WIDTH,
+  ROUTE_CARD_CLEARANCE,
+  ROUTE_EDGE_INSET,
+  ROUTE_HALF_WIDTH,
+  ROUTE_OFFSET,
+  ROUTE_STROKE_WIDTH,
+  ROUTE_TRACK_WIDTH,
+  STATION_FILL,
+  STATION_RADIUS,
+  STATION_STROKE_WIDTH,
+} from "@/lib/route-geometry";
+
+/**
+ * The route — two heavy tracks and the disc riding them.
+ *
+ * The tracks used to be a straight fixed line down the middle of the page,
+ * which meant every station card had to be painted opaque to hide the part of
+ * the line running underneath it. A transit diagram does not do that: a line
+ * goes *around* what is in its way. So the route is measured rather than
+ * drawn: it runs down the page, swings out to clear each card, and comes back.
+ *
+ * ## How the shape is decided
+ *
+ * Each station panel publishes two things through data attributes: its box,
+ * and which side the route should pass on. The route holds a constant x for
+ * the height of a card — far enough out to clear its edge — and eases between
+ * one card's x and the next across the gap between them. Nothing else decides
+ * the shape, so a card that widens (a station taking over the page) pushes the
+ * route out, and one that narrows lets it fall back toward the middle. Cards
+ * alternate sides, so the line slaloms rather than wandering.
+ *
+ * Because the geometry is a function of y, the disc can be placed on it
+ * exactly: its height is the scroll progress, and its x is the same function
+ * the tracks are drawn from. There is no sampling of the rendered path and no
+ * way for the two to disagree.
+ *
+ * ## Why the pair is offset along the normal
+ *
+ * The two tracks are the centre line ±12px measured perpendicular to it. On a
+ * diagonal, offsetting along x instead would squeeze the painted gap by the
+ * cosine of the slope and the lines would appear to merge into one.
+ *
+ * ## Why the disc no longer has a spring
+ *
+ * It used to lag the scroll on a spring, which read as momentum. That only
+ * works on a straight line: on a curve the lagged y belongs to a different x,
+ * and the disc would leave the track through every bend. Lenis already
+ * smooths the scroll itself, so the momentum is still there — it is in the
+ * page rather than in the disc.
+ */
+
+/** Distance between path samples, in px. Small enough to read as a curve. */
+const SAMPLE_STEP = 6;
+/** Fraction of the viewport kept clear at each end of the disc's travel. */
+const DISC_INSET = 0.06;
+/**
+ * How long to keep re-measuring after the last scroll event.
+ *
+ * Panels change width on a 500ms CSS transition, and a transition produces no
+ * events of its own worth listening for. Scroll is what starts one, so the
+ * route follows the scroll and then keeps watching until the box has settled.
+ */
+const SETTLE_MS = 700;
+
+interface Shape {
+  primary: string;
+  secondary: string;
+  discX: number;
+  discY: number;
+}
+
+interface Hold {
+  top: number;
+  bottom: number;
+  x: number;
+}
+
+const clamp = (value: number, low: number, high: number) =>
+  Math.min(high, Math.max(low, value));
+
+/** Ease with zero gradient at both ends, so holds join without a corner. */
+const smoothstep = (t: number) => {
+  const c = clamp(t, 0, 1);
+  return c * c * (3 - 2 * c);
+};
+
+const round = (value: number) => Math.round(value * 10) / 10;
+
+/** Where the route sits while it is clearing each card, in viewport pixels. */
+function readHolds(viewportWidth: number): Hold[] {
+  const panels = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-station-panel]"),
+  );
+
+  return panels.map((panel) => {
+    const rect = panel.getBoundingClientRect();
+    const onRight = panel.dataset.routeSide === "right";
+    const raw = onRight
+      ? rect.right + ROUTE_CARD_CLEARANCE + ROUTE_HALF_WIDTH
+      : rect.left - ROUTE_CARD_CLEARANCE - ROUTE_HALF_WIDTH;
+
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+      x: clamp(
+        raw,
+        ROUTE_HALF_WIDTH + ROUTE_EDGE_INSET,
+        viewportWidth - ROUTE_HALF_WIDTH - ROUTE_EDGE_INSET,
+      ),
+    };
+  });
+}
+
+/**
+ * The centre line, as a function of height.
+ *
+ * Holds arrive in document order and cannot overlap — they are the boxes of
+ * sibling blocks — so the first hold whose bottom is below `y` is the one that
+ * owns it, either as a hold or as the far end of the run in to it.
+ */
+function centreAt(holds: Hold[], fallback: number, y: number): number {
+  if (holds.length === 0) return fallback;
+
+  const first = holds[0];
+  if (y <= first.top) return first.x;
+
+  const last = holds[holds.length - 1];
+  if (y >= last.bottom) return last.x;
+
+  for (let i = 0; i < holds.length; i += 1) {
+    const hold = holds[i];
+    if (y > hold.bottom) continue;
+    if (y >= hold.top) return hold.x;
+
+    const previous = holds[i - 1];
+    const span = hold.top - previous.bottom;
+    if (span <= 0) return hold.x;
+    return (
+      previous.x +
+      (hold.x - previous.x) * smoothstep((y - previous.bottom) / span)
+    );
+  }
+
+  return last.x;
+}
+
+function measure(): Shape {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  /* Below `lg` the route is a rail in the left margin and never bypasses
+     anything: the cards span the width there, so there is nothing to go
+     around and nowhere to go. */
+  const bypassing = viewportWidth >= ROUTE_BYPASS_MIN_WIDTH;
+  const rail =
+    (viewportWidth >= RAIL_STEP_WIDTH ? RAIL_INSET : RAIL_INSET_SM) +
+    ROUTE_HALF_WIDTH;
+  const fallback = bypassing ? viewportWidth / 2 : rail;
+  const holds = bypassing ? readHolds(viewportWidth) : [];
+
+  const centre = (y: number) => centreAt(holds, fallback, y);
+
+  let primary = "";
+  let secondary = "";
+
+  /* Sampled a step beyond each edge so the strokes reach the top and bottom
+     of the screen rather than stopping short of them. */
+  for (
+    let y = -SAMPLE_STEP;
+    y <= viewportHeight + SAMPLE_STEP;
+    y += SAMPLE_STEP
+  ) {
+    const x = centre(y);
+
+    // Unit normal, from a central difference over 2px of height.
+    const slope = centre(y + 1) - centre(y - 1);
+    const length = Math.hypot(slope, 2);
+    const nx = 2 / length;
+    const ny = -slope / length;
+
+    const command = primary === "" ? "M" : "L";
+    primary += `${command}${round(x - ROUTE_OFFSET * nx)} ${round(y - ROUTE_OFFSET * ny)}`;
+    secondary += `${command}${round(x + ROUTE_OFFSET * nx)} ${round(y + ROUTE_OFFSET * ny)}`;
+  }
+
+  const scrollable = document.documentElement.scrollHeight - viewportHeight;
+  const progress = scrollable > 0 ? clamp(window.scrollY / scrollable, 0, 1) : 0;
+  const discY = viewportHeight * (DISC_INSET + progress * (1 - DISC_INSET * 2));
+
+  return { primary, secondary, discX: centre(discY), discY };
+}
+
+const same = (a: Shape, b: Shape) =>
+  a.primary === b.primary &&
+  a.secondary === b.secondary &&
+  a.discX === b.discX &&
+  a.discY === b.discY;
+
+export default function Route() {
+  const [shape, setShape] = useState<Shape | null>(null);
+  const shapeRef = useRef<Shape | null>(null);
+
+  useEffect(() => {
+    let frame = 0;
+    let until = 0;
+
+    const apply = () => {
+      const next = measure();
+      const previous = shapeRef.current;
+      if (previous && same(previous, next)) return;
+      shapeRef.current = next;
+      setShape(next);
+    };
+
+    const tick = () => {
+      apply();
+      frame = performance.now() < until ? requestAnimationFrame(tick) : 0;
+    };
+
+    const onChange = () => {
+      // Measured straight away, so a single scroll event is enough on its own;
+      // the loop that follows only exists to catch the card's transition.
+      apply();
+      until = performance.now() + SETTLE_MS;
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    /* Deferred rather than called here: the first measurement must not be a
+       synchronous setState inside the effect, and the layout is worth letting
+       settle before reading it. */
+    const first = window.setTimeout(onChange, 0);
+
+    window.addEventListener("scroll", onChange, { passive: true });
+    window.addEventListener("resize", onChange);
+
+    return () => {
+      window.clearTimeout(first);
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onChange);
+      window.removeEventListener("resize", onChange);
+    };
+  }, []);
+
+  /* Server render, and the first client frame: the straight rail the route
+     used to be. The page is never without a spine, and the measured shape
+     replaces this on the next tick. */
+  if (!shape) {
+    return (
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-y-0 left-6 z-0 w-[38px] sm:left-8 lg:left-1/2 lg:-translate-x-1/2"
+      >
+        <svg width={ROUTE_TRACK_WIDTH} height="100%" className="h-full">
+          <line
+            x1={ROUTE_HALF_WIDTH - ROUTE_OFFSET}
+            y1={0}
+            x2={ROUTE_HALF_WIDTH - ROUTE_OFFSET}
+            y2="100%"
+            stroke="var(--color-line-primary)"
+            strokeWidth={ROUTE_STROKE_WIDTH}
+          />
+          <line
+            x1={ROUTE_HALF_WIDTH + ROUTE_OFFSET}
+            y1={0}
+            x2={ROUTE_HALF_WIDTH + ROUTE_OFFSET}
+            y2="100%"
+            stroke="var(--color-line-secondary)"
+            strokeWidth={ROUTE_STROKE_WIDTH}
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <svg
+        aria-hidden
+        data-route
+        className="pointer-events-none fixed inset-0 z-0 h-full w-full"
+      >
+        <path
+          d={shape.primary}
+          fill="none"
+          stroke="var(--color-line-primary)"
+          strokeWidth={ROUTE_STROKE_WIDTH}
+          strokeLinejoin="round"
+        />
+        <path
+          d={shape.secondary}
+          fill="none"
+          stroke="var(--color-line-secondary)"
+          strokeWidth={ROUTE_STROKE_WIDTH}
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      <svg
+        aria-hidden
+        data-riding-disc
+        className="pointer-events-none fixed inset-0 z-30 h-full w-full"
+      >
+        {/* The disc belongs to both tracks, so its ring runs from one line
+            colour to the other rather than picking a side. */}
+        <defs>
+          <linearGradient id="disc-ring" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="var(--color-line-primary)" />
+            <stop offset="100%" stopColor="var(--color-line-secondary)" />
+          </linearGradient>
+        </defs>
+        <circle
+          cx={shape.discX}
+          cy={shape.discY}
+          r={STATION_RADIUS}
+          fill={STATION_FILL}
+          stroke="url(#disc-ring)"
+          strokeWidth={STATION_STROKE_WIDTH}
+        />
+      </svg>
+    </>
+  );
+}

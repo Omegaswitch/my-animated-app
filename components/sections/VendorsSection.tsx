@@ -118,7 +118,7 @@ export default function VendorsSection({
       id="vendors"
       className="relative flex min-h-screen flex-col justify-center py-16"
     >
-      <StationPanel>
+      <StationPanel routeSide="left">
         <StationHeader
           station={station}
           meta={countLabel(vendors.length, copy.counts.vendor)}

@@ -112,7 +112,8 @@ export interface Kit {
   /** Minor units (cents) to avoid float drift; omit while unpriced. */
   priceMinor?: number;
   currency?: string;
-  swatchIds?: string[];
+  /** A line of standing detail, e.g. a part of the kit still in development. */
+  note?: string;
   image?: ImageAsset;
 }
 
@@ -129,6 +130,17 @@ export interface ProductSwatch {
   hex: Hex;
   /** One line on where the colour sits in the set. */
   description?: string;
+  /**
+   * The keys this colour is locked to, across every kit — the row rule.
+   *
+   * The set is row-locked rather than kit-locked: each kit uses all five
+   * colours, and which key gets which is decided by the row it sits in. So
+   * the mapping is authored here, once, and not repeated per kit.
+   */
+  appliesTo?: string;
+  /** Legend colour printed on this cap. Omitted on the legend colours. */
+  legendHex?: Hex;
+  legendName?: string;
 }
 
 /** A physical chip shot next to the digital swatch. */
@@ -240,7 +252,7 @@ export interface ProjectCopy {
   counts: {
     kit: CountNoun;
     colour: CountNoun;
-    plate: CountNoun;
+    render: CountNoun;
     vendor: CountNoun;
   };
   kitAvailability: Record<KitAvailability, string>;
@@ -252,7 +264,10 @@ export interface ProjectCopy {
     origin: string;
     caps: string;
     credit: string;
-    usedOn: string;
+    /** Heads the row rule in the colour detail. */
+    appliedTo: string;
+    /** Precedes the legend colour's name. */
+    legend: string;
     samples: string;
     designedBy: string;
     discord: string;
@@ -283,6 +298,8 @@ export interface Project {
   intro: Intro;
   kits: Kit[];
   swatches: ProductSwatch[];
+  /** Standing line above the palette: how the five are applied. */
+  colourNote: string;
   samples: ColorSample[];
   renders: RenderGallery;
   designers: DesignerCredit[];

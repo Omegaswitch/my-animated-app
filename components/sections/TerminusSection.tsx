@@ -51,7 +51,7 @@ export default function TerminusSection({
 
   return (
     <section className="relative flex min-h-screen flex-col justify-center py-24">
-      <StationPanel>
+      <StationPanel routeSide="right">
         <StationHeader
           station={station}
           meta={`${copy.labels.updated} ${terminus.updatedOn}`}
@@ -127,13 +127,21 @@ export default function TerminusSection({
             <h4 className="text-[10px] font-bold uppercase tracking-[0.22em] text-ink/45">
               {copy.labels.designedBy}
             </h4>
+            {/* Fixed height, contained: a mark's real proportions are not
+              knowable from the data — a file supplied square against a 240x64
+              declaration is normal — so the frame must never take its shape
+              from the declaration. Sizing off it stretched every logo. */}
             <ul className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-4">
               {designers.map((designer) => (
-                <li key={designer.id} className="w-28 sm:w-32">
+                <li
+                  key={designer.id}
+                  className="relative h-8 w-32 shrink-0 sm:h-9"
+                >
                   <AssetFrame
                     asset={designer.asset}
                     tag={designer.name}
                     placeholderLabel={copy.labels.assetPlaceholder}
+                    fill
                     sizes="128px"
                   />
                 </li>

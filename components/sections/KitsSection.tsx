@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Kit, ProductSwatch, ProjectCopy, Station } from "@/types/project";
+import type { Kit, ProjectCopy, Station } from "@/types/project";
 import AssetFrame from "@/components/ui/AssetFrame";
 import Lightbox from "@/components/ui/Lightbox";
 import ZoomableAsset from "@/components/ui/ZoomableAsset";
@@ -24,33 +24,24 @@ import { countLabel, formatPrice } from "@/lib/format";
 
 export interface KitsSectionProps {
   kits: Kit[];
-  swatches: ProductSwatch[];
   station: Station;
   copy: ProjectCopy;
 }
 
-export default function KitsSection({
-  kits,
-  swatches,
-  station,
-  copy,
-}: KitsSectionProps) {
+export default function KitsSection({ kits, station, copy }: KitsSectionProps) {
   const [open, setOpen] = useState(false);
   const carousel = useCarousel(kits.length);
 
   if (kits.length === 0) return null;
 
   const kit = kits[carousel.index];
-  const kitSwatches = (kit.swatchIds ?? [])
-    .map((id) => swatches.find((swatch) => swatch.id === id))
-    .filter((swatch): swatch is ProductSwatch => Boolean(swatch));
 
   return (
     <section
       id="kits"
       className="relative flex min-h-screen flex-col justify-center py-16"
     >
-      <StationPanel>
+      <StationPanel routeSide="right">
         <StationHeader
           station={station}
           meta={countLabel(kits.length, copy.counts.kit)}
@@ -106,21 +97,10 @@ export default function KitsSection({
               ) : null}
             </dl>
 
-            {kitSwatches.length > 0 ? (
-              <ul className="mt-4 flex flex-wrap items-center gap-2">
-                {kitSwatches.map((swatch) => (
-                  <li key={swatch.id} className="flex items-center gap-1.5">
-                    <span
-                      className="block h-4 w-4 border border-ink/30"
-                      style={{ backgroundColor: swatch.hex }}
-                      aria-hidden
-                    />
-                    <span className="text-[10px] uppercase tracking-[0.1em] text-ink/55">
-                      {swatch.name}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+            {kit.note ? (
+              <p className="mt-4 border-l-2 border-line-primary pl-3 text-[11px] font-bold uppercase leading-relaxed tracking-[0.1em] text-ink/60">
+                {kit.note}
+              </p>
             ) : null}
           </div>
         </div>

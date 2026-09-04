@@ -97,9 +97,9 @@ const colors: Palette = {
  * ------------------------------------------------------------------------- */
 
 const stations: Station[] = [
-  { id: "intro", label: "Intro", index: 1, line: "primary" },
+  { id: "intro", label: "Line A", index: 1, line: "primary" },
   { id: "kits", label: "Kits", index: 2, line: "secondary" },
-  { id: "colors", label: "Colours", index: 3, line: "primary" },
+  { id: "colors", label: "Colors", index: 3, line: "primary" },
   { id: "renders", label: "Renders", index: 4, line: "secondary" },
   { id: "vendors", label: "Vendors", index: 5, line: "primary" },
   { id: "terminus", label: "Terminus", index: 6, line: "secondary" },
@@ -113,7 +113,7 @@ const copy: ProjectCopy = {
   counts: {
     kit: { singular: "kit" },
     colour: { singular: "colour" },
-    plate: { singular: "plate" },
+    render: { singular: "render" },
     vendor: { singular: "vendor" },
   },
   kitAvailability: {
@@ -146,7 +146,8 @@ const copy: ProjectCopy = {
     origin: "Origin",
     caps: "caps",
     credit: "Render",
-    usedOn: "Used on",
+    appliedTo: "Applied to",
+    legend: "Legend",
     samples: "Colour-matched samples",
     designedBy: "Designed by",
     discord: "Discord",
@@ -168,7 +169,6 @@ const copy: ProjectCopy = {
  * ------------------------------------------------------------------------- */
 
 const intro: Intro = {
-  eyebrow: "LINE A / 01",
   headline: "A transit map for your keyboard",
   subhead: "Doubleshot ABS. Cherry profile. Four kits.",
   lead: "MW LINE A runs from interest check to doorstep along a single line. Every figure here is the working figure — when the run moves, this document moves with it.",
@@ -195,7 +195,7 @@ const kits: Kit[] = [
     capCount: 121,
     priceMinor: 12500,
     currency: "EUR",
-    swatchIds: ["sw-warm5", "sw-447", "sw-7565"],
+    note: "Novelties in development — icon reveals coming soon.",
     image: {
       src: `${ASSETS.kits}/base.png`,
       alt: "Base Kit with novelties, laid out",
@@ -213,7 +213,6 @@ const kits: Kit[] = [
     capCount: 23,
     priceMinor: 3500,
     currency: "EUR",
-    swatchIds: ["sw-warm5", "sw-447"],
     image: {
       src: `${ASSETS.kits}/numpad.png`,
       alt: "Numpad kit",
@@ -231,7 +230,6 @@ const kits: Kit[] = [
     capCount: 34,
     priceMinor: 3800,
     currency: "EUR",
-    swatchIds: ["sw-warm5", "sw-7407"],
     image: {
       src: `${ASSETS.kits}/40s.png`,
       alt: "40s kit",
@@ -249,7 +247,6 @@ const kits: Kit[] = [
     capCount: 41,
     priceMinor: 4200,
     currency: "EUR",
-    swatchIds: ["sw-warm5", "sw-447"],
     image: {
       src: `${ASSETS.kits}/norde.png`,
       alt: "NorDe kit",
@@ -267,41 +264,63 @@ const kits: Kit[] = [
 
 const swatches: ProductSwatch[] = [
   {
+    id: "sw-warm5",
+    name: "Warm Gray 5 C",
+    code: "LA-WG5",
+    hex: "#ACA39A",
+    description:
+      "The base grey: alphas, modifiers, and every key outside rows 3 and 4. Also the surface this page is printed on.",
+    appliesTo: "Base & alphas — all remaining keys",
+    legendHex: "#373A36",
+    legendName: "Pantone 447 C",
+  },
+  {
     id: "sw-447",
     name: "Pantone 447 C",
     code: "LA-447",
     hex: "#373A36",
-    description: "Legends on the light caps, and the cap colour on the dark.",
-  },
-  {
-    id: "sw-7407",
-    name: "Pantone 7407 C",
-    code: "LA-7407",
-    hex: "#CBA052",
-    description: "The gold track. Modifier accents and the 40s row.",
+    description: "The legend colour on the base and alpha caps.",
+    appliesTo: "Legends — base & alphas",
   },
   {
     id: "sw-7565",
     name: "Pantone 7565 C",
     code: "LA-7565",
     hex: "#CD7925",
-    description: "The orange track. Novelty legends and the destination blade.",
+    description: "The orange track. Locked to row 3 on every kit in the set.",
+    appliesTo: "Row 3 — ASDF · Numpad 4-5-6 · 40s R3",
+    legendHex: "#D7D2CB",
+    legendName: "Warm Gray 1 C",
+  },
+  {
+    id: "sw-7407",
+    name: "Pantone 7407 C",
+    code: "LA-7407",
+    hex: "#CBA052",
+    description: "The gold track. Locked to row 4 on every kit in the set.",
+    appliesTo: "Row 4 — ZXCV · Numpad 1-2-3 · 40s R4",
+    legendHex: "#D7D2CB",
+    legendName: "Warm Gray 1 C",
   },
   {
     id: "sw-warm1",
     name: "Warm Gray 1 C",
     code: "LA-WG1",
     hex: "#D7D2CB",
-    description: "The lightest cap. Alphas on the pale layout.",
-  },
-  {
-    id: "sw-warm5",
-    name: "Warm Gray 5 C",
-    code: "LA-WG5",
-    hex: "#ACA39A",
-    description: "The base grey, and the surface this page is printed on.",
+    description: "The legend colour on the row 3 and row 4 caps.",
+    appliesTo: "Legends — row 3 & row 4",
   },
 ];
+
+/**
+ * How the five are applied.
+ *
+ * Row-locked, not kit-locked: every kit carries all five colours, and the row
+ * a key sits in decides which one it gets. Stated once, here, so no kit has
+ * to repeat it.
+ */
+const colourNote =
+  "Every kit uses all five colours. Which key gets which is decided by its row, and the rule is the same across the whole set.";
 
 /* ---------------------------------------------------------------------------
  * Station 4 — renders
@@ -605,6 +624,7 @@ export const project: Project = {
   intro,
   kits,
   swatches,
+  colourNote,
   samples,
   renders,
   designers,

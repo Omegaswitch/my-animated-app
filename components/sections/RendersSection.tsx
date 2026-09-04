@@ -55,10 +55,10 @@ export default function RendersSection({
       id="renders"
       className="relative flex min-h-screen flex-col justify-center py-16"
     >
-      <StationPanel>
+      <StationPanel routeSide="right">
         <StationHeader
           station={station}
-          meta={countLabel(items.length, copy.counts.plate)}
+          meta={countLabel(items.length, copy.counts.render)}
         />
 
         <figure>

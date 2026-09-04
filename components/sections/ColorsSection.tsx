@@ -4,7 +4,6 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type {
   ColorSample,
-  Kit,
   ProductSwatch,
   ProjectCopy,
   Station,
@@ -34,20 +33,21 @@ import { countLabel } from "@/lib/format";
  *
  * Hover previews and click commits, but a click also clears the hover latch:
  * hover is a transient preview and must never outrank a deliberate choice.
+ *
+ * ## Why the detail is a row rule and not a list of kits
+ *
+ * Every kit carries all five colours, so "used on" would have printed the
+ * same four kit names under every swatch. What actually varies is the row:
+ * the set is row-locked, and the rule is the same wherever that row appears.
  */
 
 export interface ColorsSectionProps {
   swatches: ProductSwatch[];
   samples: ColorSample[];
-  kits: Kit[];
+  /** The standing line above the strip: how the five are applied. */
+  note: string;
   station: Station;
   copy: ProjectCopy;
-}
-
-function usedOn(swatch: ProductSwatch, kits: Kit[]): string[] {
-  return kits
-    .filter((kit) => (kit.swatchIds ?? []).includes(swatch.id))
-    .map((kit) => kit.name);
 }
 
 const FADE = { duration: 0.16, ease: "easeOut" } as const;
@@ -65,7 +65,7 @@ const CHIP_BORDER_ACTIVE = "#373A36";
 export default function ColorsSection({
   swatches,
   samples,
-  kits,
+  note,
   station,
   copy,
 }: ColorsSectionProps) {
@@ -76,18 +76,21 @@ export default function ColorsSection({
 
   const activeIndex = hovered ?? selected;
   const swatch = swatches[activeIndex];
-  const tags = usedOn(swatch, kits);
 
   return (
     <section
       id="colors"
       className="relative flex min-h-screen flex-col justify-center py-16"
     >
-      <StationPanel>
+      <StationPanel routeSide="left">
         <StationHeader
           station={station}
           meta={countLabel(swatches.length, copy.counts.colour)}
         />
+
+        <p className="mb-5 max-w-[62ch] text-base leading-relaxed text-ink/80">
+          {note}
+        </p>
 
         {/* The strip: all five, side by side, always. Only the chip's own
           height eases — nothing around it depends on that height. */}
@@ -126,7 +129,7 @@ export default function ColorsSection({
 
         {/* Fixed height: the sole reason the strip can be swept without the
           page moving underneath. */}
-        <div className="relative mt-5 h-[168px] sm:h-[148px]">
+        <div className="relative mt-5 h-[210px] sm:h-[164px]">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={swatch.id}
@@ -156,21 +159,28 @@ export default function ColorsSection({
                 ) : null}
               </div>
 
-              {tags.length > 0 ? (
-                <div className="shrink-0 sm:w-52">
+              {swatch.appliesTo ? (
+                <div className="shrink-0 sm:w-60">
                   <h4 className="border-t-2 border-ink/25 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
-                    {copy.labels.usedOn}
+                    {copy.labels.appliedTo}
                   </h4>
-                  <ul className="mt-2 flex flex-wrap gap-1.5">
-                    {tags.map((name) => (
-                      <li
-                        key={name}
-                        className="border border-ink/35 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-ink/75"
-                      >
-                        {name}
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="mt-2 text-[11px] font-bold uppercase leading-relaxed tracking-[0.1em] text-ink/75">
+                    {swatch.appliesTo}
+                  </p>
+
+                  {swatch.legendHex && swatch.legendName ? (
+                    <p className="mt-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink/55">
+                      <span
+                        className="block h-3.5 w-3.5 shrink-0 border"
+                        style={{
+                          backgroundColor: swatch.legendHex,
+                          borderColor: CHIP_BORDER,
+                        }}
+                        aria-hidden
+                      />
+                      {copy.labels.legend}: {swatch.legendName}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
             </motion.div>

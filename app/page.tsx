@@ -1,5 +1,4 @@
-import RouteBackbone from "@/components/line/RouteBackbone";
-import RidingDisc from "@/components/line/RidingDisc";
+import Route from "@/components/line/Route";
 import StickyIdentity from "@/components/layout/StickyIdentity";
 import IntroSection from "@/components/sections/IntroSection";
 import KitsSection from "@/components/sections/KitsSection";
@@ -17,8 +16,9 @@ import type { StationId } from "@/types/project";
  * track heights, nothing that holds the page while the wheel spins. Each
  * station is a plain full-height section.
  *
- * Two fixed elements ride above it: the spine, which never moves, and one
- * disc, whose position down the screen is the document's scroll progress.
+ * Two fixed elements ride above it: the route, which bypasses each station
+ * card rather than running under it, and one disc, whose position down the
+ * screen is the document's scroll progress.
  * Galleries are picked through with arrows, pills and the arrow keys rather
  * than by scrolling past them.
  */
@@ -33,8 +33,7 @@ const stationById = (id: StationId) => {
 export default function Page() {
   return (
     <>
-      <RouteBackbone />
-      <RidingDisc />
+      <Route />
       <StickyIdentity
         manufacturerLabel={project.meta.studio ?? project.meta.name}
         projectLabel={project.meta.name}
@@ -45,12 +44,12 @@ export default function Page() {
         <IntroSection
           intro={project.intro}
           meta={project.meta}
+          station={stationById("intro")}
           copy={project.copy}
         />
 
         <KitsSection
           kits={project.kits}
-          swatches={project.swatches}
           station={stationById("kits")}
           copy={project.copy}
         />
@@ -58,7 +57,7 @@ export default function Page() {
         <ColorsSection
           swatches={project.swatches}
           samples={project.samples}
-          kits={project.kits}
+          note={project.colourNote}
           station={stationById("colors")}
           copy={project.copy}
         />

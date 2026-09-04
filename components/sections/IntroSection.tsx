@@ -1,4 +1,5 @@
-import type { Intro, Meta, ProjectCopy } from "@/types/project";
+import type { Intro, Meta, ProjectCopy, Station } from "@/types/project";
+import StationHeader from "./StationHeader";
 import StationPanel from "@/components/layout/StationPanel";
 
 /**
@@ -14,20 +15,28 @@ import StationPanel from "@/components/layout/StationPanel";
 export interface IntroSectionProps {
   intro: Intro;
   meta: Meta;
+  station: Station;
   copy: ProjectCopy;
 }
 
-export default function IntroSection({ intro, meta, copy }: IntroSectionProps) {
+export default function IntroSection({
+  intro,
+  meta,
+  station,
+  copy,
+}: IntroSectionProps) {
   return (
     <section className="relative flex min-h-screen flex-col justify-center py-24">
-      <StationPanel alwaysExpanded>
+      <StationPanel routeSide="left" alwaysExpanded>
+        <StationHeader station={station} meta={meta.year} />
+
         {intro.eyebrow ? (
           <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-ink/60">
             {intro.eyebrow}
           </p>
         ) : null}
 
-        <h1 className="mt-6 max-w-[16ch] text-[clamp(2.5rem,5.6vw,5rem)] font-bold leading-[0.94] tracking-[-0.03em]">
+        <h1 className="max-w-[16ch] max-w-[16ch] text-[clamp(2.5rem,5.6vw,5rem)] font-bold leading-[0.94] tracking-[-0.03em]">
           {intro.headline}
         </h1>
 

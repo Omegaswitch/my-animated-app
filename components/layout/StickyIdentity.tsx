@@ -13,9 +13,16 @@ import {
 /**
  * The identity — manufacturer and project marks, held together by the line.
  *
- * It is not a navbar. There is no bar, no backdrop, no menu: the two marks
- * simply ride at the top of the document, prominent while you are in the hero
- * and compact once you have left it.
+ * It is not a navbar: no bar, no menu — the two marks simply ride at the top
+ * of the document, prominent while you are in the hero and compact once you
+ * have left it.
+ *
+ * They do sit on a scrim. The marks are fixed over a scrolling page, and
+ * without one the type passing beneath them collided with the artwork and
+ * read as a single illegible layer. The scrim is a gradient from the page
+ * ground to nothing rather than a hard bar, so the marks keep clear air
+ * around them and the edge of the treatment is never a visible line. It takes
+ * no pointer events, so everything under its faded lower half stays clickable.
  *
  * The whole transition is `scale` and `y` on a single element, so it never
  * reflows the hero beneath it — the type does not shift as you scroll. The
@@ -182,12 +189,20 @@ export default function StickyIdentity({
     : { scale, y };
 
   return (
-    <div className="pointer-events-none sticky top-0 z-40 flex w-fit justify-start pt-6 ml-24 mr-6 sm:ml-28 lg:ml-[calc(50%+4rem)] lg:mr-16">
+    <>
+      <div
+        aria-hidden
+        /* Tall enough to cover the marks at their largest — the hero state, where
+          they sit lowest on the screen — not just the compact anchor. */
+        className="pointer-events-none fixed inset-x-0 top-0 z-30 h-32 bg-gradient-to-b from-ground via-ground/80 to-transparent sm:h-44"
+      />
+
+      <div className="pointer-events-none sticky top-0 z-40 flex w-fit justify-start pt-6 ml-24 mr-6 sm:ml-28 lg:ml-[calc(50%+4rem)] lg:mr-16">
       <motion.div
         className="flex origin-top-left flex-col items-start gap-3 text-ink"
         style={motionStyle}
       >
-        <div className="flex items-center gap-4 sm:gap-6">
+        <div className="pointer-events-auto flex items-center gap-4 sm:gap-6">
           {identity?.manufacturer ? (
             mark(identity.manufacturer, manufacturerLabel)
           ) : (
@@ -217,6 +232,7 @@ export default function StickyIdentity({
           {manufacturerLabel} — {projectLabel}
         </motion.p>
       </motion.div>
-    </div>
+      </div>
+    </>
   );
 }
