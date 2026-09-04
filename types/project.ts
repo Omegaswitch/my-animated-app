@@ -260,6 +260,7 @@ export interface ProjectCopy {
     next: string;
     zoomIn: string;
     zoomOut: string;
+    close: string;
     listingPending: string;
     opensInNewTab: string;
     stage: string;

@@ -154,6 +154,7 @@ const copy: ProjectCopy = {
     next: "Next",
     zoomIn: "Zoom in",
     zoomOut: "Fit",
+    close: "Close",
     listingPending: "Listing pending",
     opensInNewTab: "opens in a new tab",
     stage: "Stage",

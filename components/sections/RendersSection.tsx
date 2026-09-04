@@ -134,6 +134,7 @@ export default function RendersSection({
       <Lightbox
         open={open}
         onClose={() => setOpen(false)}
+        closeLabel={copy.labels.close}
         title={item.title}
         meta={copy.renderView[item.view]}
         caption={item.asset.caption}

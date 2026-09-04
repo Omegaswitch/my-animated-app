@@ -24,6 +24,8 @@ export interface LightboxProps {
   caption?: string;
   /** Small monospace detail printed opposite the title, e.g. a code. */
   meta?: string;
+  /** Accessible name for the close control. */
+  closeLabel?: string;
   children: ReactNode;
 }
 
@@ -33,6 +35,7 @@ export default function Lightbox({
   title,
   caption,
   meta,
+  closeLabel = "Close",
   children,
 }: LightboxProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -86,10 +89,15 @@ export default function Lightbox({
   useEffect(() => {
     if (!open) return;
     const root = document.documentElement;
+    const { body } = document;
+    /* Both elements: which one actually scrolls depends on the document, and
+       Lenis rewrites html's height, so locking one is not reliably enough. */
     root.style.overflow = "hidden";
+    body.style.overflow = "hidden";
     pauseSmoothScroll();
     return () => {
       root.style.removeProperty("overflow");
+      body.style.removeProperty("overflow");
       resumeSmoothScroll();
     };
   }, [open]);
@@ -105,11 +113,11 @@ export default function Lightbox({
       }}
       // The backdrop itself is styled in globals.css; ::backdrop cannot read
       // the element's own custom properties, so it needs a real rule.
-      className="m-0 h-full max-h-none w-full max-w-none bg-transparent p-0"
+      className="m-0 h-full max-h-none w-full max-w-none overflow-hidden bg-transparent p-0"
     >
-      <div className="flex h-full w-full items-center justify-center p-4 sm:p-8">
+      <div className="flex h-full w-full items-center justify-center overflow-hidden p-4 sm:p-8">
         <motion.div
-          className="flex max-h-full w-full max-w-5xl flex-col gap-4"
+          className="flex max-h-full w-full max-w-5xl flex-col gap-4 overflow-hidden"
           initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.985 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={
@@ -134,14 +142,16 @@ export default function Lightbox({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-[10px] uppercase tracking-[0.2em] text-ground underline underline-offset-4 outline-none focus-visible:ring-1 focus-visible:ring-line-primary"
+                aria-label={closeLabel}
+                className="flex h-8 w-8 items-center justify-center border border-ground/40 text-sm leading-none text-ground outline-none transition-colors hover:border-ground hover:text-ground focus-visible:ring-2 focus-visible:ring-line-primary"
               >
-                Close
+                ✕
               </button>
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-auto" data-lenis-prevent>
+          {/* No scrolling inside the modal: the zoom pans instead. */}
+          <div className="min-h-0 flex-1 overflow-hidden" data-lenis-prevent>
             {children}
           </div>
 

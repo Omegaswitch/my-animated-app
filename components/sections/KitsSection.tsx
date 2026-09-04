@@ -132,6 +132,7 @@ export default function KitsSection({
       <Lightbox
         open={open}
         onClose={() => setOpen(false)}
+        closeLabel={copy.labels.close}
         title={kit.name}
         meta={kit.code}
         caption={kit.summary}
