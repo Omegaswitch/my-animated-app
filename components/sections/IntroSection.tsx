@@ -26,9 +26,9 @@ export default function IntroSection({
   copy,
 }: IntroSectionProps) {
   return (
-    <section className="relative flex min-h-screen flex-col justify-center py-24">
-      <StationPanel routeSide="left" alwaysExpanded>
-        <StationHeader station={station} meta={meta.year} />
+    <section className="relative pt-8 pb-12 lg:pt-[14vh] lg:pb-[45vh]">
+      <StationPanel routeSide="left">
+        <StationHeader station={station} />
 
         {intro.eyebrow ? (
           <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-ink/60">

@@ -242,19 +242,7 @@ export interface DesignerCredit {
  * render what they are given and invent no text of their own.
  * ------------------------------------------------------------------------- */
 
-/** A noun that has to agree with a count. `plural` defaults to `singular` + s. */
-export interface CountNoun {
-  singular: string;
-  plural?: string;
-}
-
 export interface ProjectCopy {
-  counts: {
-    kit: CountNoun;
-    colour: CountNoun;
-    render: CountNoun;
-    vendor: CountNoun;
-  };
   kitAvailability: Record<KitAvailability, string>;
   renderView: Record<RenderView, string>;
   vendorRegion: Record<VendorRegion, string>;

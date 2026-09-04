@@ -1,12 +1,15 @@
 import type { Station } from "@/types/project";
 
 /**
- * The header every station carries: stop number, name, and a counter.
+ * The header every station carries: stop number and name.
  *
  * The number is the station's own `index`, so the sequence down the page is
- * the sequence in the data and cannot drift from it. It used to be absent
- * here, which left the counter on the right — "06 renders" — reading as the
- * section number and putting two different sixes on the page.
+ * the sequence in the data and cannot drift from it.
+ *
+ * There is no counter opposite it any more. "04 kits" beside station 02 was
+ * read as the section number — it was set in the same padded two-digit style,
+ * and for four of the six stations it was the only number on the card. A count
+ * nobody asked for is not worth a second number on the page.
  *
  * Set in the heavy, tightly-tracked capitals a metro map uses for station
  * names, so the page and the diagram speak the same typographic language.
@@ -14,13 +17,11 @@ import type { Station } from "@/types/project";
 
 export interface StationHeaderProps {
   station: Station;
-  /** Right-hand counter, e.g. "04 kits". */
-  meta?: string;
 }
 
-export default function StationHeader({ station, meta }: StationHeaderProps) {
+export default function StationHeader({ station }: StationHeaderProps) {
   return (
-    <header className="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b-2 border-ink/25 pb-3">
+    <header className="mb-8 border-b-2 border-ink/25 pb-3">
       <h2 className="flex items-baseline gap-3 text-2xl font-bold uppercase tracking-[0.08em] lg:text-3xl">
         <span className="tabular-nums text-line-primary">
           {String(station.index).padStart(2, "0")}
@@ -30,11 +31,6 @@ export default function StationHeader({ station, meta }: StationHeaderProps) {
         </span>
         <span>{station.label}</span>
       </h2>
-      {meta ? (
-        <span className="text-[11px] font-bold uppercase tracking-[0.1em] tabular-nums text-ink/55">
-          {meta}
-        </span>
-      ) : null}
     </header>
   );
 }

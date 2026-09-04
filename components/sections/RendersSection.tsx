@@ -10,7 +10,6 @@ import CarouselControls from "@/components/ui/CarouselControls";
 import StationHeader from "./StationHeader";
 import StationPanel from "@/components/layout/StationPanel";
 import { useCarousel } from "@/lib/useCarousel";
-import { countLabel } from "@/lib/format";
 
 /**
  * Station 4 — the gallery.
@@ -53,13 +52,10 @@ export default function RendersSection({
   return (
     <section
       id="renders"
-      className="relative flex min-h-screen flex-col justify-center py-16"
+      className="relative py-12 lg:py-[45vh]"
     >
       <StationPanel routeSide="right">
-        <StationHeader
-          station={station}
-          meta={countLabel(items.length, copy.counts.render)}
-        />
+        <StationHeader station={station} />
 
         <figure>
           {/* Hard-locked box: one shape for every plate, whatever its ratio. */}

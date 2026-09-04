@@ -50,12 +50,13 @@ export default function TerminusSection({
   }));
 
   return (
-    <section className="relative flex min-h-screen flex-col justify-center py-24">
+    <section className="relative pt-12 pb-24 lg:pt-[45vh] lg:pb-[24vh]">
       <StationPanel routeSide="right">
-        <StationHeader
-          station={station}
-          meta={`${copy.labels.updated} ${terminus.updatedOn}`}
-        />
+        <StationHeader station={station} />
+
+        <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.16em] tabular-nums text-ink/45">
+          {copy.labels.updated} {terminus.updatedOn}
+        </p>
 
         <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-ink/60">
           {terminus.eyebrow}

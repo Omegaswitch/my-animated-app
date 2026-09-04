@@ -110,12 +110,6 @@ const stations: Station[] = [
  * ------------------------------------------------------------------------- */
 
 const copy: ProjectCopy = {
-  counts: {
-    kit: { singular: "kit" },
-    colour: { singular: "colour" },
-    render: { singular: "render" },
-    vendor: { singular: "vendor" },
-  },
   kitAvailability: {
     "in-development": "In development",
     sampling: "Sampling",

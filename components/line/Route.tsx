@@ -41,6 +41,20 @@ import {
  * the tracks are drawn from. There is no sampling of the rendered path and no
  * way for the two to disagree.
  *
+ * ## The shape of a bend
+ *
+ * A transition is a single smooth S from one card's x to the next, spread
+ * across the whole gap between them, which is most of a screen. It is a cubic
+ * ease rather than the two circular fillets a schematic is usually drawn
+ * with, because for a given box a circular S is much the steeper of the two:
+ * an arc pair has to reach 85 degrees off vertical to cover a box a cubic
+ * covers at 54. The tangent is vertical at both ends, so the bend leaves and
+ * rejoins the straight without a corner.
+ *
+ * The gentleness of a bend is set by the layout, not by the curve: it is the
+ * card's width against the gap below it. Both of those are chosen with this
+ * in mind — see the note in `StationPanel`.
+ *
  * ## Why the pair is offset along the normal
  *
  * The two tracks are the centre line ±12px measured perpendicular to it. On a
@@ -57,18 +71,9 @@ import {
  */
 
 /** Distance between path samples, in px. Small enough to read as a curve. */
-const SAMPLE_STEP = 6;
+const SAMPLE_STEP = 4;
 /** Fraction of the viewport kept clear at each end of the disc's travel. */
 const DISC_INSET = 0.06;
-/**
- * How long to keep re-measuring after the last scroll event.
- *
- * Panels change width on a 500ms CSS transition, and a transition produces no
- * events of its own worth listening for. Scroll is what starts one, so the
- * route follows the scroll and then keeps watching until the box has settled.
- */
-const SETTLE_MS = 700;
-
 interface Shape {
   primary: string;
   secondary: string;
@@ -208,28 +213,15 @@ export default function Route() {
   const shapeRef = useRef<Shape | null>(null);
 
   useEffect(() => {
-    let frame = 0;
-    let until = 0;
-
-    const apply = () => {
+    /* One measurement per event, and no animation frame loop behind it: the
+       cards are static, so nothing about the shape can change between events.
+       It used to need a loop to follow the cards' width transition. */
+    const onChange = () => {
       const next = measure();
       const previous = shapeRef.current;
       if (previous && same(previous, next)) return;
       shapeRef.current = next;
       setShape(next);
-    };
-
-    const tick = () => {
-      apply();
-      frame = performance.now() < until ? requestAnimationFrame(tick) : 0;
-    };
-
-    const onChange = () => {
-      // Measured straight away, so a single scroll event is enough on its own;
-      // the loop that follows only exists to catch the card's transition.
-      apply();
-      until = performance.now() + SETTLE_MS;
-      if (!frame) frame = requestAnimationFrame(tick);
     };
 
     /* Deferred rather than called here: the first measurement must not be a
@@ -242,7 +234,6 @@ export default function Route() {
 
     return () => {
       window.clearTimeout(first);
-      if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onChange);
       window.removeEventListener("resize", onChange);
     };

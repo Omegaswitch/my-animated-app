@@ -11,7 +11,6 @@ import type {
 import AssetFrame from "@/components/ui/AssetFrame";
 import StationHeader from "./StationHeader";
 import StationPanel from "@/components/layout/StationPanel";
-import { countLabel } from "@/lib/format";
 
 /**
  * Station 3 — the colourway.
@@ -80,13 +79,10 @@ export default function ColorsSection({
   return (
     <section
       id="colors"
-      className="relative flex min-h-screen flex-col justify-center py-16"
+      className="relative py-12 lg:py-[45vh]"
     >
       <StationPanel routeSide="left">
-        <StationHeader
-          station={station}
-          meta={countLabel(swatches.length, copy.counts.colour)}
-        />
+        <StationHeader station={station} />
 
         <p className="mb-5 max-w-[62ch] text-base leading-relaxed text-ink/80">
           {note}

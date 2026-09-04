@@ -9,7 +9,7 @@ import CarouselControls from "@/components/ui/CarouselControls";
 import StationHeader from "./StationHeader";
 import StationPanel from "@/components/layout/StationPanel";
 import { useCarousel } from "@/lib/useCarousel";
-import { countLabel, formatPrice } from "@/lib/format";
+import { formatPrice } from "@/lib/format";
 
 /**
  * Station 2 — the kits.
@@ -39,13 +39,10 @@ export default function KitsSection({ kits, station, copy }: KitsSectionProps) {
   return (
     <section
       id="kits"
-      className="relative flex min-h-screen flex-col justify-center py-16"
+      className="relative py-12 lg:py-[45vh]"
     >
       <StationPanel routeSide="right">
-        <StationHeader
-          station={station}
-          meta={countLabel(kits.length, copy.counts.kit)}
-        />
+        <StationHeader station={station} />
 
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-8">
           {kit.image ? (

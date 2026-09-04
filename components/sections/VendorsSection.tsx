@@ -6,7 +6,6 @@ import type {
 } from "@/types/project";
 import StationHeader from "./StationHeader";
 import StationPanel from "@/components/layout/StationPanel";
-import { countLabel } from "@/lib/format";
 
 /**
  * Station 5 — where to buy, assembled line by line.
@@ -116,13 +115,10 @@ export default function VendorsSection({
   return (
     <section
       id="vendors"
-      className="relative flex min-h-screen flex-col justify-center py-16"
+      className="relative py-12 lg:py-[45vh]"
     >
       <StationPanel routeSide="left">
-        <StationHeader
-          station={station}
-          meta={countLabel(vendors.length, copy.counts.vendor)}
-        />
+        <StationHeader station={station} />
 
         <ul>
           {rows.map((row) => (
