@@ -35,9 +35,10 @@ import type {
  * a file at `public/kits/base.png` is fetched as `/kits/base.png` —
  * writing `/public/kits/...` in a src would 404.
  *
- * Drop the file into the matching `public/` subdirectory keeping the filename,
- * then add its path to `AVAILABLE_ASSETS` in `components/ui/AssetFrame` so the
- * real image renders instead of the placeholder.
+ * Drop the file into the matching `public/` subdirectory keeping the filename
+ * exactly — lowercase, since Linux hosting is case-sensitive. It appears on
+ * the site immediately; anything not yet uploaded keeps its placeholder. No
+ * code change is needed, and files can be added one at a time.
  */
 const ASSETS = {
   /** -> public/kits/ */
