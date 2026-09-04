@@ -534,25 +534,27 @@ const identity: Identity = {
 
 /* ---------------------------------------------------------------------------
  * Designer credits
+ *
+ * Rendered left to right in this order, with a hairline between them.
  * ------------------------------------------------------------------------- */
 
 const designers: DesignerCredit[] = [
   {
     id: "dsg-01",
-    name: "Studio One",
+    name: "Omegaswitch",
     asset: {
       src: `${ASSETS.logos}/designer-01.png`,
-      alt: "Studio One",
+      alt: "Omegaswitch",
       width: 3000,
       height: 3134,
     },
   },
   {
     id: "dsg-02",
-    name: "Studio Two",
+    name: "l´Ortizarq",
     asset: {
       src: `${ASSETS.logos}/designer-02.png`,
-      alt: "Studio Two",
+      alt: "l´Ortizarq",
       width: 3000,
       height: 6176,
     },
