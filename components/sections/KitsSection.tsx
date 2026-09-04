@@ -59,14 +59,18 @@ export default function KitsSection({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="group block w-full shrink-0 cursor-zoom-in text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:w-1/2"
+            className="group relative block aspect-[16/10] w-full shrink-0 cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:w-1/2"
             aria-label={`View ${kit.name} full screen`}
           >
+            {/* Locked box, contained image: the artwork's own ratio is
+                unknown until it lands, so the frame must not take its shape
+                from it — a square photo in a ratio-derived frame crops hard. */}
             <AssetFrame
               asset={kit.image}
               tag={kit.code}
               placeholderLabel={copy.labels.assetPlaceholder}
               className="transition-opacity group-hover:opacity-85"
+              fill
               sizes="(min-width: 1024px) 24vw, 90vw"
               priority={carousel.index === 0}
             />

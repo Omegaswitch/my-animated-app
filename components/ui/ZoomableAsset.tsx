@@ -14,6 +14,22 @@ import AssetFrame from "./AssetFrame";
  *
  * At 100% the frame scrolls, and is marked `data-lenis-prevent` so the smooth
  * scroller does not steal the wheel while you are inspecting.
+ *
+ * ## Sizing
+ *
+ * Both states give the frame an explicit box. `AssetFrame` positions its
+ * image absolutely, so a parent sized `w-auto` against an aspect ratio has no
+ * width to resolve against and collapses to zero — the modal opened empty.
+ *
+ * The box is a fixed viewport-relative panel in both states and the image is
+ * contained inside it, so neither state depends on the asset's declared
+ * dimensions. Those are frequently wrong — a file supplied square against a
+ * 16:10 declaration is normal — and sizing off them cropped the image or
+ * produced a box of the wrong shape.
+ *
+ * Zoom is a multiple of the fitted size rather than true 100%: real pixel
+ * dimensions are not known here, and a scale factor gives the same "inspect
+ * the legend" result without pretending to know them.
  */
 
 export interface ZoomableAssetProps {
@@ -21,6 +37,11 @@ export interface ZoomableAssetProps {
   tag?: string;
   copy: ProjectCopy;
 }
+
+/** Fitted panel, leaving room for the dialog's own chrome. */
+const FIT_HEIGHT = "68vh";
+/** How much bigger the inspected view is than the fitted one. */
+const ZOOM_FACTOR = 2.5;
 
 export default function ZoomableAsset({
   asset,
@@ -39,17 +60,24 @@ export default function ZoomableAsset({
           type="button"
           onClick={() => setZoomed((current) => !current)}
           aria-label={zoomed ? copy.labels.zoomOut : copy.labels.zoomIn}
-          className={`block outline-none focus-visible:ring-2 focus-visible:ring-line-primary ${
+          className={`relative block overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-line-primary ${
             zoomed ? "cursor-zoom-out" : "mx-auto cursor-zoom-in"
           }`}
-          style={zoomed ? { width: asset.width } : undefined}
+          style={
+            zoomed
+              ? {
+                  width: `${ZOOM_FACTOR * 100}%`,
+                  height: `calc(${FIT_HEIGHT} * ${ZOOM_FACTOR})`,
+                }
+              : { width: "100%", height: FIT_HEIGHT }
+          }
         >
           <AssetFrame
             asset={asset}
             tag={tag}
             placeholderLabel={copy.labels.assetPlaceholder}
-            sizes={zoomed ? `${asset.width}px` : "90vw"}
-            className={zoomed ? "w-full" : "mx-auto max-h-[68vh] w-auto"}
+            fill
+            sizes={zoomed ? "200vw" : "90vw"}
           />
         </button>
       </div>
