@@ -36,6 +36,24 @@ export const STATION_RADIUS = 14;
 export const STATION_STROKE_WIDTH = 4;
 export const STATION_FILL = "#FFFFFF";
 
+/** Outer edge of the disc, ring included. */
+export const STATION_OUTER_RADIUS = STATION_RADIUS + STATION_STROKE_WIDTH / 2; // 16
+
+/**
+ * The pocket the rails open for the disc.
+ *
+ * At rest the pair sits 12px either side of the centre line, so a 32px disc
+ * covers both of them — it reads as a bead pushed onto the tracks rather than
+ * a train running between them. Each rail bows a further 14px apart as the
+ * disc passes, which puts their inner edges at 19px against the disc's outer
+ * edge at 16: a 3px pocket, open but tight.
+ *
+ * The window is deliberately short. Any longer and the pair is never quite
+ * parallel anywhere on screen, which is the one thing a schematic has to be.
+ */
+export const DISC_POCKET_DEPTH = 14;
+export const DISC_POCKET_RADIUS = 32;
+
 /**
  * Where the spine sits below `lg`: pinned to the left margin, so content
  * keeps the width and the route is never in its way.

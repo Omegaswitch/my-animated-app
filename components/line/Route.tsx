@@ -12,6 +12,8 @@ import {
   ROUTE_OFFSET,
   ROUTE_STROKE_WIDTH,
   ROUTE_TRACK_WIDTH,
+  DISC_POCKET_DEPTH,
+  DISC_POCKET_RADIUS,
   STATION_FILL,
   STATION_RADIUS,
   STATION_STROKE_WIDTH,
@@ -55,6 +57,24 @@ import {
  * card's width against the gap below it. Both of those are chosen with this
  * in mind — see the note in `StationPanel`.
  *
+ * ## The pocket
+ *
+ * At rest the pair runs 12px either side of the centre line, which a 32px
+ * disc simply covers: it read as a bead threaded onto the tracks. So the rails
+ * part as the disc passes — orange out to the left, gold out to the right —
+ * and close again behind it, leaving the disc sitting in open air between
+ * them.
+ *
+ * The parting is a raised cosine over a 32px window: it reaches its full 14px
+ * at the disc's own height and returns to zero, with zero gradient, at each
+ * end of the window. Zero gradient is the part that matters — the rails leave
+ * and rejoin the straight with no corner to see. The window is short on
+ * purpose, because a longer one means the pair is never quite parallel
+ * anywhere on screen.
+ *
+ * The stroke is untouched: 14px throughout. Only the line's own path moves,
+ * so the rails cannot thin as they bow.
+ *
  * ## Why the pair is offset along the normal
  *
  * The two tracks are the centre line ±12px measured perpendicular to it. On a
@@ -74,6 +94,18 @@ import {
 const SAMPLE_STEP = 4;
 /** Fraction of the viewport kept clear at each end of the disc's travel. */
 const DISC_INSET = 0.06;
+
+/**
+ * How far the rails have parted at height `y`, given where the disc is.
+ *
+ * A raised cosine: full depth at the disc, zero at the window's edge, and
+ * zero gradient at both — so the bow starts and ends without a corner.
+ */
+function pocket(y: number, discY: number): number {
+  const t = (y - discY) / DISC_POCKET_RADIUS;
+  if (t <= -1 || t >= 1) return 0;
+  return DISC_POCKET_DEPTH * 0.5 * (1 + Math.cos(Math.PI * t));
+}
 interface Shape {
   primary: string;
   secondary: string;
@@ -172,6 +204,12 @@ function measure(): Shape {
 
   const centre = (y: number) => centreAt(holds, fallback, y);
 
+  /* Read before the path is drawn: the rails bow around the disc, so where it
+     is decides part of their shape. */
+  const scrollable = document.documentElement.scrollHeight - viewportHeight;
+  const progress = scrollable > 0 ? clamp(window.scrollY / scrollable, 0, 1) : 0;
+  const discY = viewportHeight * (DISC_INSET + progress * (1 - DISC_INSET * 2));
+
   let primary = "";
   let secondary = "";
 
@@ -190,14 +228,13 @@ function measure(): Shape {
     const nx = 2 / length;
     const ny = -slope / length;
 
-    const command = primary === "" ? "M" : "L";
-    primary += `${command}${round(x - ROUTE_OFFSET * nx)} ${round(y - ROUTE_OFFSET * ny)}`;
-    secondary += `${command}${round(x + ROUTE_OFFSET * nx)} ${round(y + ROUTE_OFFSET * ny)}`;
-  }
+    // Offset along the normal, widened where the disc is passing.
+    const offset = ROUTE_OFFSET + pocket(y, discY);
 
-  const scrollable = document.documentElement.scrollHeight - viewportHeight;
-  const progress = scrollable > 0 ? clamp(window.scrollY / scrollable, 0, 1) : 0;
-  const discY = viewportHeight * (DISC_INSET + progress * (1 - DISC_INSET * 2));
+    const command = primary === "" ? "M" : "L";
+    primary += `${command}${round(x - offset * nx)} ${round(y - offset * ny)}`;
+    secondary += `${command}${round(x + offset * nx)} ${round(y + offset * ny)}`;
+  }
 
   return { primary, secondary, discX: centre(discY), discY };
 }
