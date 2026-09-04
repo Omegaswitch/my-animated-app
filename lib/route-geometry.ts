@@ -42,22 +42,43 @@ export const STATION_OUTER_RADIUS = STATION_RADIUS + STATION_STROKE_WIDTH / 2; /
 /**
  * The pocket the rails open for the disc.
  *
- * At rest the pair sits 12px either side of the centre line, so a 32px disc
- * covers both of them — it reads as a bead pushed onto the tracks rather than
- * a train running between them. Each rail bows a further 14px apart as the
- * disc passes, which puts their inner edges at 19px against the disc's outer
- * edge at 16: a 3px pocket, open but tight.
+ * The rail follows a true circle around the disc — concentric with it, so the
+ * painted edge of the track is everywhere the same distance from the painted
+ * edge of the disc. Earlier versions bulged on a bell curve, which is a wave
+ * the disc happens to sit in rather than a pocket cut for it.
  *
- * Depth and radius are one decision, not two: the rail's steepest angle is
- * roughly 1.72 × depth ÷ radius. At 14 over 32 that is 37 degrees, which is
- * a flick rather than a bow — the rail visibly kinks out and back. Over 64 it
- * is 21 degrees, and the pocket reads as something the line curves around.
- *
- * Longer than this and the pair is never quite parallel anywhere on screen,
- * which is the one thing a schematic has to be.
+ * The radius is the disc's outer edge, plus half the track's own stroke, plus
+ * the air between them.
  */
-export const DISC_POCKET_DEPTH = 14;
-export const DISC_POCKET_RADIUS = 64;
+export const DISC_POCKET_CLEARANCE = 3;
+export const DISC_POCKET_RADIUS =
+  STATION_OUTER_RADIUS + ROUTE_STROKE_WIDTH / 2 + DISC_POCKET_CLEARANCE; // 26
+
+/**
+ * Radius of the two fillets that carry the straight into that circle.
+ *
+ * A circle wrapping the disc meets the straight rail at a steep angle on its
+ * own — the arc has to climb 14px in about 23 — so the pocket is three arcs,
+ * not one: straight, a long fillet curving out, the circle, and back. The
+ * fillet is what sets how sharp the whole thing looks, and it is large
+ * because the eye reads the approach, not the hug.
+ *
+ * Bigger means gentler: the join moves closer to the disc, where the circle
+ * is flatter. 90 puts the steepest part of the pocket at about 28 degrees off
+ * vertical over a 55px approach.
+ */
+export const DISC_POCKET_FILLET = 90;
+
+/**
+ * How far the disc travels out of a card's span before the pocket is fully
+ * open again.
+ *
+ * The rails lie flat while the disc is alongside a card — the train is at the
+ * platform, and the tracks have nothing to make room for. They part as it
+ * pulls away. The gaps between cards are most of a screen, so the pocket is
+ * open for nearly all of the run between stations.
+ */
+export const STATION_FLATTEN_RAMP = 180;
 
 /**
  * Where the spine sits below `lg`: pinned to the left margin, so content

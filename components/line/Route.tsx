@@ -12,8 +12,9 @@ import {
   ROUTE_OFFSET,
   ROUTE_STROKE_WIDTH,
   ROUTE_TRACK_WIDTH,
-  DISC_POCKET_DEPTH,
+  DISC_POCKET_FILLET,
   DISC_POCKET_RADIUS,
+  STATION_FLATTEN_RAMP,
   STATION_FILL,
   STATION_RADIUS,
   STATION_STROKE_WIDTH,
@@ -65,15 +66,27 @@ import {
  * and close again behind it, leaving the disc sitting in open air between
  * them.
  *
- * The parting reaches its full 14px at the disc's own height and returns to
- * zero — with zero gradient and zero curvature — at each end of a 64px
- * window. Both of those matter: gradient alone leaves the curvature stepping
- * from nothing to something at the join, which is what the eye reads as a
- * corner. See `pocket` below for the shape, and `route-geometry` for why the
- * window is as wide as it is.
+ * The part that hugs the disc is a true circle, concentric with it, so every
+ * point of the track's painted edge is the same distance from the disc's.
+ * Earlier versions bulged on a bell curve, which is a wave the disc happens
+ * to sit in rather than a pocket cut for it.
+ *
+ * A circle alone would meet the straight at nearly 60 degrees, so the pocket
+ * is three arcs: the straight runs into a long fillet curving outward, the
+ * fillet hands over to the circle, and the whole thing mirrors below. Every
+ * handover is at a shared tangent, so there is no corner anywhere in it. The
+ * fillet is large — 90px against the circle's 26 — because what reads as
+ * sharp is the approach, not the hug.
  *
  * The stroke is untouched: 14px throughout. Only the line's own path moves,
  * so the rails cannot thin as they bow.
+ *
+ * ## At a station the rails lie flat
+ *
+ * The pocket closes while the disc is alongside a card and opens again as it
+ * pulls away: the train is at the platform, and the tracks have nothing to
+ * make room for. One factor scales the whole shape, driven by the disc's
+ * distance from the nearest card, so it breathes rather than switching.
  *
  * ## Why the pair is offset along the normal
  *
@@ -95,23 +108,43 @@ const SAMPLE_STEP = 4;
 /** Fraction of the viewport kept clear at each end of the disc's travel. */
 const DISC_INSET = 0.06;
 
-/**
- * How far the rails have parted at height `y`, given where the disc is.
+/* The three-arc pocket, solved once at module load.
  *
- * `(1 - t²)³`: full depth at the disc and zero at the window's edge, with
- * zero gradient *and* zero curvature there. A raised cosine, which was the
- * first thing here, gives zero gradient but not zero curvature, and the
- * curvature stepping from nothing to something is exactly the join the eye
- * reads as a corner.
- *
- * Near the disc it flattens to `1 - 3t²`, a parabola — so the rail wraps the
- * disc the way a circle would rather than peaking over it.
- */
-function pocket(y: number, discY: number): number {
-  const t = (y - discY) / DISC_POCKET_RADIUS;
-  if (t <= -1 || t >= 1) return 0;
-  const falloff = 1 - t * t;
-  return DISC_POCKET_DEPTH * falloff * falloff * falloff;
+ * Read as offset-against-height: the rail is a straight line at `REST`, an arc
+ * of `DISC_POCKET_RADIUS` centred on the disc, and a fillet joining them. The
+ * fillet's centre sits `FILLET` out from the straight and `RADIUS + FILLET`
+ * from the disc — tangent to both at once — and that is what fixes the height
+ * of each handover. */
+const REST = ROUTE_OFFSET;
+
+/** Height at which the straight gives way to the fillet. */
+const POCKET_APPROACH = Math.sqrt(
+  (DISC_POCKET_RADIUS + DISC_POCKET_FILLET) ** 2 -
+    (REST + DISC_POCKET_FILLET) ** 2,
+);
+
+/** Height at which the fillet gives way to the circle round the disc. */
+const POCKET_HANDOVER =
+  (DISC_POCKET_RADIUS * POCKET_APPROACH) /
+  (DISC_POCKET_RADIUS + DISC_POCKET_FILLET);
+
+/** How far the rails stand off the centre line, `dy` above or below the disc. */
+function pocketOffset(dy: number): number {
+  const d = Math.abs(dy);
+  if (d >= POCKET_APPROACH) return REST;
+
+  // Concentric with the disc.
+  if (d <= POCKET_HANDOVER) {
+    return Math.sqrt(DISC_POCKET_RADIUS ** 2 - d * d);
+  }
+
+  // The fillet, curving the other way.
+  const k = POCKET_APPROACH - d;
+  return (
+    REST +
+    DISC_POCKET_FILLET -
+    Math.sqrt(Math.max(0, DISC_POCKET_FILLET ** 2 - k * k))
+  );
 }
 interface Shape {
   primary: string;
@@ -126,6 +159,14 @@ interface Hold {
   x: number;
 }
 
+interface Panel {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+  onRight: boolean;
+}
+
 const clamp = (value: number, low: number, high: number) =>
   Math.min(high, Math.max(low, value));
 
@@ -137,22 +178,38 @@ const smoothstep = (t: number) => {
 
 const round = (value: number) => Math.round(value * 10) / 10;
 
-/** Where the route sits while it is clearing each card, in viewport pixels. */
-function readHolds(viewportWidth: number): Hold[] {
-  const panels = Array.from(
+/**
+ * The cards, in viewport pixels.
+ *
+ * Read at every width, not only where the route bypasses them: below `lg` the
+ * route runs straight past the cards but still has to know where they are,
+ * because the pocket closes while the disc is alongside one.
+ */
+function readPanels(): Panel[] {
+  return Array.from(
     document.querySelectorAll<HTMLElement>("[data-station-panel]"),
-  );
-
-  return panels.map((panel) => {
+  ).map((panel) => {
     const rect = panel.getBoundingClientRect();
-    const onRight = panel.dataset.routeSide === "right";
-    const raw = onRight
-      ? rect.right + ROUTE_CARD_CLEARANCE + ROUTE_HALF_WIDTH
-      : rect.left - ROUTE_CARD_CLEARANCE - ROUTE_HALF_WIDTH;
-
     return {
       top: rect.top,
       bottom: rect.bottom,
+      left: rect.left,
+      right: rect.right,
+      onRight: panel.dataset.routeSide === "right",
+    };
+  });
+}
+
+/** Where the route sits while it is clearing each card. */
+function holdsFrom(panels: Panel[], viewportWidth: number): Hold[] {
+  return panels.map((panel) => {
+    const raw = panel.onRight
+      ? panel.right + ROUTE_CARD_CLEARANCE + ROUTE_HALF_WIDTH
+      : panel.left - ROUTE_CARD_CLEARANCE - ROUTE_HALF_WIDTH;
+
+    return {
+      top: panel.top,
+      bottom: panel.bottom,
       x: clamp(
         raw,
         ROUTE_HALF_WIDTH + ROUTE_EDGE_INSET,
@@ -160,6 +217,26 @@ function readHolds(viewportWidth: number): Hold[] {
       ),
     };
   });
+}
+
+/**
+ * How open the pocket is: 0 with the disc alongside a card, 1 well clear of
+ * one. Applied to the whole shape at once, so it breathes rather than
+ * switching.
+ */
+function transit(discY: number, panels: Panel[]): number {
+  if (panels.length === 0) return 1;
+
+  let nearest = Infinity;
+  for (const panel of panels) {
+    if (discY >= panel.top && discY <= panel.bottom) return 0;
+    nearest = Math.min(
+      nearest,
+      discY < panel.top ? panel.top - discY : discY - panel.bottom,
+    );
+  }
+
+  return smoothstep(nearest / STATION_FLATTEN_RAMP);
 }
 
 /**
@@ -207,7 +284,8 @@ function measure(): Shape {
     (viewportWidth >= RAIL_STEP_WIDTH ? RAIL_INSET : RAIL_INSET_SM) +
     ROUTE_HALF_WIDTH;
   const fallback = bypassing ? viewportWidth / 2 : rail;
-  const holds = bypassing ? readHolds(viewportWidth) : [];
+  const panels = readPanels();
+  const holds = bypassing ? holdsFrom(panels, viewportWidth) : [];
 
   const centre = (y: number) => centreAt(holds, fallback, y);
 
@@ -216,6 +294,7 @@ function measure(): Shape {
   const scrollable = document.documentElement.scrollHeight - viewportHeight;
   const progress = scrollable > 0 ? clamp(window.scrollY / scrollable, 0, 1) : 0;
   const discY = viewportHeight * (DISC_INSET + progress * (1 - DISC_INSET * 2));
+  const open = transit(discY, panels);
 
   let primary = "";
   let secondary = "";
@@ -235,8 +314,9 @@ function measure(): Shape {
     const nx = 2 / length;
     const ny = -slope / length;
 
-    // Offset along the normal, widened where the disc is passing.
-    const offset = ROUTE_OFFSET + pocket(y, discY);
+    /* Offset along the normal, opened where the disc is passing — and scaled
+       shut while it stands at a platform. */
+    const offset = REST + open * (pocketOffset(y - discY) - REST);
 
     const command = primary === "" ? "M" : "L";
     primary += `${command}${round(x - offset * nx)} ${round(y - offset * ny)}`;
