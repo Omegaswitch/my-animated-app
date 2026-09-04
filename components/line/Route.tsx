@@ -162,6 +162,16 @@ interface Shape {
   ringRadius: number;
   /** 0 at a platform, 1 in transit. Fades the ring as the pocket shuts. */
   ringOpacity: number;
+  /**
+   * The route's normal where the disc is, in gradient box units.
+   *
+   * Both rings — the one round the disc and the disc's own stroke — are split
+   * orange to gold along this, so the split lands where the two rails
+   * actually are. A fixed left-to-right split only agrees with the tracks
+   * where they happen to run vertically, and they are at up to 38 degrees off
+   * that between cards.
+   */
+  gradient: { x1: number; y1: number; x2: number; y2: number };
 }
 
 interface Hold {
@@ -187,7 +197,17 @@ const smoothstep = (t: number) => {
   return c * c * (3 - 2 * c);
 };
 
+/** Path coordinates, in px. A tenth is well under a device pixel. */
 const round = (value: number) => Math.round(value * 10) / 10;
+
+/**
+ * Gradient coordinates, which are fractions of a box rather than pixels.
+ *
+ * Rounding these to a tenth like a coordinate quantises the colour split to
+ * about 11 degrees, so it visibly snapped between bends instead of turning
+ * with the track.
+ */
+const roundUnit = (value: number) => Math.round(value * 1000) / 1000;
 
 /**
  * The cards, in viewport pixels.
@@ -339,6 +359,13 @@ function measure(): Shape {
      One number drives both, so they cannot come apart. */
   const ringRadius = REST + open * (DISC_POCKET_RADIUS - REST);
 
+  /* Same central difference the strokes are offset by, taken at the disc, so
+     the colour split is square to the track rather than to the screen. */
+  const discSlope = centre(discY + 1) - centre(discY - 1);
+  const discLength = Math.hypot(discSlope, 2);
+  const nx = 2 / discLength;
+  const ny = -discSlope / discLength;
+
   return {
     primary,
     secondary,
@@ -346,6 +373,12 @@ function measure(): Shape {
     discY,
     ringRadius,
     ringOpacity: open,
+    gradient: {
+      x1: roundUnit(0.5 - nx / 2),
+      y1: roundUnit(0.5 - ny / 2),
+      x2: roundUnit(0.5 + nx / 2),
+      y2: roundUnit(0.5 + ny / 2),
+    },
   };
 }
 
@@ -355,7 +388,11 @@ const same = (a: Shape, b: Shape) =>
   a.discX === b.discX &&
   a.discY === b.discY &&
   a.ringRadius === b.ringRadius &&
-  a.ringOpacity === b.ringOpacity;
+  a.ringOpacity === b.ringOpacity &&
+  a.gradient.x1 === b.gradient.x1 &&
+  a.gradient.y1 === b.gradient.y1 &&
+  a.gradient.x2 === b.gradient.x2 &&
+  a.gradient.y2 === b.gradient.y2;
 
 export default function Route() {
   const [shape, setShape] = useState<Shape | null>(null);
@@ -426,12 +463,19 @@ export default function Route() {
         data-route
         className="pointer-events-none fixed inset-0 z-0 h-full w-full"
       >
-        {/* Split down the middle, so the ring is the orange rail's colour on
+        {/* Split across the track, so the ring is the orange rail's colour on
             the side the orange rail runs and the gold's on the other — it
             reads as the two tracks closing round the disc, not as a third
-            thing drawn on top of them. */}
+            thing drawn on top of them. The axis is the route's normal, so the
+            split stays square to the line through every bend. */}
         <defs>
-          <linearGradient id="route-ring" x1="0" y1="0" x2="1" y2="0">
+          <linearGradient
+            id="route-ring"
+            x1={shape.gradient.x1}
+            y1={shape.gradient.y1}
+            x2={shape.gradient.x2}
+            y2={shape.gradient.y2}
+          >
             <stop offset="48%" stopColor="var(--color-line-primary)" />
             <stop offset="52%" stopColor="var(--color-line-secondary)" />
           </linearGradient>
@@ -476,7 +520,13 @@ export default function Route() {
         {/* The disc belongs to both tracks, so its ring runs from one line
             colour to the other rather than picking a side. */}
         <defs>
-          <linearGradient id="disc-ring" x1="0" y1="0" x2="1" y2="0">
+          <linearGradient
+            id="disc-ring"
+            x1={shape.gradient.x1}
+            y1={shape.gradient.y1}
+            x2={shape.gradient.x2}
+            y2={shape.gradient.y2}
+          >
             <stop offset="0%" stopColor="var(--color-line-primary)" />
             <stop offset="100%" stopColor="var(--color-line-secondary)" />
           </linearGradient>
