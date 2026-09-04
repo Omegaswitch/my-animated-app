@@ -1,6 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { Identity } from "@/types/project";
+import AssetFrame from "@/components/ui/AssetFrame";
 import {
   motion,
   useReducedMotion,
@@ -25,10 +26,16 @@ import {
 export interface StickyIdentityProps {
   manufacturerLabel: string;
   projectLabel: string;
-  /** Swap in the real artwork when it exists; defaults are placeholders. */
-  manufacturerMark?: ReactNode;
-  projectMark?: ReactNode;
+  /**
+   * Real artwork, from `project.identity`. Either side may be missing, and
+   * that side falls back to its geometric placeholder — so dropping in one
+   * logo does not require having the other ready.
+   */
+  identity?: Identity;
 }
+
+/** Both marks render at this height, whatever their intrinsic size. */
+const MARK_HEIGHT = 48;
 
 /** Scroll distance, in px, over which the identity settles into its anchor. */
 const SETTLE_DISTANCE = 300;
@@ -117,9 +124,29 @@ function ProjectPlaceholder() {
 export default function StickyIdentity({
   manufacturerLabel,
   projectLabel,
-  manufacturerMark,
-  projectMark,
+  identity,
 }: StickyIdentityProps) {
+  /* Width is derived from the asset's own ratio at a fixed height, so the two
+     marks sit on one baseline no matter how differently they are drawn. */
+  const mark = (
+    asset: NonNullable<Identity["manufacturer"]>,
+    label: string,
+  ) => (
+    <span
+      className="block"
+      style={{
+        width: (asset.width / asset.height) * MARK_HEIGHT,
+        height: MARK_HEIGHT,
+      }}
+    >
+      <AssetFrame
+        asset={asset}
+        tag={label}
+        fill
+        sizes={`${MARK_HEIGHT * 4}px`}
+      />
+    </span>
+  );
   const prefersReducedMotion = useReducedMotion() ?? false;
 
   const { scrollY } = useScroll();
@@ -153,14 +180,24 @@ export default function StickyIdentity({
         style={motionStyle}
       >
         <div className="flex items-center gap-6">
-          <span className="block">
-            {manufacturerMark ?? <ManufacturerPlaceholder />}
-          </span>
+          {identity?.manufacturer ? (
+            mark(identity.manufacturer, manufacturerLabel)
+          ) : (
+            <span className="block">
+              <ManufacturerPlaceholder />
+            </span>
+          )}
 
           {/* The rule between the marks is the line, in miniature. */}
           <span className="block h-10 w-px bg-line-primary" aria-hidden />
 
-          <span className="block">{projectMark ?? <ProjectPlaceholder />}</span>
+          {identity?.project ? (
+            mark(identity.project, projectLabel)
+          ) : (
+            <span className="block">
+              <ProjectPlaceholder />
+            </span>
+          )}
         </div>
 
         <motion.p

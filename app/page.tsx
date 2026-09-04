@@ -38,6 +38,7 @@ export default function Page() {
       <StickyIdentity
         manufacturerLabel={project.meta.studio ?? project.meta.name}
         projectLabel={project.meta.name}
+        identity={project.identity}
       />
 
       <main className="relative z-20">

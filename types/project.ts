@@ -207,6 +207,15 @@ export interface Terminus {
   updatedOn: ISODate;
 }
 
+/**
+ * The two marks at the top of the page. Either may be absent, in which case
+ * that side falls back to its geometric placeholder.
+ */
+export interface Identity {
+  manufacturer?: ImageAsset;
+  project?: ImageAsset;
+}
+
 /** Studio credit printed at the terminus. */
 export interface DesignerCredit {
   id: string;
@@ -268,6 +277,7 @@ export interface Project {
   meta: Meta;
   colors: Palette;
   copy: ProjectCopy;
+  identity: Identity;
   stations: Station[];
   intro: Intro;
   kits: Kit[];

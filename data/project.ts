@@ -13,6 +13,7 @@
 
 import type {
   ColorSample,
+  Identity,
   DesignerCredit,
   GbStage,
   Intro,
@@ -31,7 +32,7 @@ import type {
  * Asset roots.
  *
  * URL paths, not filesystem paths. Next serves `public/` at the site root, so
- * a file at `public/kits/base.webp` is fetched as `/kits/base.webp` —
+ * a file at `public/kits/base.png` is fetched as `/kits/base.png` —
  * writing `/public/kits/...` in a src would 404.
  *
  * Drop real WebP, PNG or SVG files into the matching `public/` subdirectory,
@@ -194,7 +195,7 @@ const kits: Kit[] = [
     currency: "EUR",
     swatchIds: ["sw-warm5", "sw-447", "sw-7565"],
     image: {
-      src: `${ASSETS.kits}/base.webp`,
+      src: `${ASSETS.kits}/base.png`,
       alt: "Base Kit with novelties, laid out",
       width: 1600,
       height: 1000,
@@ -212,7 +213,7 @@ const kits: Kit[] = [
     currency: "EUR",
     swatchIds: ["sw-warm5", "sw-447"],
     image: {
-      src: `${ASSETS.kits}/numpad.webp`,
+      src: `${ASSETS.kits}/numpad.png`,
       alt: "Numpad kit",
       width: 1600,
       height: 1000,
@@ -230,7 +231,7 @@ const kits: Kit[] = [
     currency: "EUR",
     swatchIds: ["sw-warm5", "sw-7407"],
     image: {
-      src: `${ASSETS.kits}/40s.webp`,
+      src: `${ASSETS.kits}/40s.png`,
       alt: "40s kit",
       width: 1600,
       height: 1000,
@@ -248,7 +249,7 @@ const kits: Kit[] = [
     currency: "EUR",
     swatchIds: ["sw-warm5", "sw-447"],
     image: {
-      src: `${ASSETS.kits}/norde.webp`,
+      src: `${ASSETS.kits}/norde.png`,
       alt: "NorDe kit",
       width: 1600,
       height: 1000,
@@ -318,7 +319,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm5",
       asset: {
-        src: `${ASSETS.renders}/render-01.webp`,
+        src: `${ASSETS.renders}/render-01.png`,
         alt: "The full set installed, from above",
         width: 1600,
         height: 1000,
@@ -333,7 +334,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm5",
       asset: {
-        src: `${ASSETS.renders}/render-02.webp`,
+        src: `${ASSETS.renders}/render-02.png`,
         alt: "Board at a three-quarter angle",
         width: 1600,
         height: 1000,
@@ -348,7 +349,7 @@ const renders: RenderGallery = {
       credit: "Atelier Rendu",
       swatchId: "sw-7565",
       asset: {
-        src: `${ASSETS.renders}/render-03.webp`,
+        src: `${ASSETS.renders}/render-03.png`,
         alt: "Close crop of the terminus novelty cap",
         width: 1200,
         height: 1200,
@@ -363,7 +364,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-447",
       asset: {
-        src: `${ASSETS.renders}/render-04.webp`,
+        src: `${ASSETS.renders}/render-04.png`,
         alt: "Numpad kit installed",
         width: 1200,
         height: 1200,
@@ -378,7 +379,7 @@ const renders: RenderGallery = {
       credit: "Atelier Rendu",
       swatchId: "sw-7407",
       asset: {
-        src: `${ASSETS.renders}/render-05.webp`,
+        src: `${ASSETS.renders}/render-05.png`,
         alt: "40 percent board with the 40s kit",
         width: 1600,
         height: 1000,
@@ -393,7 +394,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm1",
       asset: {
-        src: `${ASSETS.renders}/render-06.webp`,
+        src: `${ASSETS.renders}/render-06.png`,
         alt: "Board on a desk",
         width: 1600,
         height: 1000,
@@ -460,7 +461,7 @@ const samples: ColorSample[] = [
     id: "smp-01",
     label: "Pantone 447 C",
     image: {
-      src: `${ASSETS.colors}/sample-01.webp`,
+      src: `${ASSETS.colors}/sample-01.png`,
       alt: "Moulded chip matched to Pantone 447 C",
       width: 800,
       height: 800,
@@ -471,7 +472,7 @@ const samples: ColorSample[] = [
     id: "smp-02",
     label: "Pantone 7407 C",
     image: {
-      src: `${ASSETS.colors}/sample-02.webp`,
+      src: `${ASSETS.colors}/sample-02.png`,
       alt: "Moulded chip matched to Pantone 7407 C",
       width: 800,
       height: 800,
@@ -482,7 +483,7 @@ const samples: ColorSample[] = [
     id: "smp-03",
     label: "Pantone 7565 C",
     image: {
-      src: `${ASSETS.colors}/sample-03.webp`,
+      src: `${ASSETS.colors}/sample-03.png`,
       alt: "Moulded chip matched to Pantone 7565 C",
       width: 800,
       height: 800,
@@ -493,7 +494,7 @@ const samples: ColorSample[] = [
     id: "smp-04",
     label: "Warm Gray 1 C",
     image: {
-      src: `${ASSETS.colors}/sample-04.webp`,
+      src: `${ASSETS.colors}/sample-04.png`,
       alt: "Moulded chip matched to Warm Gray 1 C",
       width: 800,
       height: 800,
@@ -503,13 +504,32 @@ const samples: ColorSample[] = [
     id: "smp-05",
     label: "Warm Gray 5 C",
     image: {
-      src: `${ASSETS.colors}/sample-05.webp`,
+      src: `${ASSETS.colors}/sample-05.png`,
       alt: "Moulded chip matched to Warm Gray 5 C",
       width: 800,
       height: 800,
     },
   },
 ];
+
+/* ---------------------------------------------------------------------------
+ * Identity — the marks that ride at the top of the page
+ * ------------------------------------------------------------------------- */
+
+const identity: Identity = {
+  manufacturer: {
+    src: `${ASSETS.logos}/manufacturer.png`,
+    alt: "MilkyWay",
+    width: 480,
+    height: 160,
+  },
+  project: {
+    src: `${ASSETS.logos}/project.png`,
+    alt: "MW LINE A",
+    width: 480,
+    height: 160,
+  },
+};
 
 /* ---------------------------------------------------------------------------
  * Designer credits
@@ -520,7 +540,7 @@ const designers: DesignerCredit[] = [
     id: "dsg-01",
     name: "Studio One",
     asset: {
-      src: `${ASSETS.logos}/designer-01.svg`,
+      src: `${ASSETS.logos}/designer-01.png`,
       alt: "Studio One",
       width: 240,
       height: 64,
@@ -530,7 +550,7 @@ const designers: DesignerCredit[] = [
     id: "dsg-02",
     name: "Studio Two",
     asset: {
-      src: `${ASSETS.logos}/designer-02.svg`,
+      src: `${ASSETS.logos}/designer-02.png`,
       alt: "Studio Two",
       width: 240,
       height: 64,
@@ -576,6 +596,7 @@ export const project: Project = {
   },
   colors,
   copy,
+  identity,
   stations,
   intro,
   kits,
