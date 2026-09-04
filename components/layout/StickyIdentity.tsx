@@ -42,9 +42,13 @@ export interface StickyIdentityProps {
  * width, a tall one the height, and `object-contain` preserves either ratio
  * without cropping or stretching. Sizing off the declared ratio instead meant
  * a portrait file rendered as a 12px sliver.
+ *
+ * The box is smaller below `sm`: two marks at the desktop width plus the rule
+ * and the left gutter come to more than a 390px viewport, which pushed the
+ * page into horizontal scroll.
  */
-const MARK_WIDTH = 144;
-const MARK_HEIGHT = 48;
+/** Rendered box, in CSS classes: h-9/w-24 below `sm`, h-12/w-36 above. */
+const MARK_SIZES = "128px";
 
 /** Scroll distance, in px, over which the identity settles into its anchor. */
 const SETTLE_DISTANCE = 300;
@@ -146,15 +150,9 @@ export default function StickyIdentity({
          `absolute inset-0`, so without a positioned parent both marks resolve
          against the sticky container and stretch across it on top of each
          other. */
-      className="relative block"
-      style={{ width: MARK_WIDTH, height: MARK_HEIGHT }}
+      className="relative block h-9 w-24 sm:h-12 sm:w-36"
     >
-      <AssetFrame
-        asset={asset}
-        tag={label}
-        fill
-        sizes={`${MARK_HEIGHT * 4}px`}
-      />
+      <AssetFrame asset={asset} tag={label} fill sizes={MARK_SIZES} />
     </span>
   );
   const prefersReducedMotion = useReducedMotion() ?? false;
@@ -189,7 +187,7 @@ export default function StickyIdentity({
         className="flex origin-top-left flex-col items-start gap-3 text-ink"
         style={motionStyle}
       >
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
           {identity?.manufacturer ? (
             mark(identity.manufacturer, manufacturerLabel)
           ) : (

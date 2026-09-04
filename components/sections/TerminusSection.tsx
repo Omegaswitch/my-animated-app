@@ -50,7 +50,7 @@ export default function TerminusSection({
 
   return (
     <section className="relative flex min-h-screen flex-col justify-center py-24">
-      <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16">
+      <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-10 lg:pr-8 xl:pl-14 xl:pr-12">
         <StationHeader
           station={station}
           meta={`${copy.labels.updated} ${terminus.updatedOn}`}
@@ -60,7 +60,7 @@ export default function TerminusSection({
           {terminus.eyebrow}
         </p>
 
-        <h3 className="mt-5 max-w-[18ch] text-[clamp(1.75rem,4vw,3rem)] font-bold leading-[0.96] tracking-[-0.03em]">
+        <h3 className="mt-5 max-w-[18ch] text-[clamp(2rem,4.4vw,3.5rem)] font-bold leading-[0.96] tracking-[-0.03em]">
           {terminus.headline}
         </h3>
 

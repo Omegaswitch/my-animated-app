@@ -80,7 +80,7 @@ export default function ColorsSection({
   return (
     <section
       id="colors"
-      className="relative flex min-h-screen flex-col justify-center py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16"
+      className="relative flex min-h-screen flex-col justify-center py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-10 lg:pr-8 xl:pl-14 xl:pr-12"
     >
       <StationHeader
         station={station}
@@ -110,7 +110,7 @@ export default function ColorsSection({
                 aria-current={index === selected ? "true" : undefined}
                 aria-label={`${entry.name}, ${entry.hex}`}
                 className={`block w-full border border-solid outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink ${
-                  active ? "h-24 lg:h-36" : "h-20 lg:h-28"
+                  active ? "h-28 lg:h-44" : "h-24 lg:h-36"
                 }`}
                 style={{
                   backgroundColor: entry.hex,
@@ -139,16 +139,16 @@ export default function ColorsSection({
                 {swatch.code}
               </p>
 
-              <h3 className="mt-1.5 text-[clamp(1.25rem,2.4vw,1.9rem)] font-bold leading-[1.04] tracking-[-0.02em]">
+              <h3 className="mt-1.5 text-[clamp(1.5rem,2.8vw,2.25rem)] font-bold leading-[1.04] tracking-[-0.02em]">
                 {swatch.name}
               </h3>
 
-              <p className="mt-1.5 text-base font-bold tabular-nums tracking-[0.04em] text-ink/70">
+              <p className="mt-2 text-lg font-bold tabular-nums tracking-[0.04em] text-ink/70">
                 {swatch.hex.toUpperCase()}
               </p>
 
               {swatch.description ? (
-                <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-ink/80">
+                <p className="mt-2.5 max-w-[44ch] text-base leading-relaxed text-ink/80">
                   {swatch.description}
                 </p>
               ) : null}

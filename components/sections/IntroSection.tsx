@@ -19,24 +19,24 @@ export interface IntroSectionProps {
 export default function IntroSection({ intro, meta, copy }: IntroSectionProps) {
   return (
     <section className="relative flex min-h-screen flex-col justify-center py-24">
-      <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16">
+      <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-10 lg:pr-8 xl:pl-14 xl:pr-12">
         {intro.eyebrow ? (
           <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-ink/60">
             {intro.eyebrow}
           </p>
         ) : null}
 
-        <h1 className="mt-6 max-w-[16ch] text-[clamp(2.25rem,5vw,4.25rem)] font-bold leading-[0.94] tracking-[-0.03em]">
+        <h1 className="mt-6 max-w-[16ch] text-[clamp(2.5rem,5.6vw,5rem)] font-bold leading-[0.94] tracking-[-0.03em]">
           {intro.headline}
         </h1>
 
         {intro.subhead ? (
-          <p className="mt-6 max-w-[34ch] text-lg leading-snug tracking-tight">
+          <p className="mt-7 max-w-[34ch] text-xl leading-snug tracking-tight">
             {intro.subhead}
           </p>
         ) : null}
 
-        <p className="mt-5 max-w-[48ch] text-sm leading-relaxed text-ink/80">
+        <p className="mt-6 max-w-[50ch] text-base leading-relaxed text-ink/80">
           {intro.lead}
         </p>
 

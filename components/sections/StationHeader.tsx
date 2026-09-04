@@ -16,7 +16,7 @@ export interface StationHeaderProps {
 export default function StationHeader({ station, meta }: StationHeaderProps) {
   return (
     <header className="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b-2 border-ink/25 pb-3">
-      <h2 className="text-xl font-bold uppercase tracking-[0.08em] lg:text-2xl">
+      <h2 className="text-2xl font-bold uppercase tracking-[0.08em] lg:text-3xl">
         {station.label}
       </h2>
       {meta ? (

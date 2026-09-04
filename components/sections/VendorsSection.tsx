@@ -115,7 +115,7 @@ export default function VendorsSection({
   return (
     <section
       id="vendors"
-      className="relative flex min-h-screen flex-col justify-center py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16"
+      className="relative flex min-h-screen flex-col justify-center py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-10 lg:pr-8 xl:pl-14 xl:pr-12"
     >
       <StationHeader
         station={station}

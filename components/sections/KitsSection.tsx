@@ -47,7 +47,7 @@ export default function KitsSection({
   return (
     <section
       id="kits"
-      className="relative flex min-h-screen flex-col justify-center py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16"
+      className="relative flex min-h-screen flex-col justify-center py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-10 lg:pr-8 xl:pl-14 xl:pr-12"
     >
       <StationHeader
         station={station}
@@ -59,7 +59,7 @@ export default function KitsSection({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="group relative block aspect-[16/10] w-full shrink-0 cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:w-1/2"
+            className="group relative block aspect-[16/10] w-full shrink-0 cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:w-[56%]"
             aria-label={`View ${kit.name} full screen`}
           >
             {/* Locked box, contained image: the artwork's own ratio is
@@ -82,15 +82,15 @@ export default function KitsSection({
             {kit.code}
           </p>
 
-          <h3 className="mt-2 text-[clamp(1.5rem,3vw,2.5rem)] font-bold leading-[1.02] tracking-[-0.02em]">
+          <h3 className="mt-2 text-[clamp(1.75rem,3.4vw,3rem)] font-bold leading-[1.02] tracking-[-0.02em]">
             {kit.name}
           </h3>
 
-          <p className="mt-3 max-w-[40ch] text-sm leading-relaxed text-ink/80">
+          <p className="mt-4 max-w-[42ch] text-base leading-relaxed text-ink/80">
             {kit.summary}
           </p>
 
-          <dl className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2 border-t-2 border-ink/25 pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/60">
+          <dl className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2 border-t-2 border-ink/25 pt-3 text-xs font-bold uppercase tracking-[0.12em] text-ink/60">
             <dd>{copy.kitAvailability[kit.availability]}</dd>
             {kit.capCount !== undefined ? (
               <dd className="tabular-nums text-ink">
