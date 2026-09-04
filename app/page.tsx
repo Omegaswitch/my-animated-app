@@ -1,6 +1,6 @@
 import RouteBackbone from "@/components/line/RouteBackbone";
+import RidingDisc from "@/components/line/RidingDisc";
 import StickyIdentity from "@/components/layout/StickyIdentity";
-import StationStage from "@/components/layout/StationStage";
 import IntroSection from "@/components/sections/IntroSection";
 import KitsSection from "@/components/sections/KitsSection";
 import ColorsSection from "@/components/sections/ColorsSection";
@@ -11,17 +11,16 @@ import { project } from "@/data/project";
 import type { StationId } from "@/types/project";
 
 /**
- * MW LINE A — the route.
+ * MW LINE A.
  *
- * Six stations, each holding its own viewport stage.
+ * Native document scrolling, start to finish. No sticky panes, no inflated
+ * track heights, nothing that holds the page while the wheel spins. Each
+ * station is a plain full-height section.
  *
- * The spine is permanent — `RouteBackbone` is fixed to the viewport and never
- * fades. Stops are not: each station's disc lives inside its own stage, so
- * only the one you have reached is ever on screen. There is no column of
- * upcoming stops down the side of the page.
- *
- * A server component. The client code is the identity, the six stages, and
- * the two galleries that open a lightbox.
+ * Two fixed elements ride above it: the spine, which never moves, and one
+ * disc, whose position down the screen is the document's scroll progress.
+ * Galleries are picked through with arrows, pills and the arrow keys rather
+ * than by scrolling past them.
  */
 
 const stationById = (id: StationId) => {
@@ -31,71 +30,54 @@ const stationById = (id: StationId) => {
   return station;
 };
 
-const first = project.stations[0].id;
-const last = project.stations[project.stations.length - 1].id;
-
 export default function Page() {
-  const stage = (id: StationId) => {
-    const station = stationById(id);
-    return { line: station.line, isFirst: id === first, isLast: id === last };
-  };
-
   return (
     <>
       <RouteBackbone />
+      <RidingDisc />
       <StickyIdentity
         manufacturerLabel={project.meta.studio ?? project.meta.name}
         projectLabel={project.meta.name}
       />
 
-      <main className="relative">
-        {/* One-viewport track: the intro scrolls naturally, with no held
-            span to scroll through before the line starts moving. */}
-        <StationStage {...stage("intro")} trackVh={100}>
-          <IntroSection intro={project.intro} />
-        </StationStage>
+      <main className="relative z-20">
+        <IntroSection
+          intro={project.intro}
+          meta={project.meta}
+          copy={project.copy}
+        />
 
-        <StationStage {...stage("kits")} trackVh={300}>
-          <KitsSection
-            kits={project.kits}
-            swatches={project.swatches}
-            station={stationById("kits")}
-            copy={project.copy}
-          />
-        </StationStage>
+        <KitsSection
+          kits={project.kits}
+          swatches={project.swatches}
+          station={stationById("kits")}
+          copy={project.copy}
+        />
 
-        <StationStage {...stage("colors")} trackVh={300}>
-          <ColorsSection
-            swatches={project.swatches}
-            kits={project.kits}
-            station={stationById("colors")}
-            copy={project.copy}
-          />
-        </StationStage>
+        <ColorsSection
+          swatches={project.swatches}
+          kits={project.kits}
+          station={stationById("colors")}
+          copy={project.copy}
+        />
 
-        <StationStage {...stage("renders")} trackVh={300}>
-          <RendersSection
-            renders={project.renders}
-            station={stationById("renders")}
-            copy={project.copy}
-          />
-        </StationStage>
+        <RendersSection
+          renders={project.renders}
+          station={stationById("renders")}
+          copy={project.copy}
+        />
 
-        <StationStage {...stage("vendors")}>
-          <VendorsSection
-            vendors={project.vendors}
-            station={stationById("vendors")}
-            copy={project.copy}
-          />
-        </StationStage>
+        <VendorsSection
+          vendors={project.vendors}
+          station={stationById("vendors")}
+          copy={project.copy}
+        />
 
-        <StationStage {...stage("terminus")}>
-          <TerminusSection
-            terminus={project.terminus}
-            station={stationById("terminus")}
-            copy={project.copy}
-          />
-        </StationStage>
+        <TerminusSection
+          terminus={project.terminus}
+          station={stationById("terminus")}
+          copy={project.copy}
+        />
       </main>
     </>
   );

@@ -40,6 +40,8 @@ export interface Meta {
   tagline: string;
   description: string;
   studio?: string;
+  /** Community invite. Omit and the hero button is not rendered. */
+  discordUrl?: string;
   year: string;
   url?: string;
   locale: string;
@@ -227,6 +229,11 @@ export interface ProjectCopy {
     caps: string;
     credit: string;
     usedOn: string;
+    discord: string;
+    previous: string;
+    next: string;
+    zoomIn: string;
+    zoomOut: string;
     listingPending: string;
     opensInNewTab: string;
     stage: string;

@@ -15,7 +15,7 @@ export interface StationHeaderProps {
 
 export default function StationHeader({ station, meta }: StationHeaderProps) {
   return (
-    <header className="mb-8 flex items-baseline justify-between gap-6 border-b-2 border-ink/25 pb-3">
+    <header className="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b-2 border-ink/25 pb-3">
       <div className="flex items-baseline gap-4">
         <span className="text-[11px] font-bold tabular-nums tracking-[0.1em] text-ink/45">
           {String(station.index).padStart(2, "0")}
@@ -25,7 +25,7 @@ export default function StationHeader({ station, meta }: StationHeaderProps) {
         </h2>
       </div>
       {meta ? (
-        <span className="shrink-0 text-[11px] font-bold uppercase tracking-[0.1em] tabular-nums text-ink/55">
+        <span className="text-[11px] font-bold uppercase tracking-[0.1em] tabular-nums text-ink/55">
           {meta}
         </span>
       ) : null}

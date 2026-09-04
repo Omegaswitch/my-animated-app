@@ -32,7 +32,7 @@ export const ROUTE_CENTRE_X = ROUTE_TRACK_WIDTH / 2; // 19
  * Station disc: a white circle over the twin track with a thick coloured
  * ring. 30px across, inside the 28–32px the schematic calls for.
  */
-export const STATION_RADIUS = 15;
+export const STATION_RADIUS = 14; // 28px disc
 export const STATION_STROKE_WIDTH = 4;
 export const STATION_FILL = "#FFFFFF";
 

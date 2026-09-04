@@ -39,6 +39,32 @@ export default function Lightbox({
   const prefersReducedMotion = useReducedMotion() ?? false;
   const titleId = useId();
 
+  /* `close` does not bubble, so it cannot be relied on to reach React's
+     delegated handler. Escape closes the dialog natively and fires it, and if
+     that never reaches us the component still believes it is open: the scroll
+     lock is never released and the next click cannot reopen it, because the
+     `open` prop has not changed. Listening on the element directly is the
+     only version of this that survives Escape. */
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const handleClose = () => onClose();
+    /* Escape fires `cancel` first, and it is cancelable. Taking it here and
+       closing through React keeps state authoritative: the DOM never closes
+       behind the component's back, which would strand the scroll lock and
+       leave `open` true so the next click could not reopen it. */
+    const handleCancel = (event: Event) => {
+      event.preventDefault();
+      onClose();
+    };
+    dialog.addEventListener("close", handleClose);
+    dialog.addEventListener("cancel", handleCancel);
+    return () => {
+      dialog.removeEventListener("close", handleClose);
+      dialog.removeEventListener("cancel", handleCancel);
+    };
+  }, [onClose]);
+
   // Drive the native dialog from the `open` prop.
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -51,15 +77,19 @@ export default function Lightbox({
   /* `showModal` does not stop the page behind from scrolling, and neither
      does `overflow: hidden` once Lenis is running — it drives the scroll
      position programmatically and ignores overflow. Both are needed: the
-     overflow lock for native scrolling, and pausing Lenis for smooth. */
+     overflow lock for native scrolling, and pausing Lenis for smooth.
+
+     Cleanup *removes* the property rather than restoring a captured value.
+     There is a lightbox per gallery, so a second one opening while the first
+     is still mounted would capture "hidden" as its own baseline and restore
+     that on close, leaving the page permanently unscrollable. */
   useEffect(() => {
     if (!open) return;
     const root = document.documentElement;
-    const previous = root.style.overflow;
     root.style.overflow = "hidden";
     pauseSmoothScroll();
     return () => {
-      root.style.overflow = previous;
+      root.style.removeProperty("overflow");
       resumeSmoothScroll();
     };
   }, [open]);
@@ -68,8 +98,6 @@ export default function Lightbox({
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      // Fires for Escape as well as `close()`, so this is the single exit path.
-      onClose={onClose}
       onClick={(event) => {
         // The dialog element fills the viewport; a click landing on it rather
         // than on its contents is a backdrop click.

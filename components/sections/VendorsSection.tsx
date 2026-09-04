@@ -1,11 +1,3 @@
-"use client";
-
-import {
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  type MotionValue,
-} from "framer-motion";
 import type {
   ProjectCopy,
   Station,
@@ -13,25 +5,16 @@ import type {
   VendorRegion,
 } from "@/types/project";
 import StationHeader from "./StationHeader";
-import { useStageProgress } from "@/components/layout/StageProgress";
-import { useAccumulatingReveal } from "@/lib/sequence";
 import { countLabel } from "@/lib/format";
 
 /**
  * Station 5 — where to buy, assembled line by line.
  *
- * Deliberately *not* the slide mechanic the other stations use. A vendor list
- * is a directory: you want to end up looking at all of it, and compare your
- * own region against the rest. So each row drops into place and stays, and by
- * the end of the track the complete list is on screen at once.
+ * A directory: the whole list at once, scannable, so a buyer can find their
+ * own territory and compare it against the rest without waiting for anything.
  *
- * `useAccumulatingReveal` supplies that timing — the same module the sequenced
- * stations use, so the two behaviours stay in one place and read as a pair of
- * deliberate choices rather than two unrelated implementations.
- *
- * Region headings are rows in the same reveal order as the vendors, so a
- * territory heading arrives with the first vendor under it rather than the
- * whole scaffold appearing up front.
+ * Region headings are rows in the same flat list as the vendors, so the
+ * grouping is structural rather than a separate pass over the data.
  *
  * A vendor without a published listing prints a pending state — never a dead
  * link, and never an empty region heading.
@@ -61,27 +44,9 @@ type Row =
  * One row of the directory
  * ------------------------------------------------------------------------- */
 
-function DirectoryRow({
-  row,
-  index,
-  count,
-  copy,
-  progress,
-}: {
-  row: Row;
-  index: number;
-  count: number;
-  copy: ProjectCopy;
-  progress: MotionValue<number>;
-}) {
-  const { opacity, y } = useAccumulatingReveal(progress, index, count);
-
+function DirectoryRow({ row, copy }: { row: Row; copy: ProjectCopy }) {
   return (
-    <motion.li
-      style={{ opacity, y }}
-      className="will-change-transform"
-      data-directory-row={row.kind}
-    >
+    <li data-directory-row={row.kind}>
       {row.kind === "region" ? (
         <h3 className="mt-4 border-b-2 border-ink/25 pb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/60 first:mt-0">
           {copy.vendorRegion[row.region]}
@@ -117,7 +82,7 @@ function DirectoryRow({
           ) : null}
         </div>
       )}
-    </motion.li>
+    </li>
   );
 }
 
@@ -130,15 +95,6 @@ export default function VendorsSection({
   station,
   copy,
 }: VendorsSectionProps) {
-  const prefersReducedMotion = useReducedMotion() ?? false;
-
-  /* Outside a stage — or under reduced motion — there is nothing to reveal.
-     The fallback holds progress at the end, so the station degrades to the
-     complete directory rather than to an empty frame. */
-  const staged = useStageProgress();
-  const fallback = useMotionValue(1);
-  const progress = staged && !prefersReducedMotion ? staged : fallback;
-
   /* Flattened to a single ordered list so headings and vendors share one
      reveal sequence. Regions with no vendor never produce a heading. */
   const rows: Row[] = REGION_ORDER.flatMap((region) => {
@@ -157,22 +113,18 @@ export default function VendorsSection({
   if (rows.length === 0) return null;
 
   return (
-    <section className="relative py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16">
+    <section
+      id="vendors"
+      className="relative flex min-h-screen flex-col justify-center py-24 pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16"
+    >
       <StationHeader
         station={station}
         meta={countLabel(vendors.length, copy.counts.vendor)}
       />
 
       <ul>
-        {rows.map((row, index) => (
-          <DirectoryRow
-            key={row.key}
-            row={row}
-            index={index}
-            count={rows.length}
-            copy={copy}
-            progress={progress}
-          />
+        {rows.map((row) => (
+          <DirectoryRow key={row.key} row={row} copy={copy} />
         ))}
       </ul>
     </section>

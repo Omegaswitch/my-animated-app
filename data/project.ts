@@ -29,7 +29,7 @@ import type {
  * Asset roots.
  *
  * URL paths, not filesystem paths. Next serves `public/` at the site root, so
- * a file at `public/kits/base-kit.webp` is fetched as `/kits/base-kit.webp` —
+ * a file at `public/kits/base.webp` is fetched as `/kits/base.webp` —
  * writing `/public/kits/...` in a src would 404.
  *
  * Drop real WebP, PNG or SVG files into the matching `public/` subdirectory,
@@ -41,6 +41,10 @@ const ASSETS = {
   kits: "/kits",
   /** -> public/renders/ */
   renders: "/renders",
+  /** -> public/logos/ */
+  logos: "/logos",
+  /** -> public/packaging/ */
+  packaging: "/packaging",
 } as const;
 
 /* ---------------------------------------------------------------------------
@@ -137,6 +141,11 @@ const copy: ProjectCopy = {
     caps: "caps",
     credit: "Render",
     usedOn: "Used on",
+    discord: "Discord",
+    previous: "Previous",
+    next: "Next",
+    zoomIn: "Zoom in",
+    zoomOut: "Fit",
     listingPending: "Listing pending",
     opensInNewTab: "opens in a new tab",
     stage: "Stage",
@@ -179,7 +188,7 @@ const kits: Kit[] = [
     currency: "EUR",
     swatchIds: ["sw-warm5", "sw-447", "sw-7565"],
     image: {
-      src: `${ASSETS.kits}/base-kit.webp`,
+      src: `${ASSETS.kits}/base.webp`,
       alt: "Base Kit with novelties, laid out",
       width: 1600,
       height: 1000,
@@ -197,7 +206,7 @@ const kits: Kit[] = [
     currency: "EUR",
     swatchIds: ["sw-warm5", "sw-447"],
     image: {
-      src: `${ASSETS.kits}/numpad-kit.webp`,
+      src: `${ASSETS.kits}/numpad.webp`,
       alt: "Numpad kit",
       width: 1600,
       height: 1000,
@@ -215,7 +224,7 @@ const kits: Kit[] = [
     currency: "EUR",
     swatchIds: ["sw-warm5", "sw-7407"],
     image: {
-      src: `${ASSETS.kits}/40s-kit.webp`,
+      src: `${ASSETS.kits}/40s.webp`,
       alt: "40s kit",
       width: 1600,
       height: 1000,
@@ -233,7 +242,7 @@ const kits: Kit[] = [
     currency: "EUR",
     swatchIds: ["sw-warm5", "sw-447"],
     image: {
-      src: `${ASSETS.kits}/norde-kit.webp`,
+      src: `${ASSETS.kits}/norde.webp`,
       alt: "NorDe kit",
       width: 1600,
       height: 1000,
@@ -303,7 +312,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm5",
       asset: {
-        src: `${ASSETS.renders}/full-set-top.webp`,
+        src: `${ASSETS.renders}/render-01.webp`,
         alt: "The full set installed, from above",
         width: 1600,
         height: 1000,
@@ -318,7 +327,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm5",
       asset: {
-        src: `${ASSETS.renders}/board-three-quarter.webp`,
+        src: `${ASSETS.renders}/render-02.webp`,
         alt: "Board at a three-quarter angle",
         width: 1600,
         height: 1000,
@@ -333,7 +342,7 @@ const renders: RenderGallery = {
       credit: "Atelier Rendu",
       swatchId: "sw-7565",
       asset: {
-        src: `${ASSETS.renders}/terminus-novelty.webp`,
+        src: `${ASSETS.renders}/render-03.webp`,
         alt: "Close crop of the terminus novelty cap",
         width: 1200,
         height: 1200,
@@ -348,7 +357,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-447",
       asset: {
-        src: `${ASSETS.renders}/numpad.webp`,
+        src: `${ASSETS.renders}/render-04.webp`,
         alt: "Numpad kit installed",
         width: 1200,
         height: 1200,
@@ -363,7 +372,7 @@ const renders: RenderGallery = {
       credit: "Atelier Rendu",
       swatchId: "sw-7407",
       asset: {
-        src: `${ASSETS.renders}/40s-layout.webp`,
+        src: `${ASSETS.renders}/render-05.webp`,
         alt: "40 percent board with the 40s kit",
         width: 1600,
         height: 1000,
@@ -378,7 +387,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm1",
       asset: {
-        src: `${ASSETS.renders}/board-in-situ.webp`,
+        src: `${ASSETS.renders}/render-06.webp`,
         alt: "Board on a desk",
         width: 1600,
         height: 1000,
@@ -468,6 +477,7 @@ export const project: Project = {
     description:
       "MW LINE A is a doubleshot keycap set drawn from transit diagrams. Manufactured by MilkyWay, run as a regional group buy.",
     studio: "MilkyWay",
+    discordUrl: "https://discord.gg/milkyway",
     year: "2026–2027",
     locale: "en",
   },

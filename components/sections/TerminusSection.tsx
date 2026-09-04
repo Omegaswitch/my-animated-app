@@ -7,16 +7,23 @@ import type {
 } from "@/types/project";
 import { GB_STAGE_ORDER } from "@/data/project";
 import StationHeader from "./StationHeader";
+import {
+  ROUTE_POSITION_CLASS,
+  ROUTE_PRIMARY_X,
+  ROUTE_SECONDARY_X,
+  ROUTE_STROKE_WIDTH,
+  ROUTE_TRACK_CLASS,
+  ROUTE_TRACK_WIDTH,
+} from "@/lib/route-geometry";
 
 /**
  * Station 6 — the terminus.
  *
  * Three things end here: the line, the group buy, and the document.
  *
- * The end-of-line marker follows the Prague convention — a terminating route
- * is capped on *every* track it carries, so both tracks get a white disc and
- * the pair is closed with a cross-tie. Geometry comes from
- * `lib/route-geometry`, so the discs land on the strokes exactly.
+ * The end-of-line marker is a bar drawn across both tracks — the schematic's
+ * way of saying the route stops here. Geometry comes from
+ * `lib/route-geometry`, so it spans the spine exactly.
  *
  * The stage indicator is derived from a single key. `terminus.current` is the
  * only authored status; everything before it is complete and everything after
@@ -50,7 +57,24 @@ export default function TerminusSection({
   }));
 
   return (
-    <section className="relative py-24">
+    <section className="relative flex min-h-screen flex-col justify-center py-24">
+      {/* End of line: a bar across both tracks, the schematic's terminus. */}
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute bottom-16 ${ROUTE_TRACK_CLASS} ${ROUTE_POSITION_CLASS}`}
+      >
+        <svg width={ROUTE_TRACK_WIDTH} height={ROUTE_STROKE_WIDTH}>
+          <line
+            x1={ROUTE_PRIMARY_X - ROUTE_STROKE_WIDTH / 2}
+            y1={ROUTE_STROKE_WIDTH / 2}
+            x2={ROUTE_SECONDARY_X + ROUTE_STROKE_WIDTH / 2}
+            y2={ROUTE_STROKE_WIDTH / 2}
+            stroke="var(--color-ink)"
+            strokeWidth={ROUTE_STROKE_WIDTH}
+          />
+        </svg>
+      </div>
+
       <div className="pl-24 pr-6 sm:pl-28 lg:ml-[50%] lg:pl-16 lg:pr-16">
         <StationHeader
           station={station}
