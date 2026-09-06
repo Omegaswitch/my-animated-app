@@ -68,14 +68,21 @@ export default function RendersSection({
         <StationHeader station={station} />
 
         <figure>
-          {/* Hard-locked box: one shape for every render, whatever its ratio.
-            These arrive in different shapes — one a tight detail crop with the
-            caps at the frame edge — so it has to contain. Cropping to fill
-            would cut the subject of the very shot that cannot spare it. */}
+          {/* The kits' frame: full width of the card, 7:6, breaking out
+            through the padding. It was 16:10 inside the padding, which on a
+            square render left a 455px picture in a 729px box with a third of
+            the width as bare ground — the render being the thing the station
+            exists to show.
+
+            Unlike the kits it contains rather than crops. These arrive in
+            different shapes, and one is a tight detail with the caps at the
+            frame edge; cropping to fill would cut the subject of the one shot
+            that cannot spare it. So a render that is not 7:6 is letterboxed,
+            which is the honest cost of a gallery that takes any shape. */}
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="group relative mx-auto block aspect-[16/10] w-full max-w-5xl cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary"
+            className="group relative block aspect-[7/6] w-full cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:-mx-12 lg:w-[calc(100%+6rem)]"
             aria-label={`${copy.labels.zoomIn} — ${renders.heading} ${position}`}
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -93,7 +100,7 @@ export default function RendersSection({
                   placeholderLabel={copy.labels.assetPlaceholder}
                   className="transition-opacity group-hover:opacity-85"
                   fill
-                  sizes="(min-width: 1024px) 40vw, 90vw"
+                  sizes="(min-width: 1024px) 900px, 100vw"
                   priority={carousel.index === 0}
                 />
               </motion.div>
@@ -103,7 +110,7 @@ export default function RendersSection({
           {/* One line, and the same line on every render, so it needs neither
             a fixed height nor a crossfade. */}
           {renders.credit ? (
-            <figcaption className="mx-auto mt-4 w-full max-w-5xl border-t-2 border-ink/25 pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/55">
+            <figcaption className="mt-6 w-full border-t-2 border-ink/25 pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/55">
               {copy.labels.credit}: {renders.credit}
             </figcaption>
           ) : null}
