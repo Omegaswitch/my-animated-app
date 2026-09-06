@@ -112,6 +112,7 @@ export default function KitsSection({ kits, station, copy }: KitsSectionProps) {
 
         <CarouselControls
           carousel={carousel}
+          count={kits.length}
           labels={kits.map((entry) => entry.name)}
           copy={copy}
         />

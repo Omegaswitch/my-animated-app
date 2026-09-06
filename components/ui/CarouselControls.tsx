@@ -22,8 +22,15 @@ import type { ProjectCopy } from "@/types/project";
 
 export interface CarouselControlsProps {
   carousel: Carousel;
-  /** One short label per item, in order. */
-  labels: string[];
+  /** How many items there are. Drives the counter. */
+  count: number;
+  /**
+   * One short label per item, in order.
+   *
+   * Omitted for a gallery whose items have no names — pills reading 01 to 05
+   * beneath a counter already reading 01 / 05 are the same fact twice.
+   */
+  labels?: string[];
   copy: ProjectCopy;
 }
 
@@ -32,10 +39,11 @@ const ARROW_CLASS =
 
 export default function CarouselControls({
   carousel,
+  count,
   labels,
   copy,
 }: CarouselControlsProps) {
-  if (labels.length < 2) return null;
+  if (count < 2) return null;
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -53,7 +61,7 @@ export default function CarouselControls({
 
         {/* Numerals only — position is not a word, so this needs no copy. */}
         <p className="w-20 text-center text-xs font-bold tabular-nums tracking-[0.16em] text-ink/60">
-          {pad(carousel.index + 1)} / {pad(labels.length)}
+          {pad(carousel.index + 1)} / {pad(count)}
         </p>
 
         <button
@@ -66,27 +74,29 @@ export default function CarouselControls({
         </button>
       </div>
 
-      <ul className="flex flex-wrap justify-center gap-2">
-        {labels.map((label, index) => {
-          const active = index === carousel.index;
-          return (
-            <li key={label}>
-              <button
-                type="button"
-                onClick={() => carousel.select(index)}
-                aria-current={active ? "true" : undefined}
-                className={`border px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.1em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-line-primary ${
-                  active
-                    ? "border-line-primary bg-line-primary text-paper"
-                    : "border-ink/30 text-ink/60 hover:border-ink/60 hover:text-ink"
-                }`}
-              >
-                {label}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      {labels ? (
+        <ul className="flex flex-wrap justify-center gap-2">
+          {labels.map((label, index) => {
+            const active = index === carousel.index;
+            return (
+              <li key={label}>
+                <button
+                  type="button"
+                  onClick={() => carousel.select(index)}
+                  aria-current={active ? "true" : undefined}
+                  className={`border px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.1em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-line-primary ${
+                    active
+                      ? "border-line-primary bg-line-primary text-paper"
+                      : "border-ink/30 text-ink/60 hover:border-ink/60 hover:text-ink"
+                  }`}
+                >
+                  {label}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
     </div>
   );
 }

@@ -12,10 +12,21 @@ import StationPanel from "@/components/layout/StationPanel";
 import { useCarousel } from "@/lib/useCarousel";
 
 /**
- * Station 4 — the gallery.
+ * Station 4 — the renders.
  *
- * Same picker as the kits: one featured plate, pills beneath, arrows, and
- * left/right keys. Caption anchored under the image — title, board, credit.
+ * The picture and the position in the sequence, and nothing else.
+ *
+ * Each render used to carry a title, the view it was shot from and the board
+ * it depicted — "Terminus novelty", "Detail", "Novelty, 1u" — beneath the
+ * render that showed all three. Naming what the reader is already looking at
+ * adds a line to read and a thing to keep true.
+ *
+ * The credit is the gallery's, not the item's, because it is the same hand
+ * every time; it sits under the frame and does not change as you page.
+ *
+ * No pills either: with nothing to name them, they would have read 01 to 05
+ * beneath a counter already reading 01 / 05. Arrows, the counter and the
+ * arrow keys are the whole control.
  *
  * The lightbox is where a render is actually judged, so it opens at fit and
  * toggles to 100% on click.
@@ -48,22 +59,24 @@ export default function RendersSection({
   if (items.length === 0) return null;
 
   const item = items[carousel.index];
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const position = `${pad(carousel.index + 1)} / ${pad(items.length)}`;
 
   return (
-    <section
-      id="renders"
-      className="relative py-12 lg:py-[45vh]"
-    >
+    <section id="renders" className="relative py-12 lg:py-[45vh]">
       <StationPanel routeSide="right">
         <StationHeader station={station} />
 
         <figure>
-          {/* Hard-locked box: one shape for every plate, whatever its ratio. */}
+          {/* Hard-locked box: one shape for every render, whatever its ratio.
+            These arrive in different shapes — one a tight detail crop with the
+            caps at the frame edge — so it has to contain. Cropping to fill
+            would cut the subject of the very shot that cannot spare it. */}
           <button
             type="button"
             onClick={() => setOpen(true)}
             className="group relative mx-auto block aspect-[16/10] w-full max-w-5xl cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary"
-            aria-label={`View ${item.title} full screen`}
+            aria-label={`${copy.labels.zoomIn} — ${renders.heading} ${position}`}
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -76,7 +89,7 @@ export default function RendersSection({
               >
                 <AssetFrame
                   asset={item.asset}
-                  tag={copy.renderView[item.view]}
+                  tag={position}
                   placeholderLabel={copy.labels.assetPlaceholder}
                   className="transition-opacity group-hover:opacity-85"
                   fill
@@ -87,45 +100,18 @@ export default function RendersSection({
             </AnimatePresence>
           </button>
 
-          {/* Anchored beneath the plate, at a fixed height so a two-line title
-            cannot push the controls down. */}
-          <figcaption className="relative mx-auto mt-4 h-20 w-full max-w-5xl border-t-2 border-ink/25 pt-3">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={FADE}
-                className="absolute inset-x-0 top-3 flex flex-col justify-start"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h3 className="truncate text-base font-bold tracking-tight lg:text-lg">
-                    {item.title}
-                  </h3>
-                  <span className="shrink-0 text-[10px] font-bold uppercase tabular-nums tracking-[0.14em] text-ink/50">
-                    {copy.renderView[item.view]}
-                  </span>
-                </div>
-
-                <div className="mt-1.5 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/55">
-                  {item.model ? (
-                    <span className="text-ink/75">{item.model}</span>
-                  ) : null}
-                  {item.credit ? (
-                    <span>
-                      {copy.labels.credit}: {item.credit}
-                    </span>
-                  ) : null}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </figcaption>
+          {/* One line, and the same line on every render, so it needs neither
+            a fixed height nor a crossfade. */}
+          {renders.credit ? (
+            <figcaption className="mx-auto mt-4 w-full max-w-5xl border-t-2 border-ink/25 pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/55">
+              {copy.labels.credit}: {renders.credit}
+            </figcaption>
+          ) : null}
         </figure>
 
         <CarouselControls
           carousel={carousel}
-          labels={items.map((entry) => entry.title)}
+          count={items.length}
           copy={copy}
         />
 
@@ -133,15 +119,11 @@ export default function RendersSection({
           open={open}
           onClose={() => setOpen(false)}
           closeLabel={copy.labels.close}
-          title={item.title}
-          meta={copy.renderView[item.view]}
+          title={renders.heading}
+          meta={position}
           caption={item.asset.caption}
         >
-          <ZoomableAsset
-            asset={item.asset}
-            tag={copy.renderView[item.view]}
-            copy={copy}
-          />
+          <ZoomableAsset asset={item.asset} tag={position} copy={copy} />
         </Lightbox>
       </StationPanel>
     </section>

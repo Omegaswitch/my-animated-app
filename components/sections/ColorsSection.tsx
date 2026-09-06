@@ -192,9 +192,9 @@ export default function ColorsSection({
             <h4 className="text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
               {copy.labels.samples}
             </h4>
-            {/* Three across on a phone: at five, each chip is 52px and the
-              stand-in's own labels do not fit inside it. */}
-            <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {/* Three, because there are three mouldings — see the note in
+              the data. */}
+            <ul className="mt-3 grid grid-cols-3 gap-3">
               {samples.map((sample) => (
                 <li key={sample.id}>
                   <AssetFrame

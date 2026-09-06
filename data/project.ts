@@ -114,14 +114,6 @@ const stations: Station[] = [
  * ------------------------------------------------------------------------- */
 
 const copy: ProjectCopy = {
-  renderView: {
-    front: "Front",
-    "three-quarter": "Three-quarter",
-    top: "Top",
-    detail: "Detail",
-    exploded: "Exploded",
-    "in-situ": "In situ",
-  },
   vendorRegion: {
     "north-america": "North America",
     europe: "Europe",
@@ -310,97 +302,56 @@ const colourNote =
 
 const renders: RenderGallery = {
   heading: "Renders",
-  intro:
-    "Studio passes on a 65% board. The Pantone chips are the reference, not the render.",
+  credit: "Omegaswitch",
   items: [
     {
-      id: "rnd-top",
-      title: "Full set, top-down",
-      view: "top",
+      id: "rnd-01",
       order: 10,
-      model: "65% board",
-      credit: "MilkyWay Studio",
-      swatchId: "sw-warm5",
       asset: {
         src: `${ASSETS.renders}/render-01.jpg`,
-        alt: "The full set installed, from above",
+        alt: "The set on a full-size board, close",
         width: 5500,
         height: 5500,
       },
     },
     {
-      id: "rnd-quarter",
-      title: "Board, three-quarter",
-      view: "three-quarter",
+      id: "rnd-02",
       order: 20,
-      model: "65% board",
-      credit: "MilkyWay Studio",
-      swatchId: "sw-warm5",
       asset: {
         src: `${ASSETS.renders}/render-02.jpg`,
-        alt: "Board at a three-quarter angle",
+        alt: "The set on a tenkeyless board, from above",
         width: 6000,
         height: 4000,
       },
     },
     {
-      id: "rnd-novelty",
-      title: "Terminus novelty",
-      view: "detail",
+      id: "rnd-03",
       order: 30,
-      model: "Novelty, 1u",
-      credit: "Atelier Rendu",
-      swatchId: "sw-7565",
       asset: {
         src: `${ASSETS.renders}/render-03.jpg`,
-        alt: "Close crop of the terminus novelty cap",
-        width: 1200,
-        height: 1200,
+        alt: "MW LINE A render",
+        width: 2400,
+        height: 1600,
       },
     },
     {
-      id: "rnd-numpad",
-      title: "Numpad",
-      view: "front",
+      id: "rnd-04",
       order: 40,
-      model: "Numpad, 23 keys",
-      credit: "MilkyWay Studio",
-      swatchId: "sw-447",
       asset: {
         src: `${ASSETS.renders}/render-04.jpg`,
-        alt: "Numpad kit installed",
-        width: 1200,
-        height: 1200,
+        alt: "MW LINE A render",
+        width: 2400,
+        height: 1600,
       },
     },
     {
-      id: "rnd-40s",
-      title: "40s layout",
-      view: "top",
+      id: "rnd-05",
       order: 50,
-      model: "40% board",
-      credit: "Atelier Rendu",
-      swatchId: "sw-7407",
       asset: {
         src: `${ASSETS.renders}/render-05.jpg`,
-        alt: "40 percent board with the 40s kit",
-        width: 1600,
-        height: 1000,
-      },
-    },
-    {
-      id: "rnd-desk",
-      title: "In situ",
-      view: "in-situ",
-      order: 60,
-      model: "65% board",
-      credit: "MilkyWay Studio",
-      swatchId: "sw-warm1",
-      asset: {
-        src: `${ASSETS.renders}/render-06.jpg`,
-        alt: "Board on a desk",
-        width: 1600,
-        height: 1000,
+        alt: "MW LINE A render",
+        width: 2400,
+        height: 1600,
       },
     },
   ],
@@ -456,59 +407,43 @@ const vendors: Vendor[] = [
 ];
 
 /* ---------------------------------------------------------------------------
- * Colour-matched samples — the physical chips, shot against the digital ones
+ * Colour-matched samples — the physical caps
+ *
+ * Three, not five. The set is doubleshot, so a cap is a moulded colour and a
+ * legend colour together, and the five references pair off into three
+ * mouldings. There is no sample of a legend colour on its own to photograph.
  * ------------------------------------------------------------------------- */
 
 const samples: ColorSample[] = [
   {
-    id: "smp-01",
-    label: "Pantone 447 C",
+    id: "smp-7565",
+    label: "Pantone 7565 C",
+    caption: "Warm Gray 1 C legends",
     image: {
       src: `${ASSETS.colors}/sample-01.png`,
-      alt: "Moulded chip matched to Pantone 447 C",
+      alt: "Moulded cap in Pantone 7565 C with Warm Gray 1 C legends",
       width: 800,
       height: 800,
     },
-    caption: "ABS, first shot",
   },
   {
-    id: "smp-02",
+    id: "smp-7407",
     label: "Pantone 7407 C",
+    caption: "Warm Gray 1 C legends",
     image: {
       src: `${ASSETS.colors}/sample-02.png`,
-      alt: "Moulded chip matched to Pantone 7407 C",
+      alt: "Moulded cap in Pantone 7407 C with Warm Gray 1 C legends",
       width: 800,
       height: 800,
     },
-    caption: "ABS, first shot",
   },
   {
-    id: "smp-03",
-    label: "Pantone 7565 C",
+    id: "smp-warm5",
+    label: "Warm Gray 5 C",
+    caption: "Pantone 447 C legends",
     image: {
       src: `${ASSETS.colors}/sample-03.png`,
-      alt: "Moulded chip matched to Pantone 7565 C",
-      width: 800,
-      height: 800,
-    },
-    caption: "ABS, second shot",
-  },
-  {
-    id: "smp-04",
-    label: "Warm Gray 1 C",
-    image: {
-      src: `${ASSETS.colors}/sample-04.png`,
-      alt: "Moulded chip matched to Warm Gray 1 C",
-      width: 800,
-      height: 800,
-    },
-  },
-  {
-    id: "smp-05",
-    label: "Warm Gray 5 C",
-    image: {
-      src: `${ASSETS.colors}/sample-05.png`,
-      alt: "Moulded chip matched to Warm Gray 5 C",
+      alt: "Moulded cap in Warm Gray 5 C with Pantone 447 C legends",
       width: 800,
       height: 800,
     },

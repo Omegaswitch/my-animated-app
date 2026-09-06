@@ -147,26 +147,25 @@ export interface ColorSample {
  * Station 4 — renders
  * ------------------------------------------------------------------------- */
 
-export type RenderView =
-  "front" | "three-quarter" | "top" | "detail" | "exploded" | "in-situ";
-
+/**
+ * A render is a picture and nothing else.
+ *
+ * It carried a title, a view, the board it depicted and its own credit. None
+ * of that was worth reading beside the render itself — the picture says what
+ * it is, and every one of them is by the same hand. What is left is the file
+ * and where it sits in the sequence.
+ */
 export interface RenderItem {
   id: string;
-  title: string;
-  view: RenderView;
   asset: ImageAsset;
-  /** Board the render depicts, e.g. "65% board". */
-  model?: string;
-  /** Who made the render. */
-  credit?: string;
-  swatchId?: string;
   /** Ordering weight within the gallery; lower sorts first. */
   order: number;
 }
 
 export interface RenderGallery {
   heading: string;
-  intro?: string;
+  /** Whose renders these are. One line for the gallery, not one per item. */
+  credit?: string;
   items: RenderItem[];
 }
 
@@ -235,7 +234,6 @@ export interface DesignerCredit {
  * ------------------------------------------------------------------------- */
 
 export interface ProjectCopy {
-  renderView: Record<RenderView, string>;
   vendorRegion: Record<VendorRegion, string>;
   lineNames: Record<LineRef, string>;
   labels: {
