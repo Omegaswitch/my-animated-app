@@ -14,8 +14,13 @@ import type { ImageAsset } from "@/types/project";
  * procedure — no list to maintain, no flag to flip, and files can be added
  * one at a time.
  *
- * The frame asks the server whether the file is there and falls back to a
- * technical stand-in only if it is genuinely missing. Detection happens at
+ * The extension does not have to match. The frame asks the server for the
+ * path the data names and, if that is not there, for the same name under the
+ * other formats before giving up. An export that comes out `.jpg` where the
+ * data says `.png` is the single most likely way for artwork to go missing,
+ * and it fails silently — a placeholder with nothing to say why.
+ *
+ * The frame falls back to a technical stand-in only if no format is there. Detection happens at
  * runtime rather than at build because this component is used from client
  * components, so it cannot read the filesystem, and a hand-kept manifest is
  * one more thing to forget to update.
@@ -45,7 +50,26 @@ import type { ImageAsset } from "@/types/project";
  *
  * Filenames are case-sensitive on Linux hosting even though Windows resolves
  * them either way: `Render-01.png` will work locally and 404 in production.
+ * That part the frame cannot paper over — only the extension is negotiable.
  */
+
+/** Tried in order after the path the data names. */
+const FALLBACK_EXTENSIONS = ["png", "jpg", "jpeg", "webp"] as const;
+
+/** The declared path first, then the same name under every other format. */
+function candidates(src: string): string[] {
+  const dot = src.lastIndexOf(".");
+  if (dot <= src.lastIndexOf("/")) return [src];
+
+  const stem = src.slice(0, dot);
+  const declared = src.slice(dot + 1).toLowerCase();
+  return [
+    src,
+    ...FALLBACK_EXTENSIONS.filter((ext) => ext !== declared).map(
+      (ext) => `${stem}.${ext}`,
+    ),
+  ];
+}
 
 export interface AssetFrameProps {
   asset: ImageAsset;
@@ -94,24 +118,43 @@ export default function AssetFrame({
   sizes,
   priority,
 }: AssetFrameProps) {
-  /* Tracked by src, not as a boolean: the galleries reuse one frame across
-     assets, so a bare flag would let one missing file suppress every image
-     shown after it, and a stale result would be read against the wrong file. */
-  const [missingSrc, setMissingSrc] = useState<string | null>(null);
-  const missing = missingSrc === asset.src;
+  /* Keyed by the declared src, not held as a bare flag: the galleries reuse
+     one frame across assets, so a flag would let one missing file suppress
+     every image after it, and a stale answer would be read against the wrong
+     file. `found: null` means no format answered. */
+  const [resolved, setResolved] = useState<{
+    declared: string;
+    found: string | null;
+  } | null>(null);
+
+  const answer = resolved?.declared === asset.src ? resolved : null;
+  /* Assume the declared path is right until proven otherwise: once the art is
+     in, that is the common case, and starting from the placeholder would flash
+     one on every load. */
+  const src = answer ? (answer.found ?? asset.src) : asset.src;
+  const missing = answer?.found === null;
 
   useEffect(() => {
     let cancelled = false;
-    /* Assume present until proven otherwise: the common case once the art is
-       in is that every file exists, and starting from the placeholder would
-       flash one on every load. */
-    fetch(asset.src, { method: "HEAD" })
-      .then((response) => {
-        if (!cancelled && !response.ok) setMissingSrc(asset.src);
-      })
-      .catch(() => {
-        if (!cancelled) setMissingSrc(asset.src);
-      });
+
+    const resolve = async () => {
+      for (const candidate of candidates(asset.src)) {
+        try {
+          const response = await fetch(candidate, { method: "HEAD" });
+          if (cancelled) return;
+          if (response.ok) {
+            setResolved({ declared: asset.src, found: candidate });
+            return;
+          }
+        } catch {
+          if (cancelled) return;
+        }
+      }
+      if (!cancelled) setResolved({ declared: asset.src, found: null });
+    };
+
+    void resolve();
+
     return () => {
       cancelled = true;
     };
@@ -131,13 +174,13 @@ export default function AssetFrame({
     }
     return (
       <Image
-        src={asset.src}
+        src={src}
         alt={asset.alt}
         width={asset.width}
         height={asset.height}
         sizes={sizes}
         priority={priority}
-        onError={() => setMissingSrc(asset.src)}
+        onError={() => setResolved({ declared: asset.src, found: null })}
         /* Both axes auto: with only one set, the image would be laid out
            from the *declared* dimensions, which are routinely wrong. Auto on
            both makes it use the file's own size, capped by the caller's box.
@@ -163,12 +206,12 @@ export default function AssetFrame({
         style={box.style}
       >
         <Image
-          src={asset.src}
+          src={src}
           alt={asset.alt}
           fill
           sizes={sizes}
           priority={priority}
-          onError={() => setMissingSrc(asset.src)}
+          onError={() => setResolved({ declared: asset.src, found: null })}
           /* Contain in a locked frame by default: cropping to fill would
              hide part of a render whose ratio differs from the frame's. */
           className={fill && !cover ? "object-contain" : "object-cover"}

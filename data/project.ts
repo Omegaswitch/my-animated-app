@@ -36,7 +36,11 @@ import type {
  * writing `/public/kits/...` in a src would 404.
  *
  * Drop the file into the matching `public/` subdirectory keeping the filename
- * exactly — lowercase, since Linux hosting is case-sensitive. It appears on
+ * exactly — lowercase, since Linux hosting is case-sensitive, and with the
+ * extension the path below names. The extension is part of the filename: a
+ * `render-01.jpg` where the data says `.png` is a 404 and draws a placeholder,
+ * with nothing to say why. Kits and logos are `.png`; renders and colour
+ * samples are `.jpg`. It appears on
  * the site immediately; anything not yet uploaded keeps its placeholder. No
  * code change is needed, and files can be added one at a time.
  */
@@ -318,10 +322,10 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm5",
       asset: {
-        src: `${ASSETS.renders}/render-01.png`,
+        src: `${ASSETS.renders}/render-01.jpg`,
         alt: "The full set installed, from above",
-        width: 1600,
-        height: 1000,
+        width: 5500,
+        height: 5500,
       },
     },
     {
@@ -333,10 +337,10 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm5",
       asset: {
-        src: `${ASSETS.renders}/render-02.png`,
+        src: `${ASSETS.renders}/render-02.jpg`,
         alt: "Board at a three-quarter angle",
-        width: 1600,
-        height: 1000,
+        width: 6000,
+        height: 4000,
       },
     },
     {
@@ -348,7 +352,7 @@ const renders: RenderGallery = {
       credit: "Atelier Rendu",
       swatchId: "sw-7565",
       asset: {
-        src: `${ASSETS.renders}/render-03.png`,
+        src: `${ASSETS.renders}/render-03.jpg`,
         alt: "Close crop of the terminus novelty cap",
         width: 1200,
         height: 1200,
@@ -363,7 +367,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-447",
       asset: {
-        src: `${ASSETS.renders}/render-04.png`,
+        src: `${ASSETS.renders}/render-04.jpg`,
         alt: "Numpad kit installed",
         width: 1200,
         height: 1200,
@@ -378,7 +382,7 @@ const renders: RenderGallery = {
       credit: "Atelier Rendu",
       swatchId: "sw-7407",
       asset: {
-        src: `${ASSETS.renders}/render-05.png`,
+        src: `${ASSETS.renders}/render-05.jpg`,
         alt: "40 percent board with the 40s kit",
         width: 1600,
         height: 1000,
@@ -393,7 +397,7 @@ const renders: RenderGallery = {
       credit: "MilkyWay Studio",
       swatchId: "sw-warm1",
       asset: {
-        src: `${ASSETS.renders}/render-06.png`,
+        src: `${ASSETS.renders}/render-06.jpg`,
         alt: "Board on a desk",
         width: 1600,
         height: 1000,
