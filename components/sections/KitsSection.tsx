@@ -14,9 +14,12 @@ import { formatPrice } from "@/lib/format";
 /**
  * Station 2 — the kits.
  *
- * A picker, not a scroll sequence: one featured kit, pills for the rest,
- * arrows either side, and left/right keys. Choosing what to look at should
- * cost a click, not a measured amount of scrolling.
+ * A picker, not a scroll sequence: one featured kit, arrows, a counter and
+ * the left/right keys. Choosing what to look at should cost a click, not a
+ * measured amount of scrolling.
+ *
+ * No pills. The kit's name and price sit directly above the controls, so a
+ * row of labelled boxes underneath repeated the name that was already there.
  *
  * Clicking the image opens it full screen with click-to-zoom, for reading a
  * legend at 100%.
@@ -113,7 +116,6 @@ export default function KitsSection({ kits, station, copy }: KitsSectionProps) {
         <CarouselControls
           carousel={carousel}
           count={kits.length}
-          labels={kits.map((entry) => entry.name)}
           copy={copy}
         />
 

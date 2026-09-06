@@ -4,33 +4,31 @@ import type { Carousel } from "@/lib/useCarousel";
 import type { ProjectCopy } from "@/types/project";
 
 /**
- * Arrows and thumbnail pills for a gallery.
+ * Arrows and a counter for a gallery.
  *
  * Centred under the image rather than ranged left: the control belongs to the
  * picture above it, and a centred picture with left-hung arrows reads as two
  * unrelated blocks.
  *
- * The arrows are 48px. They were 32px, which is under every touch-target
- * guideline going and awkward with a mouse too — this is the primary way to
- * move through a gallery, so it should be the easiest thing on the page to
- * hit.
+ * There used to be a row of pills as well, one per item. Both galleries name
+ * what they are showing directly above these controls — the kit with its
+ * price, the render with its board — so the pills repeated a name already on
+ * screen, under a counter already giving the position. Four labelled boxes to
+ * say what the line above them said better.
  *
- * The pills carry `aria-current`, so the active item is announced rather than
- * only shown by its fill. Arrow keys are handled globally by `useCarousel`;
- * these are the pointer equivalents.
+ * The arrows are 48px. They were 32px, which is under every touch-target
+ * guideline going and awkward with a mouse too — with the pills gone this is
+ * the only way through a gallery by pointer, so it should be the easiest thing
+ * on the page to hit.
+ *
+ * Arrow keys are handled globally by `useCarousel`; these are the pointer
+ * equivalents.
  */
 
 export interface CarouselControlsProps {
   carousel: Carousel;
   /** How many items there are. Drives the counter. */
   count: number;
-  /**
-   * One short label per item, in order.
-   *
-   * Omitted for a gallery whose items have no names — pills reading 01 to 05
-   * beneath a counter already reading 01 / 05 are the same fact twice.
-   */
-  labels?: string[];
   copy: ProjectCopy;
 }
 
@@ -40,7 +38,6 @@ const ARROW_CLASS =
 export default function CarouselControls({
   carousel,
   count,
-  labels,
   copy,
 }: CarouselControlsProps) {
   if (count < 2) return null;
@@ -48,55 +45,29 @@ export default function CarouselControls({
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <div className="mt-6 flex flex-col items-center gap-4 border-t-2 border-ink/25 pt-5">
-      <div className="flex items-center justify-center gap-4">
-        <button
-          type="button"
-          onClick={carousel.previous}
-          aria-label={copy.labels.previous}
-          className={ARROW_CLASS}
-        >
-          &lt;
-        </button>
+    <div className="mt-6 flex items-center justify-center gap-4 border-t-2 border-ink/25 pt-5">
+      <button
+        type="button"
+        onClick={carousel.previous}
+        aria-label={copy.labels.previous}
+        className={ARROW_CLASS}
+      >
+        &lt;
+      </button>
 
-        {/* Numerals only — position is not a word, so this needs no copy. */}
-        <p className="w-20 text-center text-xs font-bold tabular-nums tracking-[0.16em] text-ink/60">
-          {pad(carousel.index + 1)} / {pad(count)}
-        </p>
+      {/* Numerals only — position is not a word, so this needs no copy. */}
+      <p className="w-20 text-center text-xs font-bold tabular-nums tracking-[0.16em] text-ink/60">
+        {pad(carousel.index + 1)} / {pad(count)}
+      </p>
 
-        <button
-          type="button"
-          onClick={carousel.next}
-          aria-label={copy.labels.next}
-          className={ARROW_CLASS}
-        >
-          &gt;
-        </button>
-      </div>
-
-      {labels ? (
-        <ul className="flex flex-wrap justify-center gap-2">
-          {labels.map((label, index) => {
-            const active = index === carousel.index;
-            return (
-              <li key={label}>
-                <button
-                  type="button"
-                  onClick={() => carousel.select(index)}
-                  aria-current={active ? "true" : undefined}
-                  className={`border px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.1em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-line-primary ${
-                    active
-                      ? "border-line-primary bg-line-primary text-paper"
-                      : "border-ink/30 text-ink/60 hover:border-ink/60 hover:text-ink"
-                  }`}
-                >
-                  {label}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+      <button
+        type="button"
+        onClick={carousel.next}
+        aria-label={copy.labels.next}
+        className={ARROW_CLASS}
+      >
+        &gt;
+      </button>
     </div>
   );
 }
