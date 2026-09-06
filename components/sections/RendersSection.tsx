@@ -71,21 +71,21 @@ export default function RendersSection({
         <StationHeader station={station} />
 
         <figure>
-          {/* The kits' frame: full width of the card, 7:6, breaking out
-            through the padding. It was 16:10 inside the padding, which on a
-            square render left a 455px picture in a 729px box with a third of
-            the width as bare ground — the render being the thing the station
-            exists to show.
+          {/* Square, and the full width of the card, breaking out through
+            the padding. The renders are exported 1:1, so the frame is 1:1 and
+            they fill it edge to edge — 825px against the 707 a 7:6 frame left
+            them once it had letterboxed a square.
 
-            Unlike the kits it contains rather than crops. These arrive in
-            different shapes, and one is a tight detail with the caps at the
-            frame edge; cropping to fill would cut the subject of the one shot
-            that cannot spare it. So a render that is not 7:6 is letterboxed,
-            which is the honest cost of a gallery that takes any shape. */}
+            It contains rather than crops, unlike the kits. The shapes agree
+            today, so contain and cover are the same picture; if one arrives in
+            another shape it will be letterboxed rather than cut, which is the
+            right way round for a gallery whose whole subject is the artwork.
+            One of these is a tight detail with the caps at the frame edge and
+            has nothing to spare. */}
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="group relative block aspect-[7/6] w-full cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:-mx-12 lg:w-[calc(100%+6rem)]"
+            className="group relative block aspect-square w-full cursor-zoom-in overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-line-primary lg:-mx-12 lg:w-[calc(100%+6rem)]"
             aria-label={`${copy.labels.zoomIn} — ${renders.heading} ${position}`}
           >
             <AnimatePresence mode="wait" initial={false}>

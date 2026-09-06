@@ -322,8 +322,8 @@ const renders: RenderGallery = {
       asset: {
         src: `${ASSETS.renders}/render-02.jpg`,
         alt: "The set on a tenkeyless board, from above",
-        width: 6000,
-        height: 4000,
+        width: 5500,
+        height: 5500,
       },
     },
     {
@@ -333,7 +333,7 @@ const renders: RenderGallery = {
         src: `${ASSETS.renders}/render-03.jpg`,
         alt: "MW LINE A render",
         width: 2400,
-        height: 1600,
+        height: 2400,
       },
     },
     {
@@ -343,7 +343,7 @@ const renders: RenderGallery = {
         src: `${ASSETS.renders}/render-04.jpg`,
         alt: "MW LINE A render",
         width: 2400,
-        height: 1600,
+        height: 2400,
       },
     },
     {
@@ -353,7 +353,7 @@ const renders: RenderGallery = {
         src: `${ASSETS.renders}/render-05.jpg`,
         alt: "MW LINE A render",
         width: 2400,
-        height: 1600,
+        height: 2400,
       },
     },
   ],
