@@ -22,7 +22,10 @@ import { useCarousel } from "@/lib/useCarousel";
  * adds a line to read and a thing to keep true.
  *
  * The credit is the gallery's, not the item's, because it is the same hand
- * every time; it sits under the frame and does not change as you page.
+ * every time; it sits under the frame and does not change as you page. The
+ * board does change, and is the one thing about a render the picture does not
+ * tell you — so it sits opposite the credit, smaller, and is simply absent on
+ * a render whose board is not known yet.
  *
  * No pills either: with nothing to name them, they would have read 01 to 05
  * beneath a counter already reading 01 / 05. Arrows, the counter and the
@@ -107,13 +110,29 @@ export default function RendersSection({
             </AnimatePresence>
           </button>
 
-          {/* One line, and the same line on every render, so it needs neither
-            a fixed height nor a crossfade. */}
-          {renders.credit ? (
-            <figcaption className="mt-6 w-full border-t-2 border-ink/25 pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/55">
-              {copy.labels.credit}: {renders.credit}
-            </figcaption>
-          ) : null}
+          {/* Board on the left, credit on the right. Stacked below `sm`,
+            where the two do not fit on one line — and the stack is given the
+            height of both lines whether or not the board is there, so paging
+            onto a render without one does not shift the controls. */}
+          <figcaption className="mt-6 w-full border-t-2 border-ink/25 pt-3">
+            {/* Board first, in the order it is read: `flex-row-reverse`
+              would have put it on the left visually while leaving it second
+              in the document, which is the sort of thing only a screen reader
+              notices and only ever notices as wrong. */}
+            <div className="flex min-h-[2.25rem] flex-col justify-start gap-1 sm:min-h-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+              {item.board ? (
+                <p className="text-[10px] uppercase tracking-[0.14em] text-ink/45">
+                  {item.board}
+                </p>
+              ) : null}
+
+              {renders.credit ? (
+                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink/55">
+                  {copy.labels.credit}: {renders.credit}
+                </p>
+              ) : null}
+            </div>
+          </figcaption>
         </figure>
 
         <CarouselControls

@@ -307,6 +307,7 @@ const renders: RenderGallery = {
     {
       id: "rnd-01",
       order: 10,
+      board: "F1-8X v2 by Geon",
       asset: {
         src: `${ASSETS.renders}/render-01.jpg`,
         alt: "The set on a full-size board, close",
@@ -317,6 +318,7 @@ const renders: RenderGallery = {
     {
       id: "rnd-02",
       order: 20,
+      board: "Synovia by Baionlenja",
       asset: {
         src: `${ASSETS.renders}/render-02.jpg`,
         alt: "The set on a tenkeyless board, from above",

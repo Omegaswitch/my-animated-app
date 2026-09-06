@@ -158,6 +158,13 @@ export interface ColorSample {
 export interface RenderItem {
   id: string;
   asset: ImageAsset;
+  /**
+   * The board in the shot, and whose it is — "Synovia by Baionlenja".
+   *
+   * The one thing about a render the picture does not tell you, and the one
+   * thing a reader might want to go and find. Omitted until it is known.
+   */
+  board?: string;
   /** Ordering weight within the gallery; lower sorts first. */
   order: number;
 }
