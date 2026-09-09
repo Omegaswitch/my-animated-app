@@ -33,6 +33,11 @@ import StationPanel from "@/components/layout/StationPanel";
  * Hover previews and click commits, but a click also clears the hover latch:
  * hover is a transient preview and must never outrank a deliberate choice.
  *
+ * The hex is not printed. The chip is the colour, at a size worth judging, and
+ * the Pantone reference beside it is what anyone matching this actually works
+ * from. A hex is neither of those — it is the value that paints the chip, and
+ * it stays in the data doing exactly that.
+ *
  * ## Why the detail is a row rule and not a list of kits
  *
  * Every kit carries all five colours, so "used on" would have printed the
@@ -109,7 +114,7 @@ export default function ColorsSection({
                   onFocus={() => setHovered(index)}
                   onBlur={() => setHovered(null)}
                   aria-current={index === selected ? "true" : undefined}
-                  aria-label={`${entry.name}, ${entry.hex}`}
+                  aria-label={entry.name}
                   className={`block w-full border border-solid outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink ${
                     active ? "h-28 lg:h-44" : "h-24 lg:h-36"
                   }`}
@@ -127,8 +132,11 @@ export default function ColorsSection({
           page moving underneath. It has to be measured per breakpoint, since
           the detail is one column on a phone and two from `sm`, and the
           column is much narrower. Too short and the copy is simply cut off —
-          the panel clips, it does not scroll. */}
-        <div className="relative mt-5 h-[280px] sm:h-[190px] lg:h-[164px]">
+          the panel clips, it does not scroll, so each figure is the tallest
+          swatch measured plus about 20px for a font that substitutes and
+          wraps a line differently. Dropping the hex line took 34px off the
+          one-column layouts and 16 off the widest. */}
+        <div className="relative mt-5 h-[252px] sm:h-[156px] lg:h-[164px]">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={swatch.id}
@@ -146,10 +154,6 @@ export default function ColorsSection({
                 <h3 className="mt-1.5 text-[clamp(1.5rem,2.8vw,2.25rem)] font-bold leading-[1.04] tracking-[-0.02em]">
                   {swatch.name}
                 </h3>
-
-                <p className="mt-2 text-lg font-bold tabular-nums tracking-[0.04em] text-ink/70">
-                  {swatch.hex.toUpperCase()}
-                </p>
 
                 {swatch.description ? (
                   <p className="mt-2.5 max-w-[44ch] text-base leading-relaxed text-ink/80">
